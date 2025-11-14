@@ -14,7 +14,8 @@
           <t-col :span="3">
             <t-form-item label="仓库源" name="repoName">
               <t-select v-model="searchForm.repoName">
-                <t-option v-for="(item,index) in repoList" :key="index" :label="item" :value="item">{{item}}</t-option>
+                <t-option v-for="(item,index) in repoList" :key="index" :label="item" :value="item">{{ item }}
+                </t-option>
               </t-select>
               <t-input v-model="searchForm.repoName" :style="{ width: '200px' }" placeholder="请输入内容"/>
             </t-form-item>
@@ -23,7 +24,7 @@
             </t-form-item>
           </t-col>
           <t-col :span="2" class="operation-container">
-            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
+            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }" @click="handleSubmit('search')"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
           </t-col>
         </t-row>
@@ -100,64 +101,43 @@ export default Vue.extend({
       value: 'first',
       columns: [
         {
-          title: 'ID',
-          align: 'left',
-          width: 100,
-          ellipsis: true,
-          colKey: 'ID',
-          fixed: 'left',
-        },
-        {
           title: '名称',
           align: 'left',
-          width: 230,
+          width: 120,
           ellipsis: true,
-          colKey: 'Repository',
+          colKey: 'name',
           fixed: 'left',
         },
         {
           title: '版本',
-          width: 120,
+          width: 80,
           ellipsis: true,
           fixed: 'left',
-          colKey: 'Tag',
+          colKey: 'version',
         },
         {
-          title: '大小',
-          width: 100,
+          title: '类型',
+          width: 80,
           ellipsis: true,
           fixed: 'left',
-          colKey: 'Size',
+          colKey: 'type',
         },
         {
-          title: 'Blob大小',
-          width: 100,
+          title: '描述',
+          colKey: 'description',
           ellipsis: true,
-          fixed: 'left',
-          colKey: 'BlobSize',
-        },
-        {
-          title: '平台类型',
-          width: 150,
-          ellipsis: true,
-          fixed: 'left',
-          colKey: 'Platform',
-        },
-        {
-          title: '时长',
-          colKey: 'CreatedSince',
           width: 150,
         },
         {
           title: '创建时间',
-          width: 200,
+          width: 120,
           ellipsis: true,
-          colKey: "CreatedAt"
+          colKey: "createdTime"
         },
         {
           align: 'left',
           fixed: 'right',
-          width: 150,
+          width: 120,
           colKey: 'op',
           title: '操作',
         },
@@ -209,9 +189,9 @@ export default Vue.extend({
   },
   created() {
     this.getTypeList();
-    this.getList();
     this.getRepoList();
     this.getNamespaceList();
+    this.handleSubmit("search")
   },
   methods: {
     getNamespaceList() {
@@ -284,6 +264,35 @@ export default Vue.extend({
       console.log(this.formData);
       this.getList(this.formData);
     },
+    handleSubmit(operation) {
+      switch (operation) {
+        case 'add':
+          break;
+        case 'update':
+          break;
+        case 'delete':
+          break;
+        case 'reset':
+          break;
+        case "search":
+          this.dataLoading = true;
+          this.$request
+            .get('/app/market/page', {
+              params: this.formData
+            }).then((res) => {
+            if (res.data.code === 200) {
+              //console.log(res.data.data)
+              this.data = res.data.rows;
+              this.pagination.total = res.data.total;
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.dataLoading = false;
+          });
+          break;
+      }
+    },
     getTypeList() {
       this.$request.get("/imageRepo/typeList").then(res => {
         this.typeList = res.data.data
@@ -298,25 +307,6 @@ export default Vue.extend({
 
       })
     },
-    getList() {
-      this.dataLoading = true;
-      this.$request
-        .get('/imageRepo/page', {
-          params: this.formData
-        }).then((res) => {
-        if (res.data.code === 200) {
-          //console.log(res.data.data)
-          this.data = res.data.rows;
-          this.pagination.total = res.data.total;
-        }
-      })
-        .catch((e: Error) => {
-          console.log(e);
-        })
-        .finally(() => {
-          this.dataLoading = false;
-        });
-    }
   },
 });
 </script>
