@@ -12,13 +12,13 @@
       >
         <t-row justify="space-between">
           <t-col :span="3">
-            <t-form-item label="仓库源" name="repoName">
-              <t-select v-model="searchForm.repoName">
-                <t-option v-for="(item,index) in repoList" :key="index" :label="item" :value="item">{{ item }}
-                </t-option>
-              </t-select>
-              <t-input v-model="searchForm.repoName" :style="{ width: '200px' }" placeholder="请输入内容"/>
-            </t-form-item>
+<!--            <t-form-item label="仓库源" name="repoName">-->
+<!--              <t-select v-model="searchForm.repoName">-->
+<!--                <t-option v-for="(item,index) in repoList" :key="index" :label="item" :value="item">{{ item }}-->
+<!--                </t-option>-->
+<!--              </t-select>-->
+<!--              <t-input v-model="searchForm.repoName" :style="{ width: '200px' }" placeholder="请输入内容"/>-->
+<!--            </t-form-item>-->
             <t-form-item label="名称" name="name">
               <t-input v-model="searchForm.name" :style="{ width: '200px' }" placeholder="请输入内容"/>
             </t-form-item>
@@ -44,6 +44,12 @@
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
+          <template #icon="{row}">
+            <t-image :src="row.icon" fit="cover"  :style="{ width: '32px', height: '32px' }"/>
+          </template>
+          <template #name="{ row }">
+            <p>{{ row.name }}</p>
+          </template>
           <template #CreatedAt="{ row }">
             <p>{{ new Date(row.CreatedAt).toLocaleString() }}</p>
           </template>
@@ -53,10 +59,10 @@
           </template>
         </t-table>
         <div>
-          <t-pagination
-            v-model="formData.pageNum"
+          <t-pagination style="margin-top: 15px"
+            v-model="searchForm.pageNum"
             :total="pagination.total"
-            :page-size.sync="formData.pageSize"
+            :page-size.sync="searchForm.pageSize"
             @current-change="onCurrentChange"
             @page-size-change="onPageSizeChange"
             @change="onChange"
@@ -100,6 +106,14 @@ export default Vue.extend({
       selectedRowKeys: [1, 2],
       value: 'first',
       columns: [
+        {
+          title: '',
+          align: 'right',
+          width: 30,
+          ellipsis: true,
+          colKey: 'icon',
+          fixed: 'right',
+        },
         {
           title: '名称',
           align: 'left',
@@ -158,15 +172,14 @@ export default Vue.extend({
       deleteIdx: -1,
       deleteType: -1,
       searchForm: {
-        repoName: "",
-
+        name: "",
+        type: "",
+        pageNum: 1,
+        pageSize: 10
       },
       formData: [],
       form: {
         repoName: "",
-        type: "",
-        pageNum: 1,
-        pageSize: 10
       },
       typeList: [],
       repoList: [],
@@ -193,6 +206,18 @@ export default Vue.extend({
     this.getNamespaceList();
     this.handleSubmit("search")
   },
+  watch:{
+    "searchForm.pageNum"(newVal, oldVal) {
+       if (newVal != oldVal) {
+         this.handleSubmit("search")
+        }
+      },
+    "searchForm.pageSize"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.handleSubmit("search")
+      }
+    }
+  },
   methods: {
     getNamespaceList() {
       this.$request.get("/imageRepo/namespaceList").then(res => {
@@ -211,7 +236,6 @@ export default Vue.extend({
       console.log('Current Page', this.current, current, pageInfo);
       // 刷新
       this.formData.pageNum = current
-      this.getList()
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
@@ -278,7 +302,7 @@ export default Vue.extend({
           this.dataLoading = true;
           this.$request
             .get('/app/market/page', {
-              params: this.formData
+              params: this.searchForm
             }).then((res) => {
             if (res.data.code === 200) {
               //console.log(res.data.data)
