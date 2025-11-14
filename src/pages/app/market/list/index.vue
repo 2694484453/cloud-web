@@ -201,9 +201,6 @@ export default Vue.extend({
   mounted() {
   },
   created() {
-    this.getTypeList();
-    this.getRepoList();
-    this.getNamespaceList();
     this.handleSubmit("search")
   },
   watch:{
