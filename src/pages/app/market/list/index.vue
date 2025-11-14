@@ -216,6 +216,11 @@ export default Vue.extend({
       if (newVal != oldVal) {
         this.handleSubmit("search")
       }
+    },
+    "searchForm.name"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.handleSubmit("search")
+      }
     }
   },
   methods: {
