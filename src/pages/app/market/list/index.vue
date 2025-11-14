@@ -24,7 +24,7 @@
             </t-form-item>
           </t-col>
           <t-col :span="2" class="operation-container">
-            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }" @click="handleSubmit('search')"> 查询</t-button>
+            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }" @click="handleSubmit('search',formData)"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
           </t-col>
         </t-row>
@@ -38,9 +38,6 @@
           :hover="hover"
           :selected-row-keys="selectedRowKeys"
           :loading="dataLoading"
-          @page-change="rehandlePageChange"
-          @change="rehandleChange"
-          @select-change="rehandleSelectChange"
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
@@ -54,8 +51,8 @@
             <p>{{ new Date(row.CreatedAt).toLocaleString() }}</p>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="handleClickDetail()">详情</a>
-            <a class="t-button-link" @click="handleClickDelete(slotProps)">删除</a>
+            <a class="t-button-link" @click="handleSubmit('detail',slotProps.row)">详情</a>
+            <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
         <div>
@@ -71,12 +68,11 @@
       </div>
     </t-card>
     <t-dialog
-      header="确认删除当前所选？"
-      :body="confirmBody"
-      :visible.sync="confirmVisible"
-      @confirm="onConfirmDelete"
-      :onCancel="onCancel"
-    >
+      :header="confirm.header"
+      :body="confirm.body"
+      :visible.sync="confirm.visible"
+      @confirm="handleSubmit('delete',formData)"
+      :onCancel="onCancel">
     </t-dialog>
   </div>
 </template>
@@ -167,33 +163,38 @@ export default Vue.extend({
         total: 0,
         defaultCurrent: 1,
       },
-      searchValue: '',
-      confirmVisible: false,
+      // 抽屉
+      drawer: {
+        header: "",
+        visible: false,
+        type: "",
+        operation: "add",
+        row: {}
+      },
+      // 对话框
+      confirm: {
+        header: "",
+        body: "",
+        operation: "update",
+        visible: false
+      },
       deleteIdx: -1,
       deleteType: -1,
+      // 搜索框
       searchForm: {
         name: "",
         type: "",
         pageNum: 1,
         pageSize: 10
       },
-      formData: [],
-      form: {
-        repoName: "",
-      },
+      // 当前数据
+      formData: {},
       typeList: [],
       repoList: [],
       namespaceList: []
     };
   },
   computed: {
-    confirmBody() {
-      if (this.deleteIdx > -1) {
-        const {name} = this.data?.[this.deleteIdx];
-        return `删除后，${name}的所有信息将被清空，且无法恢复`;
-      }
-      return '';
-    },
     offsetTop() {
       return this.$store.state.setting.isUseTabsRouter ? 48 : 0;
     },
@@ -204,7 +205,7 @@ export default Vue.extend({
     this.handleSubmit("search")
   },
   watch:{
-    "searchForm.pageNum"(newVal, oldVal) {
+    "searchForm.name"(newVal, oldVal) {
        if (newVal != oldVal) {
          this.handleSubmit("search")
         }
@@ -214,18 +215,13 @@ export default Vue.extend({
         this.handleSubmit("search")
       }
     },
-    "searchForm.name"(newVal, oldVal) {
+    "searchForm.pageNum"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.handleSubmit("search")
       }
     }
   },
   methods: {
-    getNamespaceList() {
-      this.$request.get("/imageRepo/namespaceList").then(res => {
-        this.namespaceList = res.data.data;
-      })
-    },
     getContainer() {
       return document.querySelector('.tdesign-starter-layout');
     },
@@ -248,36 +244,16 @@ export default Vue.extend({
     handleSetupContract() {
       this.$router.push('/prometheus/add');
     },
-    handleClickDelete(row: { rowIndex: any, type: any }) {
-      this.deleteIdx = row.rowIndex;
-      this.deleteType = row.type;
-      this.confirmVisible = true;
-      console.log("this", this.deleteType)
+    // 确认删除对话框
+    handleClickDelete(row) {
+      this.formData = row
+      this.confirm.visible = true;
+      this.confirm.header = "删除：" + this.formData.name;
+      this.confirm.body = "确认删除吗？一旦删除数据无法恢复";
     },
-    onConfirmDelete() {
-      // 真实业务请发起请求
-      this.data.splice(this.deleteIdx, 1);
-      this.pagination.total = this.data.length;
-      const selectedIdx = this.selectedRowKeys.indexOf(this.deleteIdx);
-      if (selectedIdx > -1) {
-        this.selectedRowKeys.splice(selectedIdx, 1);
-      }
-      this.confirmVisible = false;
-      // 请求删除
-      this.$request.delete("/monitor/delete", {
-        params: {
-          index: this.deleteIdx,
-          type: this.deleteType
-        }
-      }).then(res => {
-        this.$message.success(res.data.msg);
-      }).catch(err => {
-
-      })
-      this.resetIdx();
-    },
+    // 取消删除
     onCancel() {
-      this.resetIdx();
+      this.$message.info("取消删除！");
     },
     resetIdx() {
       this.deleteIdx = -1;
@@ -290,26 +266,45 @@ export default Vue.extend({
       console.log(this.formData);
       this.getList(this.formData);
     },
-    handleSubmit(operation) {
+    // 基本操作
+    handleSubmit(operation,data) {
+      this.formData = data;
+      this.dataLoading = true;
       switch (operation) {
         case 'add':
+          break;
+        case 'detail':
           break;
         case 'update':
           break;
         case 'delete':
+          this.$request.delete('/app/market/delete', {
+            data: this.formData
+          }).then((res) => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg);
+              this.confirm.visible = false;
+              this.dataLoading = false;
+              this.handleSubmit("search")
+            } else  {
+              this.$message.error(res.data.msg);
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.dataLoading = false;
+          });
           break;
         case 'reset':
           break;
         case "search":
-          this.dataLoading = true;
-          this.$request
-            .get('/app/market/page', {
+          this.$request.get('/app/market/page', {
               params: this.searchForm
             }).then((res) => {
             if (res.data.code === 200) {
-              //console.log(res.data.data)
               this.data = res.data.rows;
               this.pagination.total = res.data.total;
+              this.dataLoading = false;
             }
           }).catch((e: Error) => {
             console.log(e);
