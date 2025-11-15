@@ -51,8 +51,8 @@
             <p>{{ new Date(row.CreatedAt).toLocaleString() }}</p>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="handleSubmit('detail',slotProps.row)">详情</a>
-            <a class="t-button-link" @click="handleSubmit('deploy',slotProps.row)">部署</a>
+            <a class="t-button-link" @click="handleSubmit('detail');formData =slotProps.row;">详情</a>
+            <a class="t-button-link" @click="handleSubmit('deploy');formData =slotProps.row;">部署</a>
 <!--            <a class="t-button-link" @click="handleClickConfirm(slotProps.row)">删除</a>-->
           </template>
         </t-table>
@@ -283,17 +283,17 @@ export default Vue.extend({
   watch:{
     "searchForm.name"(newVal, oldVal) {
        if (newVal != oldVal) {
-         this.handleSubmit("search")
+         this.handleSubmit("search",this.searchForm)
         }
       },
     "searchForm.pageSize"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit("search")
+        this.handleSubmit("search",this.searchForm)
       }
     },
     "searchForm.pageNum"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit("search")
+        this.handleSubmit("search",this.searchForm)
       }
     }
   },
@@ -361,9 +361,8 @@ export default Vue.extend({
       this.getList(this.formData);
     },
     // 基本操作
-    handleSubmit(operation,data) {
+    handleSubmit(operation) {
       this.operation = operation;
-      this.formData = data;
       this.dataLoading = true;
       switch (operation) {
         case 'add':
