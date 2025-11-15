@@ -349,6 +349,10 @@ export default Vue.extend({
       console.log('执行:',this.operation);
       switch (this.operation) {
         case 'add':
+          this.drawer.visible = false;
+          break;
+        case 'detail':
+          this.drawer.visible = false;
           break;
         // 执行安装
         case 'install':
@@ -365,6 +369,7 @@ export default Vue.extend({
             console.log(e);
           }).finally(() => {
             this.dataLoading = false;
+            this.drawer.visible = false;
           });
           break;
       }
