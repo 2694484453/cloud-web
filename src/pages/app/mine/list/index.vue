@@ -12,9 +12,9 @@
       >
         <t-row justify="space-between">
           <div class="left-operation-container">
-            <t-button @click="handleSetupContract">创建应用</t-button>
-            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length">导出应用</t-button>
-            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>
+            <t-button @click="handleSetupContract">安装应用</t-button>
+<!--            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length">导出应用</t-button>-->
+<!--            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>-->
           </div>
           <t-input v-model="searchValue" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
             <template #suffix-icon>
@@ -22,7 +22,7 @@
             </template>
           </t-input>
           <t-col :span="2" class="operation-container">
-            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
+            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }" @click="handleSubmit('search')"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
           </t-col>
         </t-row>
@@ -65,14 +65,14 @@
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickEdit(slotProps.row)">管理</a>
-            <a class="t-button-link" @click="handleClickDelete(slotProps.row)">卸载</a>
+            <a class="t-button-link" @click="formData=slotProps.row;handleSubmit('delete')">卸载</a>
           </template>
         </t-table>
         <div>
           <t-pagination
-            v-model="formData.pageNum"
+            v-model="searchForm.pageNum"
             :total="pagination.total"
-            :page-size.sync="formData.pageSize"
+            :page-size.sync="searchForm.pageSize"
             @current-change="onCurrentChange"
             @page-size-change="onPageSizeChange"
             @change="onChange"
@@ -81,12 +81,11 @@
       </div>
     </t-card>
     <t-dialog
-      header="确认删除当前所选合同？"
-      :body="confirmBody"
-      :visible.sync="confirmVisible"
-      @confirm="onConfirmDelete"
-      :onCancel="onCancel"
-    >
+      :header="confirm.header"
+      :body="confirm.body"
+      :visible.sync="confirm.visible"
+      @confirm="handleSubmit(operation)"
+      :onCancel="onCancel">
     </t-dialog>
     <t-drawer
       :visible.sync="formConfig.visible"
@@ -98,9 +97,9 @@
       :sizeDraggable="true"
       :on-size-drag-end="handleSizeDrag"
       :size="formConfig.size"
-      @cancel="formConfig.visible = false"
-      @close="handleClose"
-      :onConfirm="onSubmitCreate">
+      @close="onCancelDrawer"
+      :onConfirm="handleDrawerOk"
+      @cancel="onCancelDrawer">
       <t-space direction="vertical" style="width: 100%" v-show="formConfig.operate !== 'info'">
         <t-form
           ref="formValidatorStatus"
@@ -243,6 +242,26 @@ export default Vue.extend({
         version: "",
         type: "",
         namespace: "",
+      },
+      // 抽屉
+      drawer: {
+        header: "",
+        visible: false,
+        type: "",
+        operation: "add",
+        row: {}
+      },
+      // 对话框
+      confirm: {
+        header: "",
+        body: "",
+        operation: "update",
+        visible: false
+      },
+      // 搜索框
+      searchForm:{
+        name: "",
+        version: "",
         pageNum: 1,
         pageSize: 10
       },
@@ -260,6 +279,7 @@ export default Vue.extend({
         },
         manifest: 80,
       },
+      operation: "",
       formConfig: {
         title: '新增',
         visible: false,
@@ -284,24 +304,29 @@ export default Vue.extend({
   mounted() {
   },
   created() {
-    this.getList()
+    this.handleSubmit('search')
+  },
+  watch:{
+    "searchForm.name"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.handleSubmit("search")
+      }
+    },
+    "searchForm.pageSize"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.handleSubmit("search")
+      }
+    },
+    "searchForm.pageNum"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.handleSubmit("search")
+      }
+    }
   },
   methods: {
-    getList() {
-      this.dataLoading = true;
-      this.$request.get('/mineApp/page', {
-        params: this.formData
-      }).then((res) => {
-          if (res.data.code === 200) {
-            console.log(res.data)
-            this.data = res.data.rows;
-            this.pagination.total = res.data.total;
-          }
-        }).catch((e: Error) => {
-          console.log(e);
-        }).finally(() => {
-          this.dataLoading = false;
-        });
+    // drawer大小
+    handleSizeDrag({size}) {
+      console.log('size drag size: ', size);
     },
     onPageSizeChange(size, pageInfo) {
       console.log('Page Size:', this.pageSize, size, pageInfo);
@@ -316,6 +341,36 @@ export default Vue.extend({
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
+    },
+    // 确认抽屉
+    handleDrawerOk() {
+      console.log('执行:',this.operation);
+      switch (this.operation) {
+        case 'add':
+          break;
+        // 执行安装
+        case 'install':
+          this.$request.post('/app/market/install', {
+            params: this.formData
+          }).then((res) => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg);
+              this.handleSubmit("search")
+            } else  {
+              this.$message.error(res.data.msg);
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.dataLoading = false;
+          });
+          break;
+      }
+    },
+    // 取消抽屉
+    onCancelDrawer() {
+      this.drawer.visible = false;
+      this.dataLoading = false;
     },
     getContainer() {
       return document.querySelector('.tdesign-starter-layout');
@@ -393,6 +448,39 @@ export default Vue.extend({
       console.log(this.formData);
       this.getList(this.formData);
     },
+    // 基本操作
+    handleSubmit(operation) {
+      this.operation = operation;
+      switch (this.operation) {
+        case "search":
+          this.dataLoading = true;
+          this.$request.get('/mineApp/page', {
+            params: this.formData
+          }).then((res) => {
+            if (res.data.code === 200) {
+              this.data = res.data.rows;
+              this.pagination.total = res.data.total;
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.dataLoading = false;
+          });
+          break;
+        case 'add':
+          this.confirm.operation = "add";
+          break;
+        case 'detail':
+          this.drawer.visible = true;
+          this.drawer.header = "详情：" + this.formData.name;
+          break;
+        case 'update':
+          break;
+        case 'delete':
+          this.conf
+          break;
+      }
+    }
   },
 });
 </script>

@@ -24,7 +24,7 @@
             </t-form-item>
           </t-col>
           <t-col :span="2" class="operation-container">
-            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }" @click="handleSubmit('search',formData)"> 查询</t-button>
+            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }" @click="handleSubmit('search')"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
           </t-col>
         </t-row>
@@ -42,7 +42,7 @@
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
           <template #icon="{row}">
-            <t-image :src="row.icon" fit="cover"  :style="{ width: '32px', height: '32px' }"/>
+            <t-image :src="row.icon" fit="cover"  :style="{ width: '36px', height: '36px' }"/>
           </template>
           <template #name="{ row }">
             <p>{{ row.name }}</p>
@@ -51,8 +51,8 @@
             <p>{{ new Date(row.CreatedAt).toLocaleString() }}</p>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="handleSubmit('detail');formData =slotProps.row;">详情</a>
-            <a class="t-button-link" @click="handleSubmit('deploy');formData =slotProps.row;">部署</a>
+            <a class="t-button-link" @click="formData =slotProps.row;handleSubmit('detail')">详情</a>
+            <a class="t-button-link" @click="formData =slotProps.row;handleSubmit('install')">安装</a>
 <!--            <a class="t-button-link" @click="handleClickConfirm(slotProps.row)">删除</a>-->
           </template>
         </t-table>
@@ -72,7 +72,7 @@
       :header="confirm.header"
       :body="confirm.body"
       :visible.sync="confirm.visible"
-      @confirm="handleSubmit('delete',formData)"
+      @confirm="handleSubmit(operation)"
       :onCancel="onCancel">
     </t-dialog>
     <!--抽屉-->
@@ -87,7 +87,7 @@
       destroyOnClose
       size="30%"
       @close="onCancelDrawer"
-      :onConfirm="handleSubmit"
+      :onConfirm="handleDrawerOk"
       @cancel="onCancelDrawer"
     >
       <t-space v-show="operation === 'add'|| operation ==='edit'" direction="vertical" style="width: 100%">
@@ -129,6 +129,9 @@
           <t-descriptions-item label="更新人">{{formData.updateBy}}</t-descriptions-item>
         </t-descriptions>
       </t-space>
+      <t-space v-show="operation === 'install'" direction="vertical" style="width: 100%">
+
+      </t-space>
     </t-drawer>
   </div>
 </template>
@@ -161,7 +164,7 @@ export default Vue.extend({
         {
           title: '',
           align: 'right',
-          width: 35,
+          width: 42,
           ellipsis: true,
           colKey: 'icon',
           fixed: 'right',
@@ -278,22 +281,22 @@ export default Vue.extend({
   },
   created() {
     // 初始化加载查询请求
-    this.handleSubmit("search",this.searchForm);
+    this.handleSubmit("search");
   },
   watch:{
     "searchForm.name"(newVal, oldVal) {
        if (newVal != oldVal) {
-         this.handleSubmit("search",this.searchForm)
+         this.handleSubmit("search")
         }
       },
     "searchForm.pageSize"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit("search",this.searchForm)
+        this.handleSubmit("search")
       }
     },
     "searchForm.pageNum"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit("search",this.searchForm)
+        this.handleSubmit("search")
       }
     }
   },
@@ -341,6 +344,31 @@ export default Vue.extend({
       this.dataLoading = false;
       this.$message.info("取消删除！");
     },
+    // 确认抽屉
+    handleDrawerOk() {
+      console.log('执行:',this.operation);
+      switch (this.operation) {
+        case 'add':
+          break;
+        // 执行安装
+        case 'install':
+          this.$request.post('/app/market/install', {
+            params: this.formData
+          }).then((res) => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg);
+              this.handleSubmit("search")
+            } else  {
+              this.$message.error(res.data.msg);
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.dataLoading = false;
+          });
+          break;
+      }
+    },
     // 取消抽屉
     onCancelDrawer() {
       this.drawer.visible = false;
@@ -363,7 +391,7 @@ export default Vue.extend({
     // 基本操作
     handleSubmit(operation) {
       this.operation = operation;
-      this.dataLoading = true;
+      //this.dataLoading = true;
       switch (operation) {
         case 'add':
           this.confirm.operation = "add";
@@ -408,11 +436,10 @@ export default Vue.extend({
             this.dataLoading = false;
           });
           break;
-        case 'deploy':
-          this.$request.post('/app/market/deploy', {
-            params: this.formData
-          })
-          break;
+        //
+        case "install":
+          this.drawer.header = "安装" + this.formData.name;
+          this.drawer.visible = true;
       }
     },
   },
