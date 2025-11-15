@@ -114,7 +114,7 @@
         <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
           <t-descriptions-item label="仓库名称">{{formData.name}}</t-descriptions-item>
           <t-descriptions-item label="仓库主页"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
-          <t-descriptions-item label="制品地址"><a :href="formData.url+'/index.yaml'">{{formData.url+"/index.yaml"}}</a></t-descriptions-item>
+          <t-descriptions-item label="制品地址"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
           <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
         </t-descriptions>
       </t-space>
