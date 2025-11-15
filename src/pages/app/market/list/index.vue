@@ -52,7 +52,9 @@
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="formData =slotProps.row;handleSubmit('detail')">详情</a>
-            <a class="t-button-link" @click="formData =slotProps.row;handleSubmit('install')">安装</a>
+            <t-space>
+              <a v-show="slotProps.row.status === null" class="t-button-link" @click="formData =slotProps.row;handleSubmit('install')">安装</a>
+            </t-space>
 <!--            <a class="t-button-link" @click="handleClickConfirm(slotProps.row)">删除</a>-->
           </template>
         </t-table>
@@ -264,7 +266,8 @@ export default Vue.extend({
         createTime: "",
         updateTime: "",
         createBy: "",
-        updateBy: ""
+        updateBy: "",
+        status: ""
       },
       operation: "",
       typeList: [],
