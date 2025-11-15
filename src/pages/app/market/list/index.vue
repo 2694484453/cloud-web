@@ -85,9 +85,9 @@
       placement="right"
       destroyOnClose
       size="30%"
-      @close="drawer.visible = false;dataLoading = false"
+      @close="onCancelDrawer"
       :onConfirm="handleSubmit"
-      @cancel="drawer.visible = false;dataLoading = false"
+      @cancel="onCancelDrawer"
     >
       <t-space v-show="operation === 'add'|| operation ==='edit'" direction="vertical" style="width: 100%">
         <t-form
@@ -111,11 +111,21 @@
         </t-form>
       </t-space>
       <t-space v-show="operation === 'detail'" direction="vertical" style="width: 100%">
-        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
-          <t-descriptions-item label="仓库名称">{{formData.name}}</t-descriptions-item>
-          <t-descriptions-item label="仓库主页"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
-          <t-descriptions-item label="制品地址"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
+        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
+          <t-descriptions-item label="名称">
+            <t-space>
+              <t-image fit="cover" :style="{width:'32px',height:'32px'}" :src="formData.icon"/>
+            </t-space>
+              {{formData.name}}
+          </t-descriptions-item>
+          <t-descriptions-item label="类型">{{formData.type}}</t-descriptions-item>
+          <t-descriptions-item label="主页"><a :href="formData.home">{{formData.home}}</a></t-descriptions-item>
+          <t-descriptions-item label="描述">{{formData.description}}</t-descriptions-item>
+          <t-descriptions-item label="地址"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
+          <t-descriptions-item label="上架时间">{{formData.createTime}}</t-descriptions-item>
+          <t-descriptions-item label="上架人">{{formData.createBy}}</t-descriptions-item>
           <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
+          <t-descriptions-item label="更新人">{{formData.updateBy}}</t-descriptions-item>
         </t-descriptions>
       </t-space>
     </t-drawer>
@@ -237,7 +247,10 @@ export default Vue.extend({
         id: 0,
         url: "",
         name: "",
+        icon: "",
         type: "",
+        home: "",
+        description: "",
         createTime: "",
         updateTime: "",
         createBy: "",
@@ -300,7 +313,7 @@ export default Vue.extend({
     handleSetupContract() {
       this.$router.push('/prometheus/add');
     },
-    // 确认删除对话框
+    // 对话框信息自定义
     handleClickConfirm(row) {
       switch(this.operation) {
         case 'add':
@@ -319,6 +332,29 @@ export default Vue.extend({
     onCancel() {
       this.confirm.visible = false;
       this.$message.info("取消删除！");
+    },
+    // 确认抽屉自定义
+    handleClickDrawer(row) {
+      switch(this.operation) {
+        case 'add':
+          break;
+        case 'detail':
+          this.drawer.visible = true;
+          break
+        case 'update':
+          break;
+        case 'delete':
+          this.drawer.visible = true;
+          this.drawer.header = "删除：" + this.formData.name;
+          this.drawer.body = "确认删除吗？一旦删除数据无法恢复";
+          break;
+      }
+      this.formData = row
+    },
+    // 取消抽屉
+    onCancelDrawer() {
+      this.drawer.visible = false;
+      this.dataLoading = false;
     },
     // drawer大小
     handleSizeDrag({size}) {
@@ -345,6 +381,7 @@ export default Vue.extend({
           break;
         case 'detail':
           this.drawer.visible = true;
+          this.drawer.header = "详情：" + this.formData.name;
           break;
         case 'update':
           break;
