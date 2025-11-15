@@ -331,25 +331,8 @@ export default Vue.extend({
     // 取消删除
     onCancel() {
       this.confirm.visible = false;
+      this.dataLoading = false;
       this.$message.info("取消删除！");
-    },
-    // 确认抽屉自定义
-    handleClickDrawer(row) {
-      switch(this.operation) {
-        case 'add':
-          break;
-        case 'detail':
-          this.drawer.visible = true;
-          break
-        case 'update':
-          break;
-        case 'delete':
-          this.drawer.visible = true;
-          this.drawer.header = "删除：" + this.formData.name;
-          this.drawer.body = "确认删除吗？一旦删除数据无法恢复";
-          break;
-      }
-      this.formData = row
     },
     // 取消抽屉
     onCancelDrawer() {
