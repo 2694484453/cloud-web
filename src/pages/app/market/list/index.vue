@@ -52,7 +52,7 @@
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleSubmit('detail',slotProps.row)">详情</a>
-            <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
+            <a class="t-button-link" @click="handleClickConfirm(slotProps.row)">删除</a>
           </template>
         </t-table>
         <div>
@@ -85,11 +85,11 @@
       placement="right"
       destroyOnClose
       size="30%"
-      @close="drawer.visible = false"
+      @close="drawer.visible = false;dataLoading = false"
       :onConfirm="handleSubmit"
-      @cancel="drawer.visible = false"
+      @cancel="drawer.visible = false;dataLoading = false"
     >
-      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
+      <t-space v-show="operation === 'add'|| operation ==='edit'" direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
           :data="formData"
@@ -99,15 +99,18 @@
           <t-form-item label="id" name="id" v-show="false">
             <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>
           </t-form-item>
-          <t-form-item label="仓库名称" name="name">
+          <t-form-item label="名称" name="name">
             <t-input v-model="formData.name" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
           </t-form-item>
-          <t-form-item label="仓库地址" name="url">
+          <t-form-item label="类型" name="type">
+            <t-input v-model="formData.type" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="地址" name="url">
             <t-input v-model="formData.url" placeholder="请输入仓库地址" :maxlength="64" with="120"></t-input>
           </t-form-item>
         </t-form>
       </t-space>
-      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
+      <t-space v-show="operation === 'detail'" direction="vertical" style="width: 100%">
         <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
           <t-descriptions-item label="仓库名称">{{formData.name}}</t-descriptions-item>
           <t-descriptions-item label="仓库主页"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
@@ -230,7 +233,17 @@ export default Vue.extend({
         pageSize: 10
       },
       // 当前数据
-      formData: {},
+      formData: {
+        id: 0,
+        url: "",
+        name: "",
+        type: "",
+        createTime: "",
+        updateTime: "",
+        createBy: "",
+        updateBy: ""
+      },
+      operation: "",
       typeList: [],
       repoList: [],
       namespaceList: []
@@ -244,7 +257,8 @@ export default Vue.extend({
   mounted() {
   },
   created() {
-    this.handleSubmit("search")
+    // 初始化加载查询请求
+    this.handleSubmit("search",this.searchForm);
   },
   watch:{
     "searchForm.name"(newVal, oldVal) {
@@ -287,16 +301,26 @@ export default Vue.extend({
       this.$router.push('/prometheus/add');
     },
     // 确认删除对话框
-    handleClickDelete(row) {
+    handleClickConfirm(row) {
+      switch(this.operation) {
+        case 'add':
+          break;
+        case 'update':
+          break;
+        case 'delete':
+          this.confirm.visible = true;
+          this.confirm.header = "删除：" + this.formData.name;
+          this.confirm.body = "确认删除吗？一旦删除数据无法恢复";
+          break;
+      }
       this.formData = row
-      this.confirm.visible = true;
-      this.confirm.header = "删除：" + this.formData.name;
-      this.confirm.body = "确认删除吗？一旦删除数据无法恢复";
     },
     // 取消删除
     onCancel() {
+      this.confirm.visible = false;
       this.$message.info("取消删除！");
     },
+    // drawer大小
     handleSizeDrag({size}) {
       console.log('size drag size: ', size);
     },
@@ -312,6 +336,7 @@ export default Vue.extend({
     },
     // 基本操作
     handleSubmit(operation,data) {
+      this.operation = operation;
       this.formData = data;
       this.dataLoading = true;
       switch (operation) {
@@ -319,9 +344,7 @@ export default Vue.extend({
           this.confirm.operation = "add";
           break;
         case 'detail':
-          this.confirm.operation = "detail";
           this.drawer.visible = true;
-
           break;
         case 'update':
           break;
