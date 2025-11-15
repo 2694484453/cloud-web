@@ -74,6 +74,48 @@
       @confirm="handleSubmit('delete',formData)"
       :onCancel="onCancel">
     </t-dialog>
+    <!--抽屉-->
+    <t-drawer
+      :visible.sync="drawer.visible"
+      :header="drawer.header"
+      :on-overlay-click="() => (drawer.visible = false)"
+      :on-size-drag-end="handleSizeDrag"
+      showOverlay
+      :sizeDraggable="true"
+      placement="right"
+      destroyOnClose
+      size="30%"
+      @close="drawer.visible = false"
+      :onConfirm="handleSubmit"
+      @cancel="drawer.visible = false"
+    >
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
+        <t-form
+          ref="formValidatorStatus"
+          :data="formData"
+          :label-width="100"
+          @reset="onReset"
+        >
+          <t-form-item label="id" name="id" v-show="false">
+            <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="仓库名称" name="name">
+            <t-input v-model="formData.name" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="仓库地址" name="url">
+            <t-input v-model="formData.url" placeholder="请输入仓库地址" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+        </t-form>
+      </t-space>
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
+        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
+          <t-descriptions-item label="仓库名称">{{formData.name}}</t-descriptions-item>
+          <t-descriptions-item label="仓库主页"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
+          <t-descriptions-item label="制品地址"><a :href="formData.url+'/index.yaml'">{{formData.url+"/index.yaml"}}</a></t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
+        </t-descriptions>
+      </t-space>
+    </t-drawer>
   </div>
 </template>
 <script lang="ts">
@@ -228,12 +270,12 @@ export default Vue.extend({
     onPageSizeChange(size, pageInfo) {
       console.log('Page Size:', this.pageSize, size, pageInfo);
       // 刷新
-      this.formData.pageSize = size
+      this.searchForm.pageSize = size
     },
     onCurrentChange(current, pageInfo) {
       console.log('Current Page', this.current, current, pageInfo);
       // 刷新
-      this.formData.pageNum = current
+      this.searchForm.pageNum = current
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
@@ -255,6 +297,9 @@ export default Vue.extend({
     onCancel() {
       this.$message.info("取消删除！");
     },
+    handleSizeDrag({size}) {
+      console.log('size drag size: ', size);
+    },
     resetIdx() {
       this.deleteIdx = -1;
     },
@@ -263,7 +308,6 @@ export default Vue.extend({
       this.getList();
     },
     onSubmit(data) {
-      console.log(this.formData);
       this.getList(this.formData);
     },
     // 基本操作
@@ -272,8 +316,12 @@ export default Vue.extend({
       this.dataLoading = true;
       switch (operation) {
         case 'add':
+          this.confirm.operation = "add";
           break;
         case 'detail':
+          this.confirm.operation = "detail";
+          this.drawer.visible = true;
+
           break;
         case 'update':
           break;
@@ -283,8 +331,6 @@ export default Vue.extend({
           }).then((res) => {
             if (res.data.code === 200) {
               this.$message.success(res.data.msg);
-              this.confirm.visible = false;
-              this.dataLoading = false;
               this.handleSubmit("search")
             } else  {
               this.$message.error(res.data.msg);
@@ -292,11 +338,13 @@ export default Vue.extend({
           }).catch((e: Error) => {
             console.log(e);
           }).finally(() => {
+            this.confirm.visible = false;
             this.dataLoading = false;
           });
           break;
         case 'reset':
           break;
+        // 查询
         case "search":
           this.$request.get('/app/market/page', {
               params: this.searchForm
@@ -304,7 +352,6 @@ export default Vue.extend({
             if (res.data.code === 200) {
               this.data = res.data.rows;
               this.pagination.total = res.data.total;
-              this.dataLoading = false;
             }
           }).catch((e: Error) => {
             console.log(e);
@@ -313,20 +360,6 @@ export default Vue.extend({
           });
           break;
       }
-    },
-    getTypeList() {
-      this.$request.get("/imageRepo/typeList").then(res => {
-        this.typeList = res.data.data
-      }).catch((err) => {
-
-      })
-    },
-    getRepoList() {
-      this.$request.get("/helmRepo/list").then(res => {
-        this.repoList = res.data.data
-      }).catch((err) => {
-
-      })
     },
   },
 });
