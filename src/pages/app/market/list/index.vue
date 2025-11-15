@@ -52,7 +52,8 @@
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleSubmit('detail',slotProps.row)">详情</a>
-            <a class="t-button-link" @click="handleClickConfirm(slotProps.row)">删除</a>
+            <a class="t-button-link" @click="handleSubmit('deploy',slotProps.row)">部署</a>
+<!--            <a class="t-button-link" @click="handleClickConfirm(slotProps.row)">删除</a>-->
           </template>
         </t-table>
         <div>
@@ -160,7 +161,7 @@ export default Vue.extend({
         {
           title: '',
           align: 'right',
-          width: 30,
+          width: 35,
           ellipsis: true,
           colKey: 'icon',
           fixed: 'right',
@@ -168,7 +169,7 @@ export default Vue.extend({
         {
           title: '名称',
           align: 'left',
-          width: 120,
+          width: 150,
           ellipsis: true,
           colKey: 'name',
           fixed: 'left',
@@ -191,13 +192,19 @@ export default Vue.extend({
           title: '描述',
           colKey: 'description',
           ellipsis: true,
-          width: 150,
+          width: 180,
         },
         {
           title: '创建时间',
           width: 120,
           ellipsis: true,
-          colKey: "createdTime"
+          colKey: "createTime"
+        },
+        {
+          title: '更新时间',
+          width: 120,
+          ellipsis: true,
+          colKey: "updateTime"
         },
         {
           align: 'left',
@@ -401,6 +408,11 @@ export default Vue.extend({
           }).finally(() => {
             this.dataLoading = false;
           });
+          break;
+        case 'deploy':
+          this.$request.post('/app/market/deploy', {
+            params: this.formData
+          })
           break;
       }
     },
