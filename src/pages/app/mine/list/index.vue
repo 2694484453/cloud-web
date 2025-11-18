@@ -22,7 +22,7 @@
             </template>
           </t-input>
           <t-col :span="2" class="operation-container">
-            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }" @click="handleSubmit('search')"> 查询</t-button>
+            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }" @click="operation='search';handleSubmit"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
           </t-col>
         </t-row>
@@ -65,7 +65,7 @@
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickEdit(slotProps.row)">管理</a>
-            <a class="t-button-link" @click="formData=slotProps.row;handleSubmit('delete')">卸载</a>
+            <a class="t-button-link" @click="operation = 'delete';handleClickConfirm(slotProps.row)">卸载</a>
           </template>
         </t-table>
         <div>
@@ -84,7 +84,7 @@
       :header="confirm.header"
       :body="confirm.body"
       :visible.sync="confirm.visible"
-      @confirm="handleSubmit(operation)"
+      @confirm="handleSubmit"
       :onCancel="onCancel">
     </t-dialog>
     <t-drawer
@@ -279,7 +279,7 @@ export default Vue.extend({
         },
         manifest: 80,
       },
-      operation: "",
+      operation: "search",
       formConfig: {
         title: '新增',
         visible: false,
@@ -304,22 +304,23 @@ export default Vue.extend({
   mounted() {
   },
   created() {
-    this.handleSubmit('search')
+    this.operation = 'search'
+    this.handleSubmit();
   },
   watch:{
     "searchForm.name"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit("search")
+        this.handleSubmit()
       }
     },
     "searchForm.pageSize"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit("search")
+        this.handleSubmit()
       }
     },
     "searchForm.pageNum"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit("search")
+        this.handleSubmit()
       }
     }
   },
@@ -422,6 +423,21 @@ export default Vue.extend({
       this.deleteIdx = row.rowIndex;
       this.confirmVisible = true;
     },
+    // 对话框信息自定义
+    handleClickConfirm(row) {
+      this.formData = row
+      switch(this.operation) {
+        case 'add':
+          break;
+        case 'update':
+          break;
+        case 'delete':
+          this.confirm.visible = true;
+          this.confirm.header = "删除：" + this.formData.appName;
+          this.confirm.body = "确认删除吗？一旦删除数据无法恢复";
+          break;
+      }
+    },
     onConfirmDelete() {
       // 真实业务请发起请求
       this.data.splice(this.deleteIdx, 1);
@@ -446,11 +462,10 @@ export default Vue.extend({
     },
     onSubmit(data) {
       console.log(this.formData);
-      this.getList(this.formData);
     },
     // 基本操作
-    handleSubmit(operation) {
-      this.operation = operation;
+    handleSubmit() {
+      console.log(this.operation);
       switch (this.operation) {
         case "search":
           this.dataLoading = true;
@@ -477,7 +492,20 @@ export default Vue.extend({
         case 'update':
           break;
         case 'delete':
-          this.conf
+          this.$request.delete('/mineApp/delete', {
+            params: this.formData
+          }).then((res) => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg);
+              this.handleSubmit("search")
+            } else  {
+              this.$message.error(res.data.msg);
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.dataLoading = false;
+          });
           break;
       }
     }
