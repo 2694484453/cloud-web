@@ -369,8 +369,13 @@ export default Vue.extend({
     handleSizeDrag({size}) {
       console.log('size drag size: ', size);
     },
+    // 确定抽屉
     handleDrawerOk() {
-
+      switch (this.drawer.operation) {
+        case 'detail':
+          this.drawer.visible = false;
+          break;
+      }
     },
     onCancel() {
       this.resetIdx();
@@ -378,14 +383,16 @@ export default Vue.extend({
     resetIdx() {
       this.deleteIdx = -1;
     },
+    // 清除搜索
     onReset(data) {
       console.log(data);
     },
+    // 搜索提交
     onSubmit(data) {
       console.log(this.formData);
       this.page();
     },
-    // 查询
+    // 分页查询
     page() {
       this.dataLoading = true;
       this.$request.get('/prometheus/exporter/page', {

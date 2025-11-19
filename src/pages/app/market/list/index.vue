@@ -24,7 +24,7 @@
             </t-form-item>
           </t-col>
           <t-col :span="2" class="operation-container">
-            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }" @click="handleSubmit('search')"> 查询</t-button>
+            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
           </t-col>
         </t-row>
@@ -51,25 +51,23 @@
             <p>{{ new Date(row.CreatedAt).toLocaleString() }}</p>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="formData =slotProps.row;handleSubmit('detail')">详情</a>
+            <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <t-space>
-              <a v-show="slotProps.row.status === null" class="t-button-link" @click="formData =slotProps.row;handleSubmit('install')">安装</a>
+              <a v-show="slotProps.row.status === null" class="t-button-link" @click="handleClickInstall(slotProps.row)">安装</a>
             </t-space>
 <!--            <a class="t-button-link" @click="handleClickConfirm(slotProps.row)">删除</a>-->
           </template>
         </t-table>
-        <div>
-          <t-pagination style="margin-top: 15px"
-            v-model="searchForm.pageNum"
-            :total="pagination.total"
-            :page-size.sync="searchForm.pageSize"
-            @current-change="onCurrentChange"
-            @page-size-change="onPageSizeChange"
-            @change="onChange"
-          />
-        </div>
       </div>
     </t-card>
+    <t-pagination style="margin-top: 15px"
+                  v-model="searchForm.pageNum"
+                  :total="pagination.total"
+                  :page-size.sync="searchForm.pageSize"
+                  @current-change="onCurrentChange"
+                  @page-size-change="onPageSizeChange"
+                  @change="onChange"
+    />
     <t-dialog
       :header="confirm.header"
       :body="confirm.body"
@@ -92,7 +90,7 @@
       :onConfirm="handleDrawerOk"
       @cancel="onCancelDrawer"
     >
-      <t-space v-show="operation === 'add'|| operation ==='edit'" direction="vertical" style="width: 100%">
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
           :data="formData"
@@ -113,7 +111,7 @@
           </t-form-item>
         </t-form>
       </t-space>
-      <t-space v-show="operation === 'detail'" direction="vertical" style="width: 100%">
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
         <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
           <t-descriptions-item label="名称">
             <t-space>
@@ -131,7 +129,7 @@
           <t-descriptions-item label="更新人">{{formData.updateBy}}</t-descriptions-item>
         </t-descriptions>
       </t-space>
-      <t-space v-show="operation === 'install'" direction="vertical" style="width: 100%">
+      <t-space v-show="drawer.operation === 'install'" direction="vertical" style="width: 100%">
 
       </t-space>
     </t-drawer>
@@ -284,22 +282,22 @@ export default Vue.extend({
   },
   created() {
     // 初始化加载查询请求
-    this.handleSubmit("search");
+    this.page();
   },
   watch:{
     "searchForm.name"(newVal, oldVal) {
        if (newVal != oldVal) {
-         this.handleSubmit("search")
+         this.page()
         }
       },
     "searchForm.pageSize"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit("search")
+        this.page()
       }
     },
     "searchForm.pageNum"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit("search")
+        this.page()
       }
     }
   },
@@ -320,8 +318,15 @@ export default Vue.extend({
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
     },
-    handleClickDetail() {
-      this.$router.push('/detail/base');
+    handleClickDetail(row) {
+      this.formData = row;
+      this.drawer.visible = true;
+      this.drawer.operation = 'detail';
+    },
+    handleClickInstall(row) {
+      this.formData = row;
+      this.drawer.visible = true;
+      this.drawer.operation = 'install';
     },
     handleSetupContract() {
       this.$router.push('/prometheus/add');
@@ -349,8 +354,8 @@ export default Vue.extend({
     },
     // 确认抽屉
     handleDrawerOk() {
-      console.log('执行:',this.operation);
-      switch (this.operation) {
+      console.log('执行:',this.drawer.operation);
+      switch (this.drawer.operation) {
         case 'add':
           this.drawer.visible = false;
           break;
@@ -389,12 +394,29 @@ export default Vue.extend({
     resetIdx() {
       this.deleteIdx = -1;
     },
+    // 清除搜索
     onReset(data) {
       console.log(data);
-      this.getList();
+      this.page();
     },
+    // 搜索提交
     onSubmit(data) {
-      this.getList(this.formData);
+      this.page();
+    },
+    // 分页查询
+    page() {
+      this.$request.get('/app/market/page', {
+        params: this.searchForm
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.data = res.data.rows;
+          this.pagination.total = res.data.total;
+        }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
     },
     // 基本操作
     handleSubmit(operation) {
@@ -428,21 +450,6 @@ export default Vue.extend({
           });
           break;
         case 'reset':
-          break;
-        // 查询
-        case "search":
-          this.$request.get('/app/market/page', {
-              params: this.searchForm
-            }).then((res) => {
-            if (res.data.code === 200) {
-              this.data = res.data.rows;
-              this.pagination.total = res.data.total;
-            }
-          }).catch((e: Error) => {
-            console.log(e);
-          }).finally(() => {
-            this.dataLoading = false;
-          });
           break;
         //
         case "install":
