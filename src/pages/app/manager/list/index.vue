@@ -34,10 +34,10 @@
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
-          <template #updated="{ row }">
+          <template #updated="{row}">
             <p>{{new Date(row.updated).toLocaleString()}}</p>
           </template>
-          <template #status="{ row }">
+          <template #status="{row}">
             <t-tag v-show="row.status==='deployed'" theme="success" variant="light">已部署</t-tag>
             <t-tag v-show="row.status==='uninstalled'" theme="warning" variant="light">未安装</t-tag>
             <t-tag v-show="row.status==='pending'" theme="warning" variant="light">部署中</t-tag>

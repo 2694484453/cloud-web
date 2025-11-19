@@ -130,7 +130,18 @@
         </t-descriptions>
       </t-space>
       <t-space v-show="drawer.operation === 'install'" direction="vertical" style="width: 100%">
-
+        <t-form
+          ref="formValidatorStatus"
+          :data="drawer.dynamicForm"
+          :label-width="100"
+          @reset="onReset"
+        >
+        <div v-for="(v,k) in drawer.dynamicForm">
+          <t-form-item :label="k" :name="k">
+            <t-input v-model="drawer.dynamicForm[k]" :type="typeof drawer.dynamicForm[k]" placeholder="请输入仓库名称" :maxlength="64" with="120" ></t-input>
+          </t-form-item>
+        </div>
+        </t-form>
       </t-space>
     </t-drawer>
   </div>
@@ -234,7 +245,8 @@ export default Vue.extend({
         visible: false,
         type: "",
         operation: "add",
-        row: {}
+        row: {},
+        dynamicForm: {}
       },
       // 对话框
       confirm: {
@@ -265,7 +277,8 @@ export default Vue.extend({
         updateTime: "",
         createBy: "",
         updateBy: "",
-        status: ""
+        status: "",
+        values: ""
       },
       operation: "",
       typeList: [],
@@ -319,14 +332,30 @@ export default Vue.extend({
       console.log('Page Info: ', pageInfo);
     },
     handleClickDetail(row) {
+      console.log(row);
       this.formData = row;
-      this.drawer.visible = true;
       this.drawer.operation = 'detail';
+      this.drawer.visible = true;
     },
     handleClickInstall(row) {
       this.formData = row;
+      console.log(this.formData);
       this.drawer.visible = true;
       this.drawer.operation = 'install';
+      this.$request.post('/app/market/values', this.formData).then((res) => {
+        if (res.data.code === 200) {
+          console.log(res.data.data);
+          this.drawer.dynamicForm = res.data.data;
+          //this.$message.success(res.data.msg);
+        } else  {
+          //this.$message.error(res.data.msg);
+        }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        //this.dataLoading = false;
+        //this.drawer.visible = false;
+      });
     },
     handleSetupContract() {
       this.$router.push('/prometheus/add');
@@ -364,21 +393,15 @@ export default Vue.extend({
           break;
         // 执行安装
         case 'install':
-          this.$request.post('/app/market/install', {
-            params: this.formData
-          }).then((res) => {
-            if (res.data.code === 200) {
-              this.$message.success(res.data.msg);
-              this.handleSubmit("search")
-            } else  {
-              this.$message.error(res.data.msg);
-            }
+          console.log(this.formData);
+          this.formData.values = this.drawer.dynamicForm;
+          this.$request.post('/app/market/install', this.formData).then((res) => {
+              console.log(res.data.data);
           }).catch((e: Error) => {
             console.log(e);
           }).finally(() => {
-            this.dataLoading = false;
-            this.drawer.visible = false;
-          });
+
+          })
           break;
       }
     },
@@ -405,6 +428,7 @@ export default Vue.extend({
     },
     // 分页查询
     page() {
+      this.dataLoading = true;
       this.$request.get('/app/market/page', {
         params: this.searchForm
       }).then((res) => {
