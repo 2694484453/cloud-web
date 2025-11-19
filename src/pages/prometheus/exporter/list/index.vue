@@ -11,14 +11,14 @@
         :style="{ marginBottom: '8px' }">
         <t-row justify="space-between">
           <div class="left-operation-container">
-            <!--            <t-button @click="handleSetupContract">添加</t-button>-->
-            <!--            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出配置</t-button>-->
+            <t-button @click="handleSetupContract">添加</t-button>
+            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出配置</t-button>
           </div>
-          <t-input v-model="searchValue" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
-            <template #suffix-icon>
-              <search-icon size="20px"/>
-            </template>
-          </t-input>
+          <t-col :span="3">
+            <t-form-item label="名称" name="name">
+              <t-input v-model="searchForm.jobName" :style="{ width: '200px' }" placeholder="请输入内容"/>
+            </t-form-item>
+          </t-col>
           <t-col :span="2" class="operation-container">
             <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
@@ -26,8 +26,6 @@
         </t-row>
       </t-form>
       <div class="table-container">
-        <t-empty :description="'实例没有数据或没有配置Prometheus实例，请检查！'" :title="'没有内容'"
-                 :loading="dataLoading" v-show="dataLoading == false && data.length == 0"></t-empty>
         <t-table
           :columns="columns"
           :data="data"
@@ -51,9 +49,9 @@
             <t-tag v-if="row.health === CONTRACT_STATUS.EXECUTING" theme="success" variant="light">履行中</t-tag>
             <t-tag v-if="row.health === 'up'" theme="success" variant="light">正常</t-tag>
           </template>
-          <template #op="{row}">
-            <a class="t-button-link" @click="handleClickDetail(row)">详情</a>
-            <a class="t-button-link" @click="handleClickDelete(row)">删除</a>
+          <template #op="{slotProps}">
+            <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
+            <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
       </div>
@@ -67,12 +65,11 @@
                   @change="onChange"
     />
     <t-dialog
-      header="确认删除当前所选合同？"
-      :body="confirmBody"
-      :visible.sync="confirmVisible"
-      @confirm="onConfirmDelete"
-      :onCancel="onCancel"
-    >
+      :header="confirm.header"
+      :body="confirm.body"
+      :visible.sync="confirm.visible"
+      @confirm=""
+      :onCancel="onCancel">
     </t-dialog>
     <!--抽屉-->
     <t-drawer
@@ -89,47 +86,40 @@
       :onConfirm="handleDrawerOk"
       @cancel="onCancelDrawer"
     >
-<!--      <t-space v-show="operation === 'add'|| operation ==='edit'" direction="vertical" style="width: 100%">-->
-<!--        <t-form-->
-<!--          ref="formValidatorStatus"-->
-<!--          :data="formData"-->
-<!--          :label-width="100"-->
-<!--          @reset="onReset"-->
-<!--        >-->
-<!--          <t-form-item label="id" name="id" v-show="false">-->
-<!--            <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>-->
-<!--          </t-form-item>-->
-<!--          <t-form-item label="名称" name="name">-->
-<!--            <t-input v-model="formData.name" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>-->
-<!--          </t-form-item>-->
-<!--          <t-form-item label="类型" name="type">-->
-<!--            <t-input v-model="formData.type" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>-->
-<!--          </t-form-item>-->
-<!--          <t-form-item label="地址" name="url">-->
-<!--            <t-input v-model="formData.url" placeholder="请输入仓库地址" :maxlength="64" with="120"></t-input>-->
-<!--          </t-form-item>-->
-<!--        </t-form>-->
-<!--      </t-space>-->
-<!--      <t-space v-show="operation === 'detail'" direction="vertical" style="width: 100%">-->
-<!--        <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">-->
-<!--          <t-descriptions-item label="名称">-->
-<!--            <t-space>-->
-<!--              <t-image fit="cover" :style="{width:'32px',height:'32px'}" :src="formData.icon"/>-->
-<!--            </t-space>-->
-<!--            {{ formData.name }}-->
-<!--          </t-descriptions-item>-->
-<!--          <t-descriptions-item label="类型">{{ formData.type }}</t-descriptions-item>-->
-<!--          <t-descriptions-item label="主页"><a :href="formData.home">{{ formData.home }}</a></t-descriptions-item>-->
-<!--          <t-descriptions-item label="描述">{{ formData.description }}</t-descriptions-item>-->
-<!--          <t-descriptions-item label="地址"><a :href="formData.url">{{ formData.url }}</a></t-descriptions-item>-->
-<!--          <t-descriptions-item label="上架时间">{{ formData.createTime }}</t-descriptions-item>-->
-<!--          <t-descriptions-item label="上架人">{{ formData.createBy }}</t-descriptions-item>-->
-<!--          <t-descriptions-item label="更新时间">{{ formData.updateTime }}</t-descriptions-item>-->
-<!--          <t-descriptions-item label="更新人">{{ formData.updateBy }}</t-descriptions-item>-->
-<!--        </t-descriptions>-->
-<!--      </t-space>-->
-<!--      <t-space v-show="operation === 'install'" direction="vertical" style="width: 100%">-->
-<!--      </t-space>-->
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
+        <t-form
+          ref="formValidatorStatus"
+          :data="formData"
+          :label-width="100"
+          @reset="onReset"
+        >
+          <t-form-item label="id" name="id" v-show="false">
+            <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="名称" name="name">
+            <t-input v-model="formData.jobName" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="类型" name="type">
+            <t-input v-model="formData.exporterType" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="地址" name="url">
+            <t-input v-model="formData.description" placeholder="请输入仓库地址" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+        </t-form>
+      </t-space>
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
+        <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
+          <t-descriptions-item label="名称">{{ formData.jobName }}</t-descriptions-item>
+          <t-descriptions-item label="类型">{{ formData.exporterType }}</t-descriptions-item>
+          <t-descriptions-item label="描述">{{ formData.description }}</t-descriptions-item>
+          <t-descriptions-item label="上架时间">{{ formData.createTime }}</t-descriptions-item>
+          <t-descriptions-item label="上架人">{{ formData.createBy }}</t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{ formData.updateTime }}</t-descriptions-item>
+          <t-descriptions-item label="更新人">{{ formData.updateBy }}</t-descriptions-item>
+        </t-descriptions>
+      </t-space>
+      <t-space v-show="drawer.operation === 'install'" direction="vertical" style="width: 100%">
+      </t-space>
     </t-drawer>
   </div>
 </template>
@@ -230,17 +220,22 @@ export default Vue.extend({
       // 当前数据
       formData: {
         id: 0,
-        url: "",
-        name: "",
-        icon: "",
-        type: "",
-        home: "",
+        jobName: "",
+        exporterType: "",
+        targets: "",
         description: "",
         createTime: "",
         updateTime: "",
         createBy: "",
         updateBy: "",
         status: ""
+      },
+      // 对话框
+      confirm: {
+        header: "",
+        body: "",
+        operation: "update",
+        visible: false
       },
       // 搜索框
       searchForm: {
@@ -327,28 +322,18 @@ export default Vue.extend({
     rehandleChange(changeParams, triggerAndData) {
       console.log('统一Change', changeParams, triggerAndData);
     },
-    handleClickDetail(row) {
-      //this.$router.push('/detail/base');
-      //console.log("id", row)
-      const rowData = [
-        {
-          name: "id",
-          value: row.id,
-        },
-        {
-          name: '名称',
-          value: row.name,
-        }
-      ]
-      this.$emit('transfer', "detail", rowData)
+    // 点击详情
+    handleClickDetail({row}) {
+      this.formData = row;
+      this.drawer.visible = true;
+      this.drawer.operation = 'detail';
     },
     handleSetupContract() {
       //this.$router.push('/prometheus/add');
       this.$emit('transfer', "form")
     },
+    // 删除
     handleClickDelete(row: { rowIndex: any, type: any }) {
-      this.deleteIdx = row.rowIndex;
-      this.deleteType = row.type;
       this.confirmVisible = true;
       console.log("this", this.deleteType)
     },
@@ -402,7 +387,7 @@ export default Vue.extend({
     page() {
       this.dataLoading = true;
       this.$request.get('/prometheus/exporter/page', {
-          params: this.formData
+          params: this.searchForm
         }).then((res) => {
         if (res.data.code === 200) {
           this.data = res.data.rows;
