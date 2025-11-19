@@ -18,26 +18,26 @@
           </div>
           <t-col :span="3">
             <t-form-item label="名称" name="name">
-              <t-input v-model="formData.name" :style="{ width: '200px' }" placeholder="请输入内容"/>
+              <t-input v-model="searchForm.job" :style="{ width: '200px' }" placeholder="请输入内容"/>
             </t-form-item>
           </t-col>
-          <t-col :span="3">
-            <t-form-item label="类型" name="type">
-              <t-select
-                v-model="formData.type"
-                :style="{ width: '200px' }"
-                placeholder="请选择类型"
-                class="demo-select-base"
-                clearable
-              >
-                <t-option v-for="(item, index) in typeList" :key="index" :value="item" :label="item">
-                  {{ item }}
-                </t-option>
-              </t-select>
-            </t-form-item>
-          </t-col>
+<!--          <t-col :span="3">-->
+<!--            <t-form-item label="类型" name="type">-->
+<!--              <t-select-->
+<!--                v-model="formData.type"-->
+<!--                :style="{ width: '200px' }"-->
+<!--                placeholder="请选择类型"-->
+<!--                class="demo-select-base"-->
+<!--                clearable-->
+<!--              >-->
+<!--                <t-option v-for="(item, index) in typeList" :key="index" :value="item" :label="item">-->
+<!--                  {{ item }}-->
+<!--                </t-option>-->
+<!--              </t-select>-->
+<!--            </t-form-item>-->
+<!--          </t-col>-->
           <!--        <t-input v-model="searchValue" class="search-input" placeholder="请输入你需要搜索的内容" clearable>-->
-          。          <!--          <template #suffix-icon>-->
+          <!--          <template #suffix-icon>-->
           <!--            <search-icon size="20px"/>-->
           <!--          </template>-->
           <!--        </t-input>-->
@@ -75,7 +75,7 @@
             </div>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="handleClickDetail(row)">详情</a>
+            <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
 <!--            <a class="t-button-link" @click="handleClickDelete(row)">删除</a>-->
           </template>
         </t-table>
@@ -111,59 +111,59 @@
       :onConfirm="handleDrawerOk"
       @cancel="onCancelDrawer"
     >
-      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
-        <t-form
-          ref="formValidatorStatus"
-          :data="formData"
-          :label-width="100"
-          @reset="onReset"
-        >
-          <t-form-item label="id" name="id" v-show="false">
-            <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>
-          </t-form-item>
-          <t-form-item label="名称" name="name">
-            <t-input v-model="formData.name" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
-          </t-form-item>
-          <t-form-item label="类型" name="type">
-            <t-input v-model="formData.type" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
-          </t-form-item>
-          <t-form-item label="地址" name="url">
-            <t-input v-model="formData.url" placeholder="请输入仓库地址" :maxlength="64" with="120"></t-input>
-          </t-form-item>
-        </t-form>
-      </t-space>
-      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
-        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
-          <t-descriptions-item label="名称">
-            <t-space>
-              <t-image fit="cover" :style="{width:'32px',height:'32px'}" :src="formData.icon"/>
-            </t-space>
-            {{formData.name}}
-          </t-descriptions-item>
-          <t-descriptions-item label="类型">{{formData.type}}</t-descriptions-item>
-          <t-descriptions-item label="主页"><a :href="formData.home">{{formData.home}}</a></t-descriptions-item>
-          <t-descriptions-item label="描述">{{formData.description}}</t-descriptions-item>
-          <t-descriptions-item label="地址"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
-          <t-descriptions-item label="上架时间">{{formData.createTime}}</t-descriptions-item>
-          <t-descriptions-item label="上架人">{{formData.createBy}}</t-descriptions-item>
-          <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
-          <t-descriptions-item label="更新人">{{formData.updateBy}}</t-descriptions-item>
-        </t-descriptions>
-      </t-space>
-      <t-space v-show="drawer.operation === 'install'" direction="vertical" style="width: 100%">
-        <t-form
-          ref="formValidatorStatus"
-          :data="drawer.dynamicForm"
-          :label-width="100"
-          @reset="onReset"
-        >
-          <div v-for="(v,k) in drawer.dynamicForm">
-            <t-form-item :label="k" :name="k">
-              <t-input v-model="drawer.dynamicForm[k]" :type="typeof drawer.dynamicForm[k]" placeholder="请输入仓库名称" :maxlength="64" with="120" ></t-input>
-            </t-form-item>
-          </div>
-        </t-form>
-      </t-space>
+<!--      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">-->
+<!--        <t-form-->
+<!--          ref="formValidatorStatus"-->
+<!--          :data="formData"-->
+<!--          :label-width="100"-->
+<!--          @reset="onReset"-->
+<!--        >-->
+<!--          <t-form-item label="id" name="id" v-show="false">-->
+<!--            <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>-->
+<!--          </t-form-item>-->
+<!--          <t-form-item label="名称" name="name">-->
+<!--            <t-input v-model="formData.name" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>-->
+<!--          </t-form-item>-->
+<!--          <t-form-item label="类型" name="type">-->
+<!--            <t-input v-model="formData.type" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>-->
+<!--          </t-form-item>-->
+<!--          <t-form-item label="地址" name="url">-->
+<!--            <t-input v-model="formData.url" placeholder="请输入仓库地址" :maxlength="64" with="120"></t-input>-->
+<!--          </t-form-item>-->
+<!--        </t-form>-->
+<!--      </t-space>-->
+<!--      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">-->
+<!--        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">-->
+<!--          <t-descriptions-item label="名称">-->
+<!--            <t-space>-->
+<!--              <t-image fit="cover" :style="{width:'32px',height:'32px'}" :src="formData.icon"/>-->
+<!--            </t-space>-->
+<!--            {{formData.name}}-->
+<!--          </t-descriptions-item>-->
+<!--          <t-descriptions-item label="类型">{{formData.type}}</t-descriptions-item>-->
+<!--          <t-descriptions-item label="主页"><a :href="formData.home">{{formData.home}}</a></t-descriptions-item>-->
+<!--          <t-descriptions-item label="描述">{{formData.description}}</t-descriptions-item>-->
+<!--          <t-descriptions-item label="地址"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>-->
+<!--          <t-descriptions-item label="上架时间">{{formData.createTime}}</t-descriptions-item>-->
+<!--          <t-descriptions-item label="上架人">{{formData.createBy}}</t-descriptions-item>-->
+<!--          <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>-->
+<!--          <t-descriptions-item label="更新人">{{formData.updateBy}}</t-descriptions-item>-->
+<!--        </t-descriptions>-->
+<!--      </t-space>-->
+<!--      <t-space v-show="drawer.operation === 'install'" direction="vertical" style="width: 100%">-->
+<!--        <t-form-->
+<!--          ref="formValidatorStatus"-->
+<!--          :data="drawer.dynamicForm"-->
+<!--          :label-width="100"-->
+<!--          @reset="onReset"-->
+<!--        >-->
+<!--          <div v-for="(v,k) in drawer.dynamicForm">-->
+<!--            <t-form-item :label="k" :name="k">-->
+<!--              <t-input v-model="drawer.dynamicForm[k]" :type="typeof drawer.dynamicForm[k]" placeholder="请输入仓库名称" :maxlength="64" with="120" ></t-input>-->
+<!--            </t-form-item>-->
+<!--          </div>-->
+<!--        </t-form>-->
+<!--      </t-space>-->
     </t-drawer>
   </div>
 </template>
@@ -260,8 +260,9 @@ export default Vue.extend({
       },
       // 搜索框
       searchForm: {
-        name: "",
+        job: "",
         type: "",
+        health: "",
         pageNum: 1,
         pageSize: 10
       },
@@ -322,7 +323,7 @@ export default Vue.extend({
     this.page();
   },
   watch:{
-    "searchForm.name"(newVal, oldVal) {
+    "searchForm.job"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.page()
       }
@@ -389,9 +390,7 @@ export default Vue.extend({
       }).then(res => {
         this.$message.success(res.data.msg);
       }).catch(err => {
-
       })
-
       this.resetIdx();
     },
     onCancel() {
@@ -402,10 +401,23 @@ export default Vue.extend({
     },
     onReset(data) {
       console.log(data);
+      this.searchForm = {};
     },
     onSubmit(data) {
-      console.log(this.formData);
+      console.log(this.searchForm);
       this.page();
+    },
+    handleDrawerOk() {
+
+    },
+    // 取消抽屉
+    onCancelDrawer() {
+      this.drawer.visible = false;
+      this.dataLoading = false;
+    },
+    // drawer大小
+    handleSizeDrag({size}) {
+      console.log('size drag size: ', size);
     },
     getTypeList() {
       this.$request.get("/monitor/typeList").then(res => {
