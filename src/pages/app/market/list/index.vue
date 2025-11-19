@@ -44,10 +44,10 @@
           <template #icon="{row}">
             <t-image :src="row.icon" fit="cover"  :style="{ width: '36px', height: '36px' }"/>
           </template>
-          <template #name="{ row }">
+          <template #name="{row}">
             <p>{{ row.name }}</p>
           </template>
-          <template #CreatedAt="{ row }">
+          <template #CreatedAt="{row}">
             <p>{{ new Date(row.CreatedAt).toLocaleString() }}</p>
           </template>
           <template #op="slotProps">

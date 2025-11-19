@@ -37,19 +37,19 @@
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
-          <template #targets="{ row }">
+          <template #targets="{row}">
             <span v-for="item in row.targets.split(',')">
                 <t-tag theme="primary" variant="light">{{ item }}</t-tag>
             </span>
           </template>
-          <template #health="{ row }">
+          <template #health="{row}">
             <t-tag v-if="row.health === 'down'" theme="danger" variant="light">触发</t-tag>
             <t-tag v-if="row.health === CONTRACT_STATUS.AUDIT_PENDING" theme="warning" variant="light">待审核</t-tag>
             <t-tag v-if="row.health === CONTRACT_STATUS.EXEC_PENDING" theme="warning" variant="light">待履行</t-tag>
             <t-tag v-if="row.health === CONTRACT_STATUS.EXECUTING" theme="success" variant="light">履行中</t-tag>
             <t-tag v-if="row.health === 'up'" theme="success" variant="light">正常</t-tag>
           </template>
-          <template #op="{slotProps}">
+          <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
@@ -93,13 +93,10 @@
           :label-width="100"
           @reset="onReset"
         >
-          <t-form-item label="id" name="id" v-show="false">
-            <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>
-          </t-form-item>
-          <t-form-item label="名称" name="name">
+          <t-form-item label="名称" name="jobName">
             <t-input v-model="formData.jobName" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
           </t-form-item>
-          <t-form-item label="类型" name="type">
+          <t-form-item label="类型" name="exporterType">
             <t-input v-model="formData.exporterType" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
           </t-form-item>
           <t-form-item label="地址" name="url">
@@ -111,9 +108,14 @@
         <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
           <t-descriptions-item label="名称">{{ formData.jobName }}</t-descriptions-item>
           <t-descriptions-item label="类型">{{ formData.exporterType }}</t-descriptions-item>
+          <t-descriptions-item label="端点">
+            <t-space v-for="item in formData.targets.split(',')">
+                <t-tag theme="primary">{{item}}</t-tag>
+            </t-space>
+          </t-descriptions-item>
           <t-descriptions-item label="描述">{{ formData.description }}</t-descriptions-item>
-          <t-descriptions-item label="上架时间">{{ formData.createTime }}</t-descriptions-item>
-          <t-descriptions-item label="上架人">{{ formData.createBy }}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{ formData.createTime }}</t-descriptions-item>
+          <t-descriptions-item label="创建人">{{ formData.createBy }}</t-descriptions-item>
           <t-descriptions-item label="更新时间">{{ formData.updateTime }}</t-descriptions-item>
           <t-descriptions-item label="更新人">{{ formData.updateBy }}</t-descriptions-item>
         </t-descriptions>
@@ -323,7 +325,7 @@ export default Vue.extend({
       console.log('统一Change', changeParams, triggerAndData);
     },
     // 点击详情
-    handleClickDetail({row}) {
+    handleClickDetail(row) {
       this.formData = row;
       this.drawer.visible = true;
       this.drawer.operation = 'detail';
