@@ -94,29 +94,29 @@
       :sizeDraggable="true"
       placement="right"
       destroyOnClose
-      size="30%"
+      :size="drawer.size"
       @close="drawer.visible = false"
-      :onConfirm="handleSubmit"
+      :onConfirm="handleDrawerOk"
       @cancel="drawer.visible = false"
     >
       <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
-          :data="form"
+          :data="formData"
           :label-width="100"
           @reset="onReset"
         >
           <t-form-item label="id" name="id" v-show="false">
-            <t-input v-model="form.id" :maxlength="32" with="120"></t-input>
+            <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>
           </t-form-item>
           <t-form-item label="集群名称" name="repoName">
-            <t-input v-model="form.clusterName" placeholder="请输入集群名称" :maxlength="64" with="120"></t-input>
+            <t-input v-model="formData.clusterName" placeholder="请输入集群名称" :maxlength="64" with="120"></t-input>
           </t-form-item>
           <t-form-item label="配置文件" name="file">
             <div style="width: 350px">
               <!-- abridgeName 省略中间文本，首尾保留的文本字符 -->
               <t-upload
-                v-model="form.files"
+                v-model="formData.file"
                 action="https://service-bv448zsw-1257786608.gz.apigw.tencentcs.com/api/upload-demo"
                 :abridge-name="[8, 6]"
                 theme="file-input"
@@ -126,17 +126,20 @@
             </div>
           </t-form-item>
           <t-form-item label="备注" name="description">
-            <t-textarea v-model="form.description" name="name"  placeholder="请输入内容" />
+            <t-textarea v-model="formData.description" name="name"  placeholder="请输入内容" />
           </t-form-item>
         </t-form>
       </t-space>
       <t-space v-show="drawer.operation === 'info'" direction="vertical" style="width: 100%">
         <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
-          <t-descriptions-item label="集群名称">{{form.clusterName}}</t-descriptions-item>
-          <t-descriptions-item label="创建时间">{{form.createTime}}</t-descriptions-item>
-          <t-descriptions-item label="更新时间">{{form.updateTime}}</t-descriptions-item>
-          <t-descriptions-item label="描述">{{form.description}}</t-descriptions-item>
-          <t-descriptions-item label="配置内容">{{form.config}}</t-descriptions-item>
+          <t-descriptions-item label="集群名称">{{formData.clusterName}}</t-descriptions-item>
+          <t-descriptions-item label="状态">{{formData.status}}</t-descriptions-item>
+          <t-descriptions-item label="创建者">{{formData.createBy}}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
+          <t-descriptions-item label="更新者">{{formData.updateBy}}</t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
+          <t-descriptions-item label="描述">{{formData.description}}</t-descriptions-item>
+          <t-descriptions-item label="配置内容"><MonacoEditor :value="formData.config" :config="{lanauage:'yaml'}"/></t-descriptions-item>
         </t-descriptions>
       </t-space>
     </t-drawer>
@@ -149,10 +152,12 @@ import Trend from '@/components/trend/index.vue';
 import {prefix} from '@/config/global';
 
 import {CONTRACT_STATUS, CONTRACT_STATUS_OPTIONS, CONTRACT_TYPES, CONTRACT_PAYMENT_TYPES} from '@/constants';
+import MonacoEditor from "@/components/editor/MonacoEditor.vue";
 
 export default Vue.extend({
   name: 'ListBase',
   components: {
+    MonacoEditor,
     SearchIcon,
     Trend,
   },
@@ -172,16 +177,22 @@ export default Vue.extend({
         {
           title: '集群名称',
           align: 'left',
-          width: 150,
+          width: 120,
           ellipsis: true,
           colKey: 'clusterName',
           fixed: 'left',
         },
         {
-          title: 'context名称',
+          title: 'context',
           colKey: 'contextName',
-          width: 150,
-          cell: {col: 'status'}
+          width: 120
+        },
+        {
+          title: '状态',
+          colKey: 'status',
+          width: 80,
+          fixed: 'center',
+          ellipsis: true
         },
         {
           title: '地址',
@@ -198,19 +209,19 @@ export default Vue.extend({
         {
           title: "创建时间",
           colKey: "createTime",
-          width: 180,
+          width: 160,
           cell: {col: "status"}
         },
         {
           title: "更新时间",
           colKey: "updateTime",
-          width: 180,
+          width: 160,
           cell: {col: "status"}
         },
         {
           align: 'left',
           fixed: 'right',
-          width: 180,
+          width: 120,
           colKey: 'op',
           title: '操作',
         },
@@ -229,10 +240,10 @@ export default Vue.extend({
       searchValue: '',
       confirmVisible: false,
       deleteIdx: -1,
-      formData: [],
       drawer: {
         header: "",
         visible: false,
+        size: "70%",
         type: "",
         operation: "add",
         row: {}
@@ -243,9 +254,10 @@ export default Vue.extend({
         pageNum: 1,
         pageSize: 10
       },
-      form: {
+      formData: {
         id: "",
         clusterName: "",
+        status: "",
         createBy: "",
         createTime: "",
         updateBy: "",
@@ -253,7 +265,7 @@ export default Vue.extend({
         description: "",
         fileUrl: "",
         config: "",
-        files: {}
+        file: File
       }
     };
   },
@@ -273,60 +285,61 @@ export default Vue.extend({
     this.dataLoading = true;
   },
   created() {
-    this.getList()
+    this.page()
+  },
+  watch:{
+    "searchForm.name"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageSize"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageNum"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    }
   },
   methods: {
     getContainer() {
       return document.querySelector('.tdesign-starter-layout');
     },
-    // 分页查询
-    getList() {
-      this.dataLoading = true;
-      this.$request.get('/kubernetesCluster/page', {
-          params: this.formData
-        }).then((res) => {
-        if (res.data.code === 200) {
-          this.data = res.data.rows;
-          this.pagination.total = res.data.total;
-        }
-      }).catch((e: Error) => {
-          console.log(e);
-      }).finally(() => {
-          this.dataLoading = false;
-      });
-    },
     onPageSizeChange(size, pageInfo) {
       console.log('Page Size:', this.pageSize, size, pageInfo);
       // 刷新
-      this.formData.pageSize = size
-      this.getList()
+      this.searchForm.pageSize = size
     },
     onCurrentChange(current, pageInfo) {
       console.log('Current Page', this.current, current, pageInfo);
       // 刷新
-      this.formData.pageNum = current
-      this.getList()
+      this.searchForm.pageNum = current
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
     },
     // 查看详情
     handleClickDetail(row) {
-      this.drawer.visible = true;
+      this.formData = row;
       this.drawer.header = "详情";
       this.drawer.operation = 'info';
-      this.form = row;
+      this.drawer.size="80%"
+      this.drawer.visible = true;
     },
     // 添加
     handleSetupContract() {
       this.form = {};
-      this.drawer.visible = true;
       this.drawer.header = "新增";
       this.drawer.operation = 'add';
+      this.drawer.size = '30%';
+      this.drawer.visible = true;
     },
+    // 删除
     handleClickDelete(row: { rowIndex: any }) {
-      this.deleteIdx = row.rowIndex;
-      this.confirmVisible = true;
+      this.confirm.visible = true;
     },
     onConfirmDelete() {
       // 真实业务请发起请求
@@ -340,19 +353,64 @@ export default Vue.extend({
       this.$message.success('删除成功');
       this.resetIdx();
     },
+    // 取消删除
     onCancel() {
-      this.resetIdx();
+      this.confirm.visible = false;
+      this.dataLoading = false;
+      this.$message.info("取消删除！");
+    },
+    // 对话框信息自定义
+    handleClickConfirm(row) {
+      switch(this.confirm.operation) {
+        case 'add':
+          break;
+        case 'update':
+          break;
+        case 'delete':
+          this.confirm.visible = true;
+          this.confirm.header = "删除：" + this.formData.name;
+          this.confirm.body = "确认删除吗？一旦删除数据无法恢复";
+          break;
+      }
+      this.formData = row
     },
     resetIdx() {
       this.deleteIdx = -1;
     },
     onReset(data) {
-      console.log(data);
+      this.searchForm = {};
     },
     onSubmit(data) {
-      console.log(this.formData);
-      this.getList(this.formData);
+      this.page();
     },
+    // 确认抽屉
+    handleDrawerOk() {
+      console.log('执行:',this.drawer.operation);
+      switch (this.drawer.operation) {
+        case 'add':
+          this.drawer.visible = false;
+          break;
+        case 'detail':
+          this.drawer.visible = false;
+          break;
+      }
+    },
+    // 分页查询
+    page() {
+      this.dataLoading = true;
+      this.$request.get('/kubernetes/cluster/page', {
+        params: this.searchForm
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.data = res.data.rows;
+          this.pagination.total = res.data.total;
+        }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
+    }
   },
 });
 </script>

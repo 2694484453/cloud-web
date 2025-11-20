@@ -362,7 +362,7 @@ export default Vue.extend({
     },
     // 对话框信息自定义
     handleClickConfirm(row) {
-      switch(this.operation) {
+      switch(this.confirm.operation) {
         case 'add':
           break;
         case 'update':
