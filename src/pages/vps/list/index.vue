@@ -67,74 +67,92 @@
             <a class="t-button-link" @click="handleClickDelete(slotProps)">删除</a>
           </template>
         </t-table>
-        <div style="margin-top: 10px">
-          <t-pagination
-            v-model="formData.pageNum"
-            :total="pagination.total"
-            :page-size.sync="formData.pageSize"
-            @current-change="onCurrentChange"
-            @page-size-change="onPageSizeChange"
-            @change="onChange"/>
-        </div>
       </div>
     </t-card>
+    <!--分页-->
+    <t-pagination
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"/>
+    <!--对话框-->
     <t-dialog
       header="确认删除当前所选项目？"
-      :body="confirmBody"
-      :visible.sync="confirmVisible"
+      :body="confirm.body"
+      :visible.sync="confirm.visible"
       @confirm="onConfirmDelete"
       :onCancel="onCancel"
     >
     </t-dialog>
     <t-drawer
-      :visible.sync="formConfig.visible"
-      :header="formConfig.header"
-      :on-overlay-click="() => (formConfig.visible = false)"
+      :visible.sync="drawer.visible"
+      :header="drawer.header"
+      :on-overlay-click="() => (drawer.visible = false)"
       placement="right"
       destroyOnClose
       showOverlay
       :sizeDraggable="true"
       :on-size-drag-end="handleSizeDrag"
       size="40%"
-      @cancel="formConfig.visible = false"
+      @cancel="drawer.visible = false"
       @close="handleClose"
       :onConfirm="onSubmitCreate">
-      <t-space direction="vertical" style="width: 100%">
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'"  direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
-          :data="form"
+          :data="formData"
           :rules="rules"
           :label-width="120"
           :status-icon="formStatusIcon"
           @reset="onReset"
         >
           <t-form-item label="id" name="id" v-show="false">
-            <t-input v-model="form.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="主机名称" name="branch" >
-            <t-input v-model="form.hostName" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.hostName" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
           </t-form-item>
-          <t-form-item label="类型" name="type" >
-            <t-select v-model="form.hostType" placeholder="请选择">
-              <t-option v-for="(item,index) in typeList" :key="index" :label="item" :value="item" >{{item}}</t-option>
-            </t-select>
-          </t-form-item>
+<!--          <t-form-item label="类型" name="type" >-->
+<!--            <t-select v-model="form.hostType" placeholder="请选择">-->
+<!--              <t-option v-for="(item,index) in typeList" :key="index" :label="item" :value="item" >{{item}}</t-option>-->
+<!--            </t-select>-->
+<!--          </t-form-item>-->
           <t-form-item label="ip/域名" name="localIp" >
-            <t-input v-model="form.hostIp" placeholder="请输入合法的ip地址" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.hostIp" placeholder="请输入合法的ip地址" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="端口" name="localPort" >
-            <t-input v-model="form.port" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.port" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="用户名" name="localPort" >
-            <t-input v-model="form.userName" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.userName" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="密码" name="localPort" >
-            <t-input v-model="form.passWord" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.passWord" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="备注" name="remotePort" >
-            <t-textarea v-model="form.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
+            <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
           </t-form-item>
         </t-form>
+      </t-space>
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
+        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
+          <t-descriptions-item label="名称">
+            <t-space>
+              <t-image fit="cover" :style="{width:'32px',height:'32px'}" :src="formData.icon"/>
+            </t-space>
+            {{formData.name}}
+          </t-descriptions-item>
+          <t-descriptions-item label="类型">{{formData.type}}</t-descriptions-item>
+          <t-descriptions-item label="主页"><a :href="formData.home">{{formData.home}}</a></t-descriptions-item>
+          <t-descriptions-item label="描述">{{formData.description}}</t-descriptions-item>
+          <t-descriptions-item label="地址"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
+          <t-descriptions-item label="上架时间">{{formData.createTime}}</t-descriptions-item>
+          <t-descriptions-item label="上架人">{{formData.createBy}}</t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
+          <t-descriptions-item label="更新人">{{formData.updateBy}}</t-descriptions-item>
+        </t-descriptions>
       </t-space>
     </t-drawer>
   </div>
@@ -229,27 +247,38 @@ export default Vue.extend({
         total: 0,
         defaultCurrent: 1,
       },
-      searchValue: '',
-      confirmVisible: false,
+      // 抽屉
+      drawer: {
+        header: "",
+        visible: false,
+        type: "",
+        operation: "add",
+        row: {},
+        dynamicForm: {}
+      },
+      // 对话框
+      confirm: {
+        header: "",
+        body: "",
+        operation: "update",
+        visible: false
+      },
       deleteIdx: -1,
-      formData: {
+      // 搜索框
+      searchForm: {
         name: "",
         type: "",
         pageNum: 1,
         pageSize: 10
       },
-      formConfig: {
-        title: '新增',
-        visible: false,
-        header: '新增',
-      },
-      form: {
+      // 当前数据
+      formData: {
         id: '',
         hostName: '',
         hostType: '',
         userName: 'root',
         passWord: '',
-        hostIp: "127.0.0.1",
+        hostIp: "",
         port: 22,
         description: '',
       },
@@ -269,49 +298,59 @@ export default Vue.extend({
     },
   },
   mounted() {
-    this.dataLoading = true;
-    this.$request
-      .get('/api/get-list')
-      .then((res) => {
-        if (res.code === 0) {
-          const {list = []} = res.data;
-          this.data = list;
-          this.pagination = {
-            ...this.pagination,
-            total: list.length,
-          };
-        }
-      })
-      .catch((e: Error) => {
-        console.log(e);
-      })
-      .finally(() => {
-        this.dataLoading = false;
-      });
   },
   created() {
-    this.getList()
+    // 初始化加载查询请求
+    this.page()
+  },
+  watch:{
+    "searchForm.name"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageSize"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageNum"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    }
   },
   methods: {
-    getList() {
+    page() {
       this.dataLoading = true;
       this.$request.get('/cloud-host/page', {
-          params: this.formData
+          params: this.searchForm
         }).then((res) => {
         if (res.data.code === 200) {
-          //console.log(res.data.data)
           this.data = res.data.rows;
-          //console.log(this.data)
-          this.pagination = {
-            ...this.pagination,
-            total: res.data.total
-          };
+          this.pagination.total = res.data.total;
         }
       }).catch((e: Error) => {
           console.log(e);
         }).finally(() => {
           this.dataLoading = false;
         });
+    },
+    getList() {
+      this.$request.get('/api/get-list').then((res) => {
+          if (res.code === 0) {
+            const {list = []} = res.data;
+            this.data = list;
+            this.pagination = {
+              ...this.pagination,
+              total: list.length,
+            };
+          }
+        }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
     },
     // 新建
     handleSetupContract() {
@@ -347,9 +386,7 @@ export default Vue.extend({
     },
     // 点击删除
     handleClickDelete(row: { rowIndex: any }) {
-      this.deleteIdx = row.rowIndex;
-      this.confirmVisible = true;
-      this.form.id = row.id;
+      this.confirm.visible = true;
     },
     // 确认删除
     onConfirmDelete(row) {
@@ -368,21 +405,21 @@ export default Vue.extend({
     onPageSizeChange(size, pageInfo) {
       console.log('Page Size:', this.pageSize, size, pageInfo);
       // 刷新
-      this.formData.pageSize = size
-      this.getList()
+      this.searchForm.pageSize = size
     },
     onCurrentChange(current, pageInfo) {
       console.log('Current Page', this.current, current, pageInfo);
       // 刷新
-      this.formData.pageNum = current
-      this.getList()
+      this.searchForm.pageNum = current
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
     },
-    handleClickDetail(rowData) {
-      //this.$router.push('/detail/base');
-      this.$emit('transfer', "detail", rowData)
+    handleClickDetail(row) {
+      console.log(row);
+      this.formData = row;
+      this.drawer.operation = 'detail';
+      this.drawer.visible = true;
     },
     // 编辑
     handleClickEdit(rowData) {

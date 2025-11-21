@@ -60,6 +60,7 @@
         </t-table>
       </div>
     </t-card>
+    <!--分页-->
     <t-pagination style="margin-top: 15px"
                   v-model="searchForm.pageNum"
                   :total="pagination.total"
@@ -68,6 +69,7 @@
                   @page-size-change="onPageSizeChange"
                   @change="onChange"
     />
+    <!--对话框-->
     <t-dialog
       :header="confirm.header"
       :body="confirm.body"
