@@ -128,9 +128,9 @@
           <t-form-item label="用户名" name="localPort" >
             <t-input v-model="formData.userName" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>
           </t-form-item>
-          <t-form-item label="密码" name="localPort" >
-            <t-input v-model="formData.passWord" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>
-          </t-form-item>
+<!--          <t-form-item label="密码" name="localPort" >-->
+<!--            <t-input v-model="formData.passWord" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>-->
+<!--          </t-form-item>-->
           <t-form-item label="备注" name="remotePort" >
             <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
           </t-form-item>
@@ -138,20 +138,16 @@
       </t-space>
       <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
         <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
-          <t-descriptions-item label="名称">
-            <t-space>
-              <t-image fit="cover" :style="{width:'32px',height:'32px'}" :src="formData.icon"/>
-            </t-space>
-            {{formData.name}}
-          </t-descriptions-item>
-          <t-descriptions-item label="类型">{{formData.type}}</t-descriptions-item>
-          <t-descriptions-item label="主页"><a :href="formData.home">{{formData.home}}</a></t-descriptions-item>
-          <t-descriptions-item label="描述">{{formData.description}}</t-descriptions-item>
-          <t-descriptions-item label="地址"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
-          <t-descriptions-item label="上架时间">{{formData.createTime}}</t-descriptions-item>
-          <t-descriptions-item label="上架人">{{formData.createBy}}</t-descriptions-item>
+          <t-descriptions-item label="主机名称">{{formData.hostName}}</t-descriptions-item>
+          <t-descriptions-item label="类型">{{formData.hostType}}</t-descriptions-item>
+          <t-descriptions-item label="ip/域名">{{formData.hostIp}}</t-descriptions-item>
+          <t-descriptions-item label="端口">{{formData.port}}</t-descriptions-item>
+          <t-descriptions-item label="用户名">{{formData.userName}}</t-descriptions-item>
+          <t-descriptions-item label="备注">{{formData.description}}</t-descriptions-item>
+          <t-descriptions-item label="创建者">{{formData.createBy}}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
           <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
-          <t-descriptions-item label="更新人">{{formData.updateBy}}</t-descriptions-item>
+          <t-descriptions-item label="更新者">{{formData.updateBy}}</t-descriptions-item>
         </t-descriptions>
       </t-space>
     </t-drawer>
@@ -281,6 +277,10 @@ export default Vue.extend({
         hostIp: "",
         port: 22,
         description: '',
+        updateTime: "",
+        createTime: '',
+        updateBy: '',
+        createBy: '',
       },
       typeList: [],
     };
