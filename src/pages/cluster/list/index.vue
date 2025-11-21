@@ -13,7 +13,7 @@
         <t-row justify="space-between">
           <div class="left-operation-container">
             <t-button @click="handleSetupContract()">添加集群</t-button>
-            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length">导出配置</t-button>
+            <t-button @click="handleExporter()" variant="base" theme="default" :disabled="!selectedRowKeys.length">导出配置</t-button>
           </div>
           <t-input v-model="searchValue" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
             <template #suffix-icon>
@@ -115,10 +115,11 @@
               <!-- abridgeName 省略中间文本，首尾保留的文本字符 -->
               <t-upload
                 v-model="formData.file"
-                action="https://service-bv448zsw-1257786608.gz.apigw.tencentcs.com/api/upload-demo"
-                :abridge-name="[8, 6]"
+                :size-limit="{ size: 1, unit: 'MB' }"
+                tips="上传文件大小在 1M 以内"
                 theme="file-input"
                 placeholder="未选择文件"
+                @success="onSuccess"
                 @fail="handleFail"
               ></t-upload>
             </div>
@@ -335,6 +336,12 @@ export default Vue.extend({
       this.drawer.size = '30%';
       this.drawer.visible = true;
     },
+    // 导出
+    handleExporter() {
+      this.$request.post("/kubernetes/cluster/exporter").then(response => {
+
+      })
+    },
     // 删除
     handleClickDelete(row: { rowIndex: any }) {
       this.confirm.visible = true;
@@ -408,7 +415,15 @@ export default Vue.extend({
       }).finally(() => {
         this.dataLoading = false;
       });
-    }
+    },
+    handleFail({ file }) {
+      console.log(this.formData.file);
+      this.$message.error(`文件 ${file.name} 上传失败`);
+    },
+    onSuccess() {
+      console.log(this.formData.file);
+      this.tips = '';
+    },
   },
 });
 </script>
