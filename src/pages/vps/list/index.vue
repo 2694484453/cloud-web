@@ -120,16 +120,16 @@
 <!--            </t-select>-->
 <!--          </t-form-item>-->
           <t-form-item label="ip/域名" name="localIp" >
-            <t-input v-model="formData.hostIp" placeholder="请输入正确的ip地址" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.hostIp" placeholder="请输入ip地址" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="端口" name="localPort" >
-            <t-input v-model="formData.port" placeholder="请输入正确的端口号" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.port" placeholder="请输入端口号" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="用户名" name="localPort" >
-            <t-input v-model="formData.userName" placeholder="请输入正确的端口号" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.userName" placeholder="请输入用户名" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="密码" name="localPort" >
-            <t-input v-model="formData.passWord" placeholder="请输入正确的端口号" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.passWord" placeholder="请输入密码" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="备注" name="remotePort" >
             <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
