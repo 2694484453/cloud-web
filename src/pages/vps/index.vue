@@ -16,6 +16,13 @@
         </t-col>
       </t-row>
     </t-card>
+    <t-card :class="{ 'dashboard-detail-card': true }"  class="row-margin" :bordered="false" title="系统公告" >
+      <t-timeline mode="same" :reverse="reverse" theme="default">
+        <t-space v-for="(item) in sysNoticeData">
+          <t-timeline-item :label="item.createTime" >{{item.noticeTitle}}</t-timeline-item>
+        </t-space>
+      </t-timeline>
+    </t-card>
 <!--    <t-row :gutter="[16, 16]" class="row-margin">-->
 <!--      <t-col :xs="12" :xl="9">-->
 <!--        <t-card :class="{ 'dashboard-detail-card': true }" title="采购商品申请趋势" subtitle="(件)" :bordered="false">-->
@@ -97,9 +104,8 @@ export default {
         },
       ],
       LAST_7_DAYS,
-      overViewData:{
-
-      }
+      overViewData:{},
+      sysNoticeData: []
     };
   },
   computed: {
@@ -121,6 +127,7 @@ export default {
   },
   created() {
     this.overView();
+    this.getNotice();
   },
   methods: {
     /** 采购商品满意度选择 */
@@ -169,6 +176,21 @@ export default {
       }).finally(() => {
 
       })
+    },
+    getNotice() {
+      this.$request.get('/sysNotice/page',{
+        params: {
+          type: 'vps',
+        }
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.sysNoticeData = res.data.rows;
+        }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
     }
   },
 };
