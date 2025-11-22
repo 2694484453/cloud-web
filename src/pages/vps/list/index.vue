@@ -112,7 +112,7 @@
             <t-input v-model="formData.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="主机名称" name="branch" >
-            <t-input v-model="formData.hostName" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.hostName" placeholder="请输入主机名称（英文字母和数字的组合）" :maxlength="32" with="200"></t-input>
           </t-form-item>
 <!--          <t-form-item label="类型" name="type" >-->
 <!--            <t-select v-model="form.hostType" placeholder="请选择">-->
