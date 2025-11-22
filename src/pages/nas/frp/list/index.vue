@@ -10,21 +10,22 @@
         @submit="onSubmit"
         :style="{ marginBottom: '8px' }"
       >
-      <t-row justify="space-between">
-        <div class="left-operation-container">
-          <t-button @click="handleSetupContract"> 新建 </t-button>
-          <t-button @click="handleExport" variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出 </t-button>
-        </div>
-        <t-input v-model="searchForm.name" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
-          <template #suffix-icon>
-            <search-icon size="20px" />
-          </template>
-        </t-input>
-        <t-col :span="2" class="operation-container">
-          <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
-          <t-button type="reset" variant="base" theme="default"> 重置</t-button>
-        </t-col>
-      </t-row>
+        <t-row justify="space-between">
+          <div class="left-operation-container">
+            <t-button @click="handleSetupContract"> 新建</t-button>
+            <t-button @click="handleExport" variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出
+            </t-button>
+          </div>
+          <t-input v-model="searchForm.name" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
+            <template #suffix-icon>
+              <search-icon size="20px"/>
+            </template>
+          </t-input>
+          <t-col :span="2" class="operation-container">
+            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
+            <t-button type="reset" variant="base" theme="default"> 重置</t-button>
+          </t-col>
+        </t-row>
       </t-form>
       <div class="table-container">
         <t-table
@@ -39,11 +40,11 @@
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
           <template #status="{ row }">
-            <t-tag v-if="row.status === 'offline'" theme="danger" variant="light">{{row.status}}</t-tag>
+            <t-tag v-if="row.status === 'offline'" theme="danger" variant="light">{{ row.status }}</t-tag>
             <t-tag v-if="row.status === CONTRACT_STATUS.AUDIT_PENDING" theme="warning" variant="light">待审核</t-tag>
             <t-tag v-if="row.status === CONTRACT_STATUS.EXEC_PENDING" theme="warning" variant="light">待履行</t-tag>
             <t-tag v-if="row.status === CONTRACT_STATUS.EXECUTING" theme="success" variant="light">履行中</t-tag>
-            <t-tag v-if="row.status === 'online'" theme="success" variant="light">{{row.status}}</t-tag>
+            <t-tag v-if="row.status === 'online'" theme="success" variant="light">{{ row.status }}</t-tag>
             <t-tag v-if="row.status === null" theme="warning" variant="light">unknown</t-tag>
           </template>
           <template #contractType="{ row }">
@@ -54,11 +55,11 @@
           <template #paymentType="{ row }">
             <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.PAYMENT" class="payment-col">
               付款
-              <trend class="dashboard-item-trend" type="up" />
+              <trend class="dashboard-item-trend" type="up"/>
             </p>
             <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.RECEIPT" class="payment-col">
               收款
-              <trend class="dashboard-item-trend" type="down" />
+              <trend class="dashboard-item-trend" type="down"/>
             </p>
           </template>
           <template #op="slotProps">
@@ -87,10 +88,11 @@
       :onCancel="onCancel"
     >
     </t-dialog>
+    <!-- -->
     <t-drawer
-      :visible.sync="formConfig.visible"
-      :header="formConfig.header"
-      :on-overlay-click="() => (formConfig.visible = false)"
+      :visible.sync="drawer.visible"
+      :header="drawer.header"
+      :on-overlay-click="() => (drawer.visible = false)"
       placement="right"
       destroyOnClose
       showOverlay
@@ -99,7 +101,7 @@
       size="40%"
       @cancel="drawer.visible = false"
       @close="drawer.visible = false"
-      :onConfirm="onSubmitCreate">
+      :onConfirm="handleDrawerOk">
       <t-space direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
@@ -107,34 +109,35 @@
           :label-width="120"
           @reset="onReset"
         >
-            <t-form-item label="id" name="id" v-show="false">
-              <t-input v-model="formData.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
-            </t-form-item>
-            <t-form-item label="服务名称" name="branch" >
-              <t-input v-model="formData.name" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
-            </t-form-item>
-            <t-form-item label="协议类型" name="type" >
-              <t-select v-model="formData.type" placeholder="请选择">
-                <t-option v-for="(item,index) in typeList" :key="index" :label="item" :value="item" >{{item}}</t-option>
-              </t-select>
-            </t-form-item>
-<!--            <t-form-item label="服务端" name="frpsName" >-->
-<!--              <t-select v-model="form.frpServer" placeholder="请选择" style="width: 322px">-->
-<!--                <t-option v-for="(item,index) in serviceList" :key="index" :label="item.serverName" :value="item.serverName" >{{item.serverName}}</t-option>-->
-<!--              </t-select>-->
-<!--            </t-form-item>-->
-            <t-form-item label="客户端ip地址" name="localIp" >
-              <t-input v-model="formData.localIp" placeholder="请输入ip地址" :maxlength="32" with="200"></t-input>
-            </t-form-item>
-            <t-form-item label="客户端端口" name="localPort" >
-              <t-input v-model="formData.localPort" placeholder="请输入端口号" :maxlength="32" with="200"></t-input>
-            </t-form-item>
-            <t-form-item label="映射域名" name="customDomains" >
-              <t-input v-model="formData.customDomains" placeholder="请输入域名地址" :maxlength="32" with="200"></t-input>
-            </t-form-item>
-            <t-form-item label="备注" name="description" >
-              <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
-            </t-form-item>
+          <t-form-item label="id" name="id" v-show="false">
+            <t-input v-model="formData.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
+          </t-form-item>
+          <t-form-item label="服务名称" name="branch">
+            <t-input v-model="formData.name" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
+          </t-form-item>
+          <t-form-item label="协议类型" name="type">
+            <t-select v-model="formData.type" placeholder="请选择">
+              <t-option v-for="(item,index) in typeList" :key="index" :label="item" :value="item">{{ item }}</t-option>
+            </t-select>
+          </t-form-item>
+          <!--            <t-form-item label="服务端" name="frpsName" >-->
+          <!--              <t-select v-model="form.frpServer" placeholder="请选择" style="width: 322px">-->
+          <!--                <t-option v-for="(item,index) in serviceList" :key="index" :label="item.serverName" :value="item.serverName" >{{item.serverName}}</t-option>-->
+          <!--              </t-select>-->
+          <!--            </t-form-item>-->
+          <t-form-item label="客户端ip地址" name="localIp">
+            <t-input v-model="formData.localIp" placeholder="请输入ip地址" :maxlength="32" with="200"></t-input>
+          </t-form-item>
+          <t-form-item label="客户端端口" name="localPort">
+            <t-input v-model="formData.localPort" placeholder="请输入端口号" :maxlength="32" with="200"></t-input>
+          </t-form-item>
+          <t-form-item label="映射域名" name="customDomains">
+            <t-input v-model="formData.customDomains" placeholder="请输入域名地址" :maxlength="32" with="200"></t-input>
+          </t-form-item>
+          <t-form-item label="备注" name="description">
+            <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="120"
+                        with="200"></t-textarea>
+          </t-form-item>
         </t-form>
       </t-space>
     </t-drawer>
@@ -142,11 +145,11 @@
 </template>
 <script lang="ts">
 import Vue from 'vue';
-import { SearchIcon } from 'tdesign-icons-vue';
+import {SearchIcon} from 'tdesign-icons-vue';
 import Trend from '@/components/trend/index.vue';
-import { prefix } from '@/config/global';
+import {prefix} from '@/config/global';
 
-import { CONTRACT_STATUS, CONTRACT_STATUS_OPTIONS, CONTRACT_TYPES, CONTRACT_PAYMENT_TYPES } from '@/constants';
+import {CONTRACT_STATUS, CONTRACT_STATUS_OPTIONS, CONTRACT_TYPES, CONTRACT_PAYMENT_TYPES} from '@/constants';
 
 export default Vue.extend({
   name: 'ListBase',
@@ -280,7 +283,6 @@ export default Vue.extend({
         id: '',
         name: '',
         type: '',
-        frpServer: '',
         localIp: "127.0.0.1",
         localPort: 80,
         customDomains: '',
@@ -296,7 +298,7 @@ export default Vue.extend({
   computed: {
     confirmBody() {
       if (this.deleteIdx > -1) {
-        const { name } = this.data?.[this.deleteIdx];
+        const {name} = this.data?.[this.deleteIdx];
         return `删除后，${name}的所有合同信息将被清空，且无法恢复`;
       }
       return '';
@@ -308,7 +310,7 @@ export default Vue.extend({
   mounted() {
     this.page()
   },
-  watch:{
+  watch: {
     "searchForm.name"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.page()
@@ -329,52 +331,65 @@ export default Vue.extend({
     page() {
       this.dataLoading = true;
       this.$request.get('/nas/frpc/page', {
-          params: this.searchForm,
-        }).then((res) => {
-          if (res.data.code === 200) {
-            this.data = res.data.rows;
-            this.pagination.total = res.data.total;
-          }
-        }).catch((e: Error) => {
-          console.log(e);
-        }).finally(() => {
-          this.dataLoading = false;
-        });
+        params: this.searchForm,
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.data = res.data.rows;
+          this.pagination.total = res.data.total;
+        }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
     },
     // 类型列表
     getTypeList() {
       this.$request.get('/nas/frp/common/types').then((res) => {
-          if (res.data.code === 200) {
-            this.typeList = res.data.data;
-          }
-        }).catch((e: Error) => {
-          console.log(e);
-        }).finally(() => {
-          this.dataLoading = false;
-        })
+        if (res.data.code === 200) {
+          this.typeList = res.data.data;
+        }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      })
     },
     // 创建
-    onSubmitCreate() {
-      console.log(this.form);
-      if (this.form.id === '') {
-        this.$request.post("/nas/frpc/add", this.form).then(res => {
-          console.log(res);
-          if (res.data.code === 200) {
-            this.$message.success(res.data.msg);
-            this.getList();
-            this.formConfig.visible = false;
-          }else {
-            this.$message.error(res.data.msg);
-          }
-        })
-      } else {
-        this.$request.put("/nas/frpc/edit", this.form).then(res => {
-          if (res.data.code === 200) {
-            this.$message.success(res.data.msg);
-            this.getList();
-            this.formConfig.visible = false;
-          }
-        })
+    handleDrawerOk() {
+      console.log('执行:',this.drawer.operation);
+      switch (this.drawer.operation) {
+        case 'add':
+          this.$request.post("/nas/frpc/add", this.formData).then(res => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg);
+              this.drawer.visible = false;
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.page();
+            this.dataLoading = false;
+          })
+          break;
+        case 'edit':
+          this.$request.put("/nas/frpc/edit", this.formData).then(res => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg);
+              this.drawer.visible = false;
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.page();
+            this.dataLoading = false;
+          })
+          break;
+        case 'detail':
+          this.drawer.visible = false;
+          break;
       }
     },
     getContainer() {
@@ -412,12 +427,11 @@ export default Vue.extend({
       this.drawer.visible = true;
       this.drawer.title = '新增';
       this.drawer.operation = 'add';
-      this.getServiceList();
       this.getTypeList();
     },
     // 导出
     handleExport() {
-      this.$request.post('/nas/frp/common/export', {},{responseType: 'blob'}).then(res => {
+      this.$request.post('/nas/frp/common/export', {}, {responseType: 'blob'}).then(res => {
         const blob = new Blob([res.data]);
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
