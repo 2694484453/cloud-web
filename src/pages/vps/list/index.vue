@@ -65,7 +65,7 @@
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickEdit(slotProps.row)">修改</a>
-            <a class="t-button-link" @click="handleClickDelete(slotProps)">删除</a>
+            <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
       </div>
@@ -80,10 +80,10 @@
       @change="onChange"/>
     <!--对话框-->
     <t-dialog
-      header="确认删除当前所选项目？"
+      :header="confirm.header"
       :body="confirm.body"
       :visible.sync="confirm.visible"
-      @confirm="onConfirmDelete"
+      @confirm="handleConfirmOk"
       :onCancel="onCancel"
     >
     </t-dialog>
@@ -120,17 +120,17 @@
 <!--            </t-select>-->
 <!--          </t-form-item>-->
           <t-form-item label="ip/域名" name="localIp" >
-            <t-input v-model="formData.hostIp" placeholder="请输入合法的ip地址" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.hostIp" placeholder="请输入正确的ip地址" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="端口" name="localPort" >
-            <t-input v-model="formData.port" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.port" placeholder="请输入正确的端口号" :maxlength="32" with="200"></t-input>
           </t-form-item>
           <t-form-item label="用户名" name="localPort" >
-            <t-input v-model="formData.userName" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>
+            <t-input v-model="formData.userName" placeholder="请输入正确的端口号" :maxlength="32" with="200"></t-input>
           </t-form-item>
-<!--          <t-form-item label="密码" name="localPort" >-->
-<!--            <t-input v-model="formData.passWord" placeholder="请输入合法的端口号" :maxlength="32" with="200"></t-input>-->
-<!--          </t-form-item>-->
+          <t-form-item label="密码" name="localPort" >
+            <t-input v-model="formData.passWord" placeholder="请输入正确的端口号" :maxlength="32" with="200"></t-input>
+          </t-form-item>
           <t-form-item label="备注" name="remotePort" >
             <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
           </t-form-item>
@@ -382,7 +382,7 @@ export default Vue.extend({
     // 新建
     handleSetupContract() {
       this.formData = {}
-      this.formConfig.visible = true;
+      this.drawer.visible = true;
       this.getServiceList();
       this.getTypeList();
     },
@@ -395,7 +395,7 @@ export default Vue.extend({
       console.log('执行:',this.drawer.operation);
       switch (this.drawer.operation) {
         case 'add':
-          this.$request.post("/cloud-host/add", this.form).then(res => {
+          this.$request.post("/cloud-host/add", this.formData).then(res => {
             if (res.data.code === 200) {
               this.$message.success(res.data.msg);
             }
@@ -411,7 +411,7 @@ export default Vue.extend({
           this.drawer.visible = false;
           break;
         case 'edit':
-          this.$request.put("/cloud-host/edit", this.form).then(res => {
+          this.$request.put("/cloud-host/edit", this.formData).then(res => {
             if (res.data.code === 200) {
               this.$message.success(res.data.msg);
             }
@@ -426,18 +426,26 @@ export default Vue.extend({
       }
     },
     // 点击删除
-    handleClickDelete(row: { rowIndex: any }) {
+    handleClickDelete(row) {
+      this.formData = row;
+      this.confirm.operation = 'delete';
+      this.confirm.body = '确认删除当前所选项目？';
+      this.confirm.header = '删除' + row.hostName;
       this.confirm.visible = true;
     },
     // 确认删除
-    onConfirmDelete(row) {
+    handleConfirmOk() {
       // 真实业务请发起请求
-      this.$request.delete('/cloud-host/delete?id=' + this.form.id).then(res => {
+      this.$request.delete('/cloud-host/delete?id=' + this.formData.id).then(res => {
         if (res.data.code === 200) {
           this.$message.success(res.data.msg);
-          this.getList();
-          this.confirmVisible = false;
         }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.page();
+        this.confirm.visible = false;
+        this.dataLoading = false;
       })
     },
     getContainer() {
@@ -459,14 +467,16 @@ export default Vue.extend({
     handleClickDetail(row) {
       console.log(row);
       this.formData = row;
+      this.drawer.header = "详情";
       this.drawer.operation = 'detail';
       this.drawer.visible = true;
     },
     // 编辑
-    handleClickEdit(rowData) {
-      this.formConfig.visible = true;
-      this.formConfig.header = "编辑";
-      this.form = rowData
+    handleClickEdit(row) {
+      this.drawer.visible = true;
+      this.drawer.header = "编辑";
+      this.drawer.operation = 'edit';
+      this.formData = row
     },
     onCancel() {
       this.resetIdx();
