@@ -1,6 +1,15 @@
 <template>
   <div>
     <t-card class="list-card-container" :bordered="false">
+      <t-form
+        ref="form"
+        :data="formData"
+        :label-width="80"
+        colon
+        @reset="onReset"
+        @submit="onSubmit"
+        :style="{ marginBottom: '8px' }"
+      >
       <t-row justify="space-between">
         <div class="left-operation-container">
           <t-button @click="handleSetupContract"> 新建 </t-button>
@@ -13,11 +22,11 @@
           </template>
         </t-input>
         <t-col :span="2" class="operation-container">
-          <t-button theme="primary" :style="{ marginLeft: '8px' }" @click="getList"> 查询</t-button>
+          <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
           <t-button type="reset" variant="base" theme="default"> 重置</t-button>
         </t-col>
       </t-row>
-
+      </t-form>
       <div class="table-container">
         <t-table
           :columns="columns"
@@ -82,40 +91,41 @@
     >
     </t-dialog>
     <t-drawer
-      :visible.sync="formConfig.visible"
-      :header="formConfig.header"
-      :on-overlay-click="() => (formConfig.visible = false)"
+      :visible.sync="drawer.visible"
+      :header="drawer.header"
+      :on-overlay-click="() => (drawer.visible = false)"
       placement="right"
       destroyOnClose
       showOverlay
       :sizeDraggable="true"
       :on-size-drag-end="handleSizeDrag"
       size="40%"
-      @cancel="formConfig.visible = false"
-      @close="handleClose"
+      @cancel="drawer.visible = false"
+      @close="drawer.visible = false"
       :onConfirm="onSubmitCreate">
       <t-space direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
-          :data="form"
-          :rules="rules"
+          :data="formData"
           :label-width="120"
-          :status-icon="formStatusIcon"
           @reset="onReset"
         >
             <t-form-item label="id" name="id" v-show="false">
-              <t-input v-model="form.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
+              <t-input v-model="formData.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
             </t-form-item>
             <t-form-item label="任务名称" name="branch" >
-              <t-input v-model="form.name" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
+              <t-input v-model="formData.name" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
             </t-form-item>
             <t-form-item label="类型" name="type" >
-              <t-select v-model="form.type" placeholder="请选择">
+              <t-select v-model="formData.type" placeholder="请选择">
                 <t-option v-for="(item,index) in typeList" :key="index" :label="item.label" :value="item.value" >{{item.value}}({{item.label}})</t-option>
               </t-select>
             </t-form-item>
+            <t-form-item label="表达式" name="cronExpression">
+              <t-input v-model="formData.cronExpression"  placeholder="请输入"></t-input>
+            </t-form-item>
             <t-form-item label="备注" name="remotePort" >
-              <t-textarea v-model="form.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
+              <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
             </t-form-item>
         </t-form>
       </t-space>
@@ -231,19 +241,16 @@ export default Vue.extend({
         pageNum: 1,
         pageSize: 10,
       },
-      formConfig: {
+      drawer: {
         title: '新增',
         visible: false,
         header: '新增',
       },
-      form: {
+      formData: {
         id: '',
         name: '',
         type: '',
-        frpServer: '',
-        localIp: "127.0.0.1",
-        localPort: 80,
-        customDomains: '',
+        cronExpression: "",
         description: '',
       },
       serviceList: [],
@@ -272,11 +279,27 @@ export default Vue.extend({
     },
   },
   mounted() {
-    this.getList()
+    this.page()
   },
-
+  watch:{
+    "searchForm.name"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageSize"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageNum"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    }
+  },
   methods: {
-    getList() {
+    page() {
       this.dataLoading = true;
       this.$request.get('/scheduling/job/page', {
           params: this.searchForm,
@@ -382,18 +405,10 @@ export default Vue.extend({
     },
     // 新建
     handleSetupContract() {
-      this.form = {
-        id: "",
-        name: "",
-        type: "",
-        frpServer: "",
-        localIp: "127.0.0.1",
-        localPort: 80,
-        customDomains: "",
-        description: "",
-      }
-      this.formConfig.visible = true;
-      this.getServiceList();
+      this.form = {}
+      this.drawer.visible = true;
+      this.drawer.operate = 'add';
+      this.drawer.header = "新增";
       this.getTypeList();
     },
     // 导出
@@ -448,6 +463,14 @@ export default Vue.extend({
     },
     resetIdx() {
       this.deleteIdx = -1;
+    },
+    // drawer大小
+    handleSizeDrag({size}) {
+      console.log('size drag size: ', size);
+    },
+    // 搜索提交
+    onSubmit(data) {
+      this.page();
     },
   },
 });

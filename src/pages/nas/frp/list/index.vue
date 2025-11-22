@@ -24,6 +24,9 @@
           <t-col :span="2" class="operation-container">
             <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
+            <t-button theme="default" variant="base" :style="{ marginRight: '8px' }">
+              <a href="https://docs.gpg123.vip" target="_blank">帮助文档</a>
+            </t-button>
           </t-col>
         </t-row>
       </t-form>
@@ -40,11 +43,9 @@
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
           <template #status="{ row }">
-            <t-tag v-if="row.status === 'offline'" theme="danger" variant="light">{{ row.status }}</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.AUDIT_PENDING" theme="warning" variant="light">待审核</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.EXEC_PENDING" theme="warning" variant="light">待履行</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.EXECUTING" theme="success" variant="light">履行中</t-tag>
-            <t-tag v-if="row.status === 'online'" theme="success" variant="light">{{ row.status }}</t-tag>
+            <t-tag v-if="row.status === 'offline'" theme="danger" variant="light">离线</t-tag>
+            <t-tag v-if="row.status === 'noExist'" theme="warning" variant="light">不存在</t-tag>
+            <t-tag v-if="row.status === 'online'" theme="success" variant="light">在线</t-tag>
             <t-tag v-if="row.status === null" theme="warning" variant="light">unknown</t-tag>
           </template>
           <template #contractType="{ row }">
@@ -98,11 +99,11 @@
       showOverlay
       :sizeDraggable="true"
       :on-size-drag-end="handleSizeDrag"
-      size="40%"
+      :size="drawer.size"
       @cancel="drawer.visible = false"
       @close="drawer.visible = false"
       :onConfirm="handleDrawerOk">
-      <t-space direction="vertical" style="width: 100%">
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
           :data="formData"
@@ -140,6 +141,20 @@
           </t-form-item>
         </t-form>
       </t-space>
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
+        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
+          <t-descriptions-item label="服务名称">{{formData.name}}</t-descriptions-item>
+          <t-descriptions-item label="协议类型">{{formData.type}}</t-descriptions-item>
+          <t-descriptions-item label="客户端ip地址">{{formData.localIp}}</t-descriptions-item>
+          <t-descriptions-item label="客户端端口">{{formData.localPort}}</t-descriptions-item>
+          <t-descriptions-item label="映射域名">{{formData.customDomains}}</t-descriptions-item>
+          <t-descriptions-item label="备注">{{formData.description}}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
+          <t-descriptions-item label="创建人">{{formData.createByUserName}}</t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
+          <t-descriptions-item label="更新人">{{formData.updateByUserName}}</t-descriptions-item>
+        </t-descriptions>
+      </t-space>
     </t-drawer>
   </div>
 </template>
@@ -148,7 +163,7 @@ import Vue from 'vue';
 import {SearchIcon} from 'tdesign-icons-vue';
 import Trend from '@/components/trend/index.vue';
 import {prefix} from '@/config/global';
-
+import { Icon } from 'tdesign-icons-vue';
 import {CONTRACT_STATUS, CONTRACT_STATUS_OPTIONS, CONTRACT_TYPES, CONTRACT_PAYMENT_TYPES} from '@/constants';
 
 export default Vue.extend({
@@ -156,6 +171,7 @@ export default Vue.extend({
   components: {
     SearchIcon,
     Trend,
+    Icon,
   },
   data() {
     return {
@@ -270,7 +286,8 @@ export default Vue.extend({
         type: "",
         operation: "add",
         row: {},
-        dynamicForm: {}
+        dynamicForm: {},
+        size: "30%"
       },
       // 对话框
       confirm: {
@@ -287,6 +304,12 @@ export default Vue.extend({
         localPort: 80,
         customDomains: '',
         description: '',
+        createTime: '',
+        updateTime: '',
+        createBy: "",
+        updateBy: '',
+        createByUserName: '',
+        updateByUserName: '',
       },
       serviceList: [],
       typeList: [],
@@ -418,10 +441,11 @@ export default Vue.extend({
     handleClickEdit(row) {
       this.formData = row;
       this.drawer.visible = true;
+      this.drawer.operation = 'edit';
       this.drawer.header = "编辑";
       this.getTypeList();
     },
-    // 新建
+    // 新建s
     handleSetupContract() {
       this.formData = {}
       this.drawer.visible = true;
@@ -431,7 +455,7 @@ export default Vue.extend({
     },
     // 导出
     handleExport() {
-      this.$request.post('/nas/frp/common/export', {}, {responseType: 'blob'}).then(res => {
+      this.$request.post('/nas/frpc/export', {}, {responseType: 'blob'}).then(res => {
         const blob = new Blob([res.data]);
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
