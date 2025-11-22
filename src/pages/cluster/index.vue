@@ -2,82 +2,65 @@
   <div class="dashboard-detail">
     <t-card title="概览" class="dashboard-detail-card" :bordered="false">
       <t-row :gutter="[16, 16]">
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="集群总数">
-            <div class="dashboard-list-card__number">{{data.clusterTotalCount}}</div>
+        <t-col v-for="(item, index) in overViewData" :key="index" :xs="6" :xl="3">
+          <t-card :class="['dashboard-list-card']" :description="item.title">
+            <div class="dashboard-list-card__number">{{ item.count }}</div>
             <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-<!--                <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon />
-            </div>
-          </t-card>
-        </t-col>
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="正常数">
-            <div class="dashboard-list-card__number">{{data.clusterOkCount}}</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <!--                <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon />
-            </div>
-          </t-card>
-        </t-col>
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="异常数">
-            <div class="dashboard-list-card__number">{{data.clusterErrorCount}}</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <!--                <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon />
+              <!--              <div class="dashboard-list-card__text-left">-->
+              <!--                环比-->
+              <!--                <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
+              <!--              </div>-->
+              <!--              <chevron-right-icon />-->
             </div>
           </t-card>
         </t-col>
       </t-row>
     </t-card>
-    <t-row :gutter="[16, 16]" class="row-margin">
-      <t-col :xs="12" :xl="9">
-        <t-card :class="{ 'dashboard-detail-card': true }" title="采购商品申请趋势" subtitle="(件)" :bordered="false">
-          <template #actions>
-            <t-date-range-picker
-              style="width: 250px"
-              :default-value="LAST_7_DAYS"
-              theme="primary"
-              mode="date"
-              @change="onMaterialChange"
-            />
-          </template>
-          <div id="lineContainer" ref="lineContainer" style="width: 100%; height: 410px"></div>
-        </t-card>
-      </t-col>
-      <t-col :xs="12" :xl="3">
-        <product-card
-          v-for="(item, index) in PRODUCT_LIST"
-          :key="index"
-          :product="item"
-          :class="{ 'row-margin': index !== 0 }"
-        />
-      </t-col>
-    </t-row>
-    <t-card :class="{ 'dashboard-detail-card': true }" title="采购商品满意度分布" class="row-margin" :bordered="false">
-      <template #actions>
-        <t-date-range-picker
-          style="display: inline-block; margin-right: 8px; width: 250px"
-          :defaultValue="LAST_7_DAYS"
-          theme="primary"
-          mode="date"
-          @change="onSatisfyChange"
-        >
-        </t-date-range-picker>
-        <t-button>导出数据</t-button>
-      </template>
-      <div id="scatterContainer" style="width: 100%; height: 374px"></div>
+    <t-card :class="{ 'dashboard-detail-card': true }"  class="row-margin" :bordered="false" title="系统公告" >
+      <t-timeline mode="same" :reverse="reverse" theme="default">
+        <t-space v-for="(item) in sysNoticeData">
+          <t-timeline-item :label="item.createTime" >{{item.noticeTitle}}</t-timeline-item>
+        </t-space>
+      </t-timeline>
     </t-card>
+<!--    <t-row :gutter="[16, 16]" class="row-margin">-->
+<!--      <t-col :xs="12" :xl="9">-->
+<!--        <t-card :class="{ 'dashboard-detail-card': true }" title="采购商品申请趋势" subtitle="(件)" :bordered="false">-->
+<!--          <template #actions>-->
+<!--            <t-date-range-picker-->
+<!--              style="width: 250px"-->
+<!--              :default-value="LAST_7_DAYS"-->
+<!--              theme="primary"-->
+<!--              mode="date"-->
+<!--              @change="onMaterialChange"-->
+<!--            />-->
+<!--          </template>-->
+<!--          <div id="lineContainer" ref="lineContainer" style="width: 100%; height: 410px"></div>-->
+<!--        </t-card>-->
+<!--      </t-col>-->
+<!--      <t-col :xs="12" :xl="3">-->
+<!--        <product-card-->
+<!--          v-for="(item, index) in PRODUCT_LIST"-->
+<!--          :key="index"-->
+<!--          :product="item"-->
+<!--          :class="{ 'row-margin': index !== 0 }"-->
+<!--        />-->
+<!--      </t-col>-->
+<!--    </t-row>-->
+<!--    <t-card :class="{ 'dashboard-detail-card': true }" title="采购商品满意度分布" class="row-margin" :bordered="false">-->
+<!--      <template #actions>-->
+<!--        <t-date-range-picker-->
+<!--          style="display: inline-block; margin-right: 8px; width: 250px"-->
+<!--          :defaultValue="LAST_7_DAYS"-->
+<!--          theme="primary"-->
+<!--          mode="date"-->
+<!--          @change="onSatisfyChange"-->
+<!--        >-->
+<!--        </t-date-range-picker>-->
+<!--        <t-button>导出数据</t-button>-->
+<!--      </template>-->
+<!--      <div id="scatterContainer" style="width: 100%; height: 374px"></div>-->
+<!--    </t-card>-->
   </div>
 </template>
 <script lang="ts">
@@ -121,11 +104,8 @@ export default {
         },
       ],
       LAST_7_DAYS,
-      data: {
-        clusterTotalCount: 0,
-        clusterOkCount: 0,
-        clusterErrorCount: 0,
-      }
+      overViewData: [],
+      sysNoticeData: []
     };
   },
   computed: {
@@ -144,8 +124,10 @@ export default {
       this.updateContainer();
     });
     this.renderCharts();
-    // 请求
-    this.getList();
+  },
+  created() {
+    this.overView();
+    this.getNotice();
   },
   methods: {
     /** 采购商品满意度选择 */
@@ -187,13 +169,13 @@ export default {
       this.scatterChart = echarts.init(this.scatterContainer);
       this.scatterChart.setOption(getScatterDataSet({ ...chartColors }));
     },
-    getList() {
+    overView() {
       this.dataLoading = true;
-      this.$request.get('/kubernetes/overView', {
+      this.$request.get('/kubernetes/cluster/overView', {
             params: this.formData
           }).then((res) => {
         if (res.data.code === 200) {
-          this.data = res.data.data;
+          this.overViewData = res.data.data;
         }
       }).catch((e: Error) => {
         console.log(e);
@@ -201,6 +183,21 @@ export default {
         this.dataLoading = false;
       });
     },
+    getNotice() {
+      this.$request.get('/sysNotice/page',{
+        params: {
+          type: 'cluster',
+        }
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.sysNoticeData = res.data.rows;
+        }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
+    }
   },
 };
 </script>
