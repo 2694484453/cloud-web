@@ -16,7 +16,7 @@
 <!--            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length">导出配置</t-button>-->
 <!--            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>-->
           </div>
-          <t-input v-model="searchValue" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
+          <t-input v-model="searchForm.hostName" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
             <template #suffix-icon>
               <search-icon size="20px"/>
             </template>
@@ -31,6 +31,7 @@
         <t-table
           :columns="columns"
           :data="data"
+          @sort-change="sortChange"
           :rowKey="rowKey"
           :verticalAlign="verticalAlign"
           :hover="hover"
@@ -86,6 +87,7 @@
       :onCancel="onCancel"
     >
     </t-dialog>
+    <!--抽屉-->
     <t-drawer
       :visible.sync="drawer.visible"
       :header="drawer.header"
@@ -97,15 +99,13 @@
       :on-size-drag-end="handleSizeDrag"
       size="40%"
       @cancel="drawer.visible = false"
-      @close="handleClose"
-      :onConfirm="onSubmitCreate">
+      @close="drawer.visible = false"
+      :onConfirm="handleDrawerOk">
       <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'"  direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
           :data="formData"
-          :rules="rules"
           :label-width="120"
-          :status-icon="formStatusIcon"
           @reset="onReset"
         >
           <t-form-item label="id" name="id" v-show="false">
@@ -144,10 +144,10 @@
           <t-descriptions-item label="端口">{{formData.port}}</t-descriptions-item>
           <t-descriptions-item label="用户名">{{formData.userName}}</t-descriptions-item>
           <t-descriptions-item label="备注">{{formData.description}}</t-descriptions-item>
-          <t-descriptions-item label="创建者">{{formData.createBy}}</t-descriptions-item>
+          <t-descriptions-item label="创建者">{{formData.createByUserName}}</t-descriptions-item>
           <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
           <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
-          <t-descriptions-item label="更新者">{{formData.updateBy}}</t-descriptions-item>
+          <t-descriptions-item label="更新者">{{formData.updateByUserName}}</t-descriptions-item>
         </t-descriptions>
       </t-space>
     </t-drawer>
@@ -187,6 +187,8 @@ export default Vue.extend({
           ellipsis: true,
           colKey: 'hostName',
           fixed: 'left',
+          sortType: 'all',
+          sorter: true,
         },
         {
           title: 'ip地址/域名',
@@ -198,7 +200,9 @@ export default Vue.extend({
           title: '端口',
           colKey: 'port',
           width: 60,
-          cell: {col: 'status'}
+          cell: {col: 'status'},
+          sortType: 'all',
+          sorter: true,
         },
         {
           title: '系统',
@@ -216,7 +220,9 @@ export default Vue.extend({
           title: "添加时间",
           colKey: 'createTime',
           width: 120,
-          cell: {col: 'status'}
+          cell: {col: 'status'},
+          sortType: 'all',
+          sorter: true,
         },
         {
           title: '备注',
@@ -262,10 +268,19 @@ export default Vue.extend({
       deleteIdx: -1,
       // 搜索框
       searchForm: {
-        name: "",
+        id: "",
+        hostName: '',
         type: "",
+        isAsc: "desc",
+        orderByColumn: "createTime",
         pageNum: 1,
-        pageSize: 10
+        pageSize: 10,
+        // sort: {
+        //   // 按照 status 字段进行排序
+        //   sortBy: 'status',
+        //   // 是否按照降序进行排序
+        //   descending: true,
+        // }
       },
       // 当前数据
       formData: {
@@ -280,7 +295,9 @@ export default Vue.extend({
         updateTime: "",
         createTime: '',
         updateBy: '',
+        updateByUserName: "",
         createBy: '',
+        createByUserName: '',
       },
       typeList: [],
     };
@@ -304,7 +321,7 @@ export default Vue.extend({
     this.page()
   },
   watch:{
-    "searchForm.name"(newVal, oldVal) {
+    "searchForm.hostName"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.page()
       }
@@ -315,6 +332,16 @@ export default Vue.extend({
       }
     },
     "searchForm.pageNum"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.isAsc"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.orderByColumn"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.page()
       }
@@ -364,24 +391,38 @@ export default Vue.extend({
 
     },
     // 确定
-    onSubmitCreate() {
-      console.log(this.form);
-      if (this.form.id === '') {
-        this.$request.post("/cloud-host/add", this.form).then(res => {
-          if (res.data.code === 200) {
-            this.$message.success(res.data.msg);
-            this.getList();
-            this.formConfig.visible = false;
-          }
-        })
-      } else {
-        this.$request.put("/cloud-host/edit", this.form).then(res => {
-          if (res.data.code === 200) {
-            this.$message.success(res.data.msg);
-            this.getList();
-            this.formConfig.visible = false;
-          }
-        })
+    handleDrawerOk() {
+      console.log('执行:',this.drawer.operation);
+      switch (this.drawer.operation) {
+        case 'add':
+          this.$request.post("/cloud-host/add", this.form).then(res => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg);
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.page();
+            this.drawer.visible = false;
+            this.dataLoading = false;
+          })
+          break;
+        case 'detail':
+          this.drawer.visible = false;
+          break;
+        case 'edit':
+          this.$request.put("/cloud-host/edit", this.form).then(res => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg);
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.page();
+            this.drawer.visible = false;
+            this.dataLoading = false;
+          })
+          break;
       }
     },
     // 点击删除
@@ -403,7 +444,7 @@ export default Vue.extend({
       return document.querySelector('.tdesign-starter-layout');
     },
     onPageSizeChange(size, pageInfo) {
-      console.log('Page Size:', this.pageSize, size, pageInfo);
+      console.log('Page Size:', size, pageInfo);
       // 刷新
       this.searchForm.pageSize = size
     },
@@ -437,8 +478,18 @@ export default Vue.extend({
       console.log(data);
     },
     onSubmit(data) {
-      console.log(this.formData);
-      this.getList(this.formData);
+      console.log(this.searchForm);
+      this.page();
+    },
+    sortChange(sort) {
+      // 对于受控属性而言，这里的赋值很重要，不可缺少
+      console.log('sort-change',sort);
+      this.searchForm.isAsc = sort.descending ? 'desc' : 'asc';
+      this.searchForm.orderByColumn = sort.sortBy
+    },
+    // drawer大小
+    handleSizeDrag({size}) {
+      console.log('size drag size: ', size);
     },
   },
 });
