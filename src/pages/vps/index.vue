@@ -2,69 +2,58 @@
   <div class="dashboard-detail">
     <t-card title="概览" class="dashboard-detail-card" :bordered="false">
       <t-row :gutter="[16, 16]">
-        <t-col v-for="(item, index) in PANE_LIST_DATA" :key="index" :xs="6" :xl="3">
+        <t-col v-for="(item, index) in overViewData" :key="index" :xs="6" :xl="3">
           <t-card :class="['dashboard-list-card']" :description="item.title">
-            <div class="dashboard-list-card__number">{{ item.number }}</div>
+            <div class="dashboard-list-card__number">{{ item.count }}</div>
             <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />
-              </div>
-              <chevron-right-icon />
-            </div>
-          </t-card>
-        </t-col>
-        <t-col  :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" >
-            <div class="dashboard-list-card__number">11</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-              </div>
-              <chevron-right-icon />
+<!--              <div class="dashboard-list-card__text-left">-->
+<!--                环比-->
+<!--                <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
+<!--              </div>-->
+<!--              <chevron-right-icon />-->
             </div>
           </t-card>
         </t-col>
       </t-row>
     </t-card>
-    <t-row :gutter="[16, 16]" class="row-margin">
-      <t-col :xs="12" :xl="9">
-        <t-card :class="{ 'dashboard-detail-card': true }" title="采购商品申请趋势" subtitle="(件)" :bordered="false">
-          <template #actions>
-            <t-date-range-picker
-              style="width: 250px"
-              :default-value="LAST_7_DAYS"
-              theme="primary"
-              mode="date"
-              @change="onMaterialChange"
-            />
-          </template>
-          <div id="lineContainer" ref="lineContainer" style="width: 100%; height: 410px"></div>
-        </t-card>
-      </t-col>
-      <t-col :xs="12" :xl="3">
-        <product-card
-          v-for="(item, index) in PRODUCT_LIST"
-          :key="index"
-          :product="item"
-          :class="{ 'row-margin': index !== 0 }"
-        />
-      </t-col>
-    </t-row>
-    <t-card :class="{ 'dashboard-detail-card': true }" title="采购商品满意度分布" class="row-margin" :bordered="false">
-      <template #actions>
-        <t-date-range-picker
-          style="display: inline-block; margin-right: 8px; width: 250px"
-          :defaultValue="LAST_7_DAYS"
-          theme="primary"
-          mode="date"
-          @change="onSatisfyChange"
-        >
-        </t-date-range-picker>
-        <t-button>导出数据</t-button>
-      </template>
-      <div id="scatterContainer" style="width: 100%; height: 374px"></div>
-    </t-card>
+<!--    <t-row :gutter="[16, 16]" class="row-margin">-->
+<!--      <t-col :xs="12" :xl="9">-->
+<!--        <t-card :class="{ 'dashboard-detail-card': true }" title="采购商品申请趋势" subtitle="(件)" :bordered="false">-->
+<!--          <template #actions>-->
+<!--            <t-date-range-picker-->
+<!--              style="width: 250px"-->
+<!--              :default-value="LAST_7_DAYS"-->
+<!--              theme="primary"-->
+<!--              mode="date"-->
+<!--              @change="onMaterialChange"-->
+<!--            />-->
+<!--          </template>-->
+<!--          <div id="lineContainer" ref="lineContainer" style="width: 100%; height: 410px"></div>-->
+<!--        </t-card>-->
+<!--      </t-col>-->
+<!--      <t-col :xs="12" :xl="3">-->
+<!--        <product-card-->
+<!--          v-for="(item, index) in PRODUCT_LIST"-->
+<!--          :key="index"-->
+<!--          :product="item"-->
+<!--          :class="{ 'row-margin': index !== 0 }"-->
+<!--        />-->
+<!--      </t-col>-->
+<!--    </t-row>-->
+<!--    <t-card :class="{ 'dashboard-detail-card': true }" title="采购商品满意度分布" class="row-margin" :bordered="false">-->
+<!--      <template #actions>-->
+<!--        <t-date-range-picker-->
+<!--          style="display: inline-block; margin-right: 8px; width: 250px"-->
+<!--          :defaultValue="LAST_7_DAYS"-->
+<!--          theme="primary"-->
+<!--          mode="date"-->
+<!--          @change="onSatisfyChange"-->
+<!--        >-->
+<!--        </t-date-range-picker>-->
+<!--        <t-button>导出数据</t-button>-->
+<!--      </template>-->
+<!--      <div id="scatterContainer" style="width: 100%; height: 374px"></div>-->
+<!--    </t-card>-->
   </div>
 </template>
 <script lang="ts">
@@ -108,6 +97,9 @@ export default {
         },
       ],
       LAST_7_DAYS,
+      overViewData:{
+
+      }
     };
   },
   computed: {
@@ -127,17 +119,18 @@ export default {
     });
     this.renderCharts();
   },
+  created() {
+    this.overView();
+  },
   methods: {
     /** 采购商品满意度选择 */
     onSatisfyChange(value: string) {
       const { chartColors } = this.$store.state.setting;
-
       this.scatterChart.setOption(getScatterDataSet({ dateTime: value, ...chartColors }));
     },
     /** 采购商品申请趋势选择 */
     onMaterialChange(value: string) {
       const { chartColors } = this.$store.state.setting;
-
       this.lineChart.setOption(getFolderLineDataSet({ dateTime: value, ...chartColors }));
     },
     updateContainer() {
@@ -167,6 +160,16 @@ export default {
       this.scatterChart = echarts.init(this.scatterContainer);
       this.scatterChart.setOption(getScatterDataSet({ ...chartColors }));
     },
+    overView() {
+      this.$request.get("/cloud-host/overView", {
+      }).then((res) => {
+        this.overViewData = res.data.data;
+      }).catch((err) => {
+        console.log(err);
+      }).finally(() => {
+
+      })
+    }
   },
 };
 </script>

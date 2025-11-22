@@ -1,23 +1,31 @@
 <template>
   <div>
     <t-card class="list-card-container" :bordered="false">
+      <t-form
+        ref="form"
+        :data="formData"
+        :label-width="80"
+        colon
+        @reset="onReset"
+        @submit="onSubmit"
+        :style="{ marginBottom: '8px' }"
+      >
       <t-row justify="space-between">
         <div class="left-operation-container">
           <t-button @click="handleSetupContract"> 新建 </t-button>
           <t-button @click="handleExport" variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出 </t-button>
-          <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>
         </div>
-        <t-input v-model="searchValue" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
+        <t-input v-model="searchForm.name" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
           <template #suffix-icon>
             <search-icon size="20px" />
           </template>
         </t-input>
         <t-col :span="2" class="operation-container">
-          <t-button theme="primary" :style="{ marginLeft: '8px' }" @click="getList"> 查询</t-button>
+          <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
           <t-button type="reset" variant="base" theme="default"> 重置</t-button>
         </t-col>
       </t-row>
-
+      </t-form>
       <div class="table-container">
         <t-table
           :columns="columns"
@@ -89,45 +97,43 @@
       :sizeDraggable="true"
       :on-size-drag-end="handleSizeDrag"
       size="40%"
-      @cancel="formConfig.visible = false"
-      @close="handleClose"
+      @cancel="drawer.visible = false"
+      @close="drawer.visible = false"
       :onConfirm="onSubmitCreate">
       <t-space direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
-          :data="form"
-          :rules="rules"
+          :data="formData"
           :label-width="120"
-          :status-icon="formStatusIcon"
           @reset="onReset"
         >
             <t-form-item label="id" name="id" v-show="false">
-              <t-input v-model="form.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
+              <t-input v-model="formData.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
             </t-form-item>
             <t-form-item label="服务名称" name="branch" >
-              <t-input v-model="form.name" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
+              <t-input v-model="formData.name" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
             </t-form-item>
             <t-form-item label="协议类型" name="type" >
-              <t-select v-model="form.type" placeholder="请选择">
+              <t-select v-model="formData.type" placeholder="请选择">
                 <t-option v-for="(item,index) in typeList" :key="index" :label="item" :value="item" >{{item}}</t-option>
               </t-select>
             </t-form-item>
-            <t-form-item label="服务端" name="frpsName" >
-              <t-select v-model="form.frpServer" placeholder="请选择" style="width: 322px">
-                <t-option v-for="(item,index) in serviceList" :key="index" :label="item.serverName" :value="item.serverName" >{{item.serverName}}</t-option>
-              </t-select>
-            </t-form-item>
+<!--            <t-form-item label="服务端" name="frpsName" >-->
+<!--              <t-select v-model="form.frpServer" placeholder="请选择" style="width: 322px">-->
+<!--                <t-option v-for="(item,index) in serviceList" :key="index" :label="item.serverName" :value="item.serverName" >{{item.serverName}}</t-option>-->
+<!--              </t-select>-->
+<!--            </t-form-item>-->
             <t-form-item label="客户端ip地址" name="localIp" >
-              <t-input v-model="form.localIp" placeholder="请输入ip地址" :maxlength="32" with="200"></t-input>
+              <t-input v-model="formData.localIp" placeholder="请输入ip地址" :maxlength="32" with="200"></t-input>
             </t-form-item>
             <t-form-item label="客户端端口" name="localPort" >
-              <t-input v-model="form.localPort" placeholder="请输入端口号" :maxlength="32" with="200"></t-input>
+              <t-input v-model="formData.localPort" placeholder="请输入端口号" :maxlength="32" with="200"></t-input>
             </t-form-item>
             <t-form-item label="映射域名" name="customDomains" >
-              <t-input v-model="form.customDomains" placeholder="请输入域名地址" :maxlength="32" with="200"></t-input>
+              <t-input v-model="formData.customDomains" placeholder="请输入域名地址" :maxlength="32" with="200"></t-input>
             </t-form-item>
             <t-form-item label="备注" name="description" >
-              <t-textarea v-model="form.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
+              <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
             </t-form-item>
         </t-form>
       </t-space>
@@ -254,7 +260,23 @@ export default Vue.extend({
         visible: false,
         header: '新增',
       },
-      form: {
+      // 抽屉
+      drawer: {
+        header: "",
+        visible: false,
+        type: "",
+        operation: "add",
+        row: {},
+        dynamicForm: {}
+      },
+      // 对话框
+      confirm: {
+        header: "",
+        body: "",
+        operation: "update",
+        visible: false
+      },
+      formData: {
         id: '',
         name: '',
         type: '',
@@ -284,14 +306,29 @@ export default Vue.extend({
     },
   },
   mounted() {
-    this.getList()
+    this.page()
   },
-
+  watch:{
+    "searchForm.name"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageSize"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageNum"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    }
+  },
   methods: {
-    getList() {
+    page() {
       this.dataLoading = true;
-      this.$request
-        .get('/nas/frpc/page', {
+      this.$request.get('/nas/frpc/page', {
           params: this.searchForm,
         }).then((res) => {
           if (res.data.code === 200) {
@@ -306,22 +343,9 @@ export default Vue.extend({
     },
     // 类型列表
     getTypeList() {
-      this.$request
-        .get('/nas/frp/common/types').then((res) => {
+      this.$request.get('/nas/frp/common/types').then((res) => {
           if (res.data.code === 200) {
             this.typeList = res.data.data;
-          }
-        }).catch((e: Error) => {
-          console.log(e);
-        }).finally(() => {
-          this.dataLoading = false;
-        })
-    },
-    // 服务列表
-    getServiceList() {
-      this.$request.get('/nas/frps/list').then((res) => {
-          if (res.data.code === 200) {
-            this.serviceList = res.data.data;
           }
         }).catch((e: Error) => {
           console.log(e);
@@ -334,10 +358,13 @@ export default Vue.extend({
       console.log(this.form);
       if (this.form.id === '') {
         this.$request.post("/nas/frpc/add", this.form).then(res => {
+          console.log(res);
           if (res.data.code === 200) {
             this.$message.success(res.data.msg);
             this.getList();
             this.formConfig.visible = false;
+          }else {
+            this.$message.error(res.data.msg);
           }
         })
       } else {
@@ -356,57 +383,41 @@ export default Vue.extend({
     onPageSizeChange(size, pageInfo) {
       console.log('Page Size:', this.pageSize, size, pageInfo);
       // 刷新
-      this.formData.pageSize = size
+      this.searchForm.pageSize = size
     },
     onCurrentChange(current, pageInfo) {
       console.log('Current Page', this.current, current, pageInfo);
       // 刷新
-      this.formData.pageNum = current
-      this.getList()
+      this.searchForm.pageNum = current
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
     },
     handleClickDetail(row) {
-      this.$router.push('/detail/base');
+      this.formData = row;
+      this.drawer.visible = true;
+      this.drawer.title = row.name + '详情';
+      this.drawer.operation = 'detail';
     },
     // 编辑
     handleClickEdit(row) {
-      this.formConfig.visible = true;
-      this.formConfig.header = "编辑";
+      this.formData = row;
+      this.drawer.visible = true;
+      this.drawer.header = "编辑";
       this.getTypeList();
-      this.form = {
-        id: row.id,
-        name: row.name,
-        type: row.type,
-        frpServer: row.frpServer,
-        localIp: row.localIp,
-        localPort: row.localPort,
-        customDomains: row.customDomains,
-        description: row.description,
-      }
     },
     // 新建
     handleSetupContract() {
-      this.form = {
-        id: "",
-        name: "",
-        type: "",
-        frpServer: "",
-        localIp: "127.0.0.1",
-        localPort: 80,
-        customDomains: "",
-        description: "",
-      }
-      this.formConfig.visible = true;
+      this.formData = {}
+      this.drawer.visible = true;
+      this.drawer.title = '新增';
+      this.drawer.operation = 'add';
       this.getServiceList();
       this.getTypeList();
     },
     // 导出
     handleExport() {
-      this.$request.post('/nas/frp/common/export', {
-        serverName: 'hcs.gpg123.vip',
-      },{responseType: 'blob'}).then(res => {
+      this.$request.post('/nas/frp/common/export', {},{responseType: 'blob'}).then(res => {
         const blob = new Blob([res.data]);
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -418,8 +429,8 @@ export default Vue.extend({
     // 点击删除
     handleClickDelete(row: { rowIndex: any }) {
       this.deleteIdx = row.rowIndex;
-      this.confirmVisible = true;
-      this.form.id = row.id;
+      this.confirm.visible = true;
+
     },
     // 确认删除
     onConfirmDelete(row) {
@@ -427,8 +438,8 @@ export default Vue.extend({
       this.$request.delete('/nas/frpc/delete?id=' + this.form.id).then(res => {
         if (res.data.code === 200) {
           this.$message.success(res.data.msg);
-          this.getList();
-          this.confirmVisible = false;
+          this.page();
+          this.confirm.visible = false;
         }
       })
     },
@@ -440,6 +451,13 @@ export default Vue.extend({
     },
     resetIdx() {
       this.deleteIdx = -1;
+    },
+    onSubmit() {
+      this.page();
+    },
+    // drawer大小
+    handleSizeDrag({size}) {
+      console.log('size drag size: ', size);
     },
   },
 });
