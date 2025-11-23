@@ -408,7 +408,6 @@ export default Vue.extend({
       this.drawer.visible = true;
       this.drawer.size = '30%';
       this.drawer.operation = 'detail';
-      this.drawer.title = '详情-' + row.jobName;
       this.drawer.header = '详情-' + row.jobName;
     },
     // 执行一次任务
@@ -421,10 +420,10 @@ export default Vue.extend({
     },
     // 编辑
     handleClickEdit(row) {
-      this.drawer.visible = true;
-      this.drawer.header = "编辑";
-      this.getTypeList();
       this.formData = row;
+      this.drawer.visible = true;
+      this.drawer.header = "编辑" + row.jobName;
+      this.getTypeList();
     },
     // 新建
     handleSetupContract() {
