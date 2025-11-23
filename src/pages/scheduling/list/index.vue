@@ -39,28 +39,21 @@
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
-          <template #status="{ row }">
-            <t-tag v-if="row.status === '0'" theme="default" variant="light">未运行</t-tag>
-            <t-tag v-if="row.status === '1'" theme="warning" variant="light">待履行</t-tag>
+          <template #status="{row}">
+            <t-tag v-if="row.status === ''|| row.status == null" theme="default" variant="light">未运行</t-tag>
+            <t-tag v-if="row.status === 'pause'" theme="warning" variant="light">暂停</t-tag>
             <t-tag v-if="row.status === 'running'" theme="primary" variant="light">执行中</t-tag>
-            <t-tag v-if="row.status === 'success'" theme="success" variant="light">执行成功</t-tag>
+            <t-tag v-if="row.status === 'done'" theme="success" variant="light">完成</t-tag>
             <t-tag v-if="row.status === 'fail'" theme="danger" variant="light">执行失败</t-tag>
             <t-tag v-if="row.status === null" theme="warning" variant="light">unknown</t-tag>
           </template>
-          <template #contractType="{ row }">
+          <template #contractType="{row}">
             <p v-if="row.contractType === CONTRACT_TYPES.MAIN">审核失败</p>
             <p v-if="row.contractType === CONTRACT_TYPES.SUB">待审核</p>
             <p v-if="row.contractType === CONTRACT_TYPES.SUPPLEMENT">待履行</p>
           </template>
-          <template #paymentType="{ row }">
-            <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.PAYMENT" class="payment-col">
-              付款
-              <trend class="dashboard-item-trend" type="up" />
-            </p>
-            <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.RECEIPT" class="payment-col">
-              收款
-              <trend class="dashboard-item-trend" type="down" />
-            </p>
+          <template #runStatus="{row}">
+            <t-tag v-if="row.runStatus === 'done'" theme="success" variant="light">成功</t-tag>
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
@@ -83,9 +76,9 @@
     </t-card>
     <t-dialog
       :header="confirm.header"
-      :body="confirm.confirmBody"
+      :body="confirm.body"
       :visible.sync="confirm.visible"
-      :operate="confirm.operate"
+      :operate="confirm.operation"
       @confirm="onConfirm"
       :onCancel="onCancel"
     >
@@ -111,13 +104,13 @@
           @reset="onReset"
         >
             <t-form-item label="id" name="id" v-show="false">
-              <t-input v-model="formData.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
+              <t-input v-model="formData.jobId" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
             </t-form-item>
             <t-form-item label="任务名称" name="branch" >
-              <t-input v-model="formData.name" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
+              <t-input v-model="formData.jobName" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
             </t-form-item>
             <t-form-item label="类型" name="type" >
-              <t-select v-model="formData.type" placeholder="请选择">
+              <t-select v-model="formData.jobType" placeholder="请选择">
                 <t-option v-for="(item,index) in typeList" :key="index" :label="item.label" :value="item.value" >{{item.value}}({{item.label}})</t-option>
               </t-select>
             </t-form-item>
@@ -188,7 +181,8 @@ export default Vue.extend({
           fixed: 'left',
         },
         {
-          title: '状态',
+          title: '任务状态',
+          align: 'center',
           colKey: 'status',
           width: 80,
           cell: {
@@ -196,44 +190,54 @@ export default Vue.extend({
           }
         },
         {
-          title: '组',
-          width: 120,
+          title: '分组',
+          width: 80,
           ellipsis: true,
           colKey: 'jobGroup',
         },
         {
           title: '表达式',
-          width: 150,
+          width: 120,
           colKey: 'cronExpression',
         },
         {
           title: '创建时间',
           width: 150,
+          align: 'left',
           ellipsis: true,
           colKey: 'createTime',
         },
         {
-          title: '最近一次执行',
+          title: '执行时间',
           width: 150,
+          align: 'left',
           ellipsis: true,
           colKey: 'runTime',
         },
         {
+          title: '执行状态',
+          colKey: 'runStatus',
+          align: 'center',
+          width: 80,
+        },
+        {
           title: '描述',
           width: 120,
+          align: 'left',
           ellipsis: true,
           colKey: 'remark',
         },
         {
           title: '执行结果',
-          width: 180,
+          width: 120,
+          align: 'left',
           ellipsis: true,
           colKey: 'runResult',
         },
         {
           align: 'left',
           fixed: 'right',
-          width: 200,
+          width: 180,
           colKey: 'op',
           title: '操作',
         },
@@ -264,7 +268,7 @@ export default Vue.extend({
         size: "40%"
       },
       formData: {
-        id: '',
+        jobId: '',
         jobName: '',
         status: "",
         jobType: '',
@@ -288,8 +292,8 @@ export default Vue.extend({
       confirm: {
         visible: false,
         header: '确认删除当前所选项目？',
-        operate: 'delete',
-        confirmBody: "删除后，所有信息将被清空，且无法恢复",
+        operation: 'delete',
+        body: "删除后，所有信息将被清空，且无法恢复",
       }
     };
   },
@@ -309,7 +313,7 @@ export default Vue.extend({
     this.page()
   },
   watch:{
-    "searchForm.name"(newVal, oldVal) {
+    "searchForm.jobName"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.page()
       }
@@ -413,9 +417,9 @@ export default Vue.extend({
     // 执行一次任务
     handleClickRun(row) {
       this.confirm.visible = true;
-      this.confirm.operate = "run";
-      this.confirm.header = "确认执行一次当前项目？";
-      this.confirm.confirmBody = "";
+      this.confirm.operation = "run";
+      this.confirm.header = "执行" + row.jobName;
+      this.confirm.body = "确认执行一次当前项目？";
       this.formData = row
     },
     // 编辑
@@ -454,7 +458,7 @@ export default Vue.extend({
     },
     // 确认操作
     onConfirm() {
-      switch (this.confirm.operate) {
+      switch (this.confirm.operation) {
         // 执行删除
         case 'delete':
           this.$request.delete('/nas/frpc/delete?id=' + this.form.id).then(res => {
@@ -467,12 +471,18 @@ export default Vue.extend({
           break;
         // 运行一次
         case 'run':
-          this.$request.put('/scheduling/job/run', this.form).then(res => {
+          this.$request.put('/scheduling/job/run', this.formData).then(res => {
             if (res.data.code === 200) {
               this.$message.success(res.data.msg);
-              this.getList();
               this.confirm.visible = false;
+            } else {
+              this.$message.error(res.data.msg);
             }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.page();
+            this.dataLoading = false;
           })
           break;
       }
