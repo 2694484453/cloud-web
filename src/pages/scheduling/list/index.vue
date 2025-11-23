@@ -46,7 +46,7 @@
           </template>
           <template #runStatus="{row}">
             <t-tag v-if="row.runStatus === 'done'" theme="success" variant="light">成功</t-tag>
-            <t-tag v-if="row.runStatus === 'fail'" theme="danger" variant="light">失败</t-tag>
+            <t-tag v-if="row.runStatus === 'error'" theme="danger" variant="light">失败</t-tag>
             <t-tag v-if="row.runStatus === ''" theme="success" variant="light">未知</t-tag>
           </template>
           <template #op="slotProps">
