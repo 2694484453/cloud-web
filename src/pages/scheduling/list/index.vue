@@ -385,23 +385,14 @@ export default Vue.extend({
       this.confirm.operate = "run";
       this.confirm.header = "确认执行一次当前项目？";
       this.confirm.confirmBody = "";
-      this.form = row
+      this.formData = row
     },
     // 编辑
     handleClickEdit(row) {
-      this.formConfig.visible = true;
-      this.formConfig.header = "编辑";
+      this.drawer.visible = true;
+      this.drawer.header = "编辑";
       this.getTypeList();
-      this.form = {
-        id: row.id,
-        name: row.name,
-        type: row.type,
-        frpServer: row.frpServer,
-        localIp: row.localIp,
-        localPort: row.localPort,
-        customDomains: row.customDomains,
-        description: row.description,
-      }
+      this.formData = row;
     },
     // 新建
     handleSetupContract() {
