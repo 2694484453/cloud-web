@@ -43,17 +43,11 @@
             <t-tag v-if="row.status === ''|| row.status == null" theme="default" variant="light">未运行</t-tag>
             <t-tag v-if="row.status === 'pause'" theme="warning" variant="light">暂停</t-tag>
             <t-tag v-if="row.status === 'running'" theme="primary" variant="light">执行中</t-tag>
-            <t-tag v-if="row.status === 'done'" theme="success" variant="light">完成</t-tag>
-            <t-tag v-if="row.status === 'fail'" theme="danger" variant="light">执行失败</t-tag>
-            <t-tag v-if="row.status === null" theme="warning" variant="light">unknown</t-tag>
-          </template>
-          <template #contractType="{row}">
-            <p v-if="row.contractType === CONTRACT_TYPES.MAIN">审核失败</p>
-            <p v-if="row.contractType === CONTRACT_TYPES.SUB">待审核</p>
-            <p v-if="row.contractType === CONTRACT_TYPES.SUPPLEMENT">待履行</p>
           </template>
           <template #runStatus="{row}">
             <t-tag v-if="row.runStatus === 'done'" theme="success" variant="light">成功</t-tag>
+            <t-tag v-if="row.runStatus === 'fail'" theme="danger" variant="light">失败</t-tag>
+            <t-tag v-if="row.runStatus === ''" theme="success" variant="light">未知</t-tag>
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
