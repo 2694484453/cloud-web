@@ -124,11 +124,16 @@
           <t-descriptions-item label="调用类">{{formData.jobClass}}</t-descriptions-item>
           <t-descriptions-item label="调用方法">{{formData.jobMethod}}</t-descriptions-item>
           <t-descriptions-item label="调用参数">{{formData.jobParams}}</t-descriptions-item>
+          <t-descriptions-item label="最后一次执行">{{formData.runTime}}</t-descriptions-item>
+          <t-descriptions-item label="最后执行状态">{{formData.runStatus}}</t-descriptions-item>
           <t-descriptions-item label="创建者">{{formData.createByUserName}}</t-descriptions-item>
           <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
           <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
           <t-descriptions-item label="更新者">{{formData.updateByUserName}}</t-descriptions-item>
           <t-descriptions-item label="备注">{{formData.description}}</t-descriptions-item>
+          <t-descriptions-item label="执行结果">
+            <MonacoEditor :value="formData.runResult" :config="{language:'txt',fontSize:'13px'}"/>
+          </t-descriptions-item>
         </t-descriptions>
       </t-space>
     </t-drawer>
@@ -141,10 +146,12 @@ import Trend from '@/components/trend/index.vue';
 import { prefix } from '@/config/global';
 
 import { CONTRACT_STATUS, CONTRACT_STATUS_OPTIONS, CONTRACT_TYPES, CONTRACT_PAYMENT_TYPES } from '@/constants';
+import MonacoEditor from "@/components/editor/MonacoEditor.vue";
 
 export default Vue.extend({
   name: 'ListBase',
   components: {
+    MonacoEditor,
     SearchIcon,
     Trend,
   },
@@ -277,6 +284,9 @@ export default Vue.extend({
         updateByUserName: '',
         cronExpression: "",
         description: '',
+        runTime: '',
+        runStatus: '',
+        runResult: '',
       },
       serviceList: [],
       typeList: [],
