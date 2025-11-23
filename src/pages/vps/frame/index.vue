@@ -8,6 +8,7 @@
 <script lang="ts">
 import { prefix } from '@/config/global';
 import STYLE_CONFIG from '@/config/style';
+import {urlencoded} from "express";
 
 const computedStyle = getComputedStyle(document.documentElement);
 const sizeXxxl = computedStyle.getPropertyValue('--td-comp-size-xxxl');
@@ -19,7 +20,12 @@ export default {
     return {
       prefix,
       loading: true,
-      frameSrc: 'https://grafana.gpg123.vip/d/rYdddlPWk/node-exporter-full?orgId=1&from=2025-02-08T17:24:08.983Z&to=2025-02-09T17:24:08.983Z&timezone=browser&var-datasource=default&var-job=ecs-node-exporter&var-node=47.97.162.27:19100&var-diskdevices=%5Ba-z%5D%2B%7Cnvme%5B0-9%5D%2Bn%5B0-9%5D%2B%7Cmmcblk%5B0-9%5D%2B&refresh=5s',
+      grafana: {
+        datasource: "prometheus.gpg123.vip",
+        job: "node-exporter.hcs.gpg123.vip",
+        host: "node-exporter.hcs.gpg123.vip"
+      },
+      frameSrc: '',
       settingStore: { ...STYLE_CONFIG },
       getWrapStyle: `height: ${window.innerHeight}px`,
     };
@@ -29,13 +35,17 @@ export default {
     this.$nextTick(() => {
       this.calcHeight();
     });
+
+  },
+  created() {
+    let str = "&var-datasource="+encodeURI(this.grafana.datasource)+"&var-job="+encodeURI(this.grafana.job)+"&var-node="+encodeURI(this.grafana.host);
+    this.frameSrc = "https://grafana.gpg123.vip/d/rYdddlPWk/node-exporter-full?orgId=1&timezone=browser"+str+"&refresh=5s";
   },
   methods: {
     hideLoading() {
       this.loading = false;
       this.calcHeight();
     },
-
     getOuterHeight(dom: Element) {
       let height = dom.clientHeight;
       const computedStyle = window.getComputedStyle(dom);
@@ -45,7 +55,6 @@ export default {
       height += parseInt(computedStyle.borderBottomWidth, 10);
       return height;
     },
-
     calcHeight() {
       const iframe = this.$refs.frameRef;
       if (!iframe) {
@@ -72,7 +81,6 @@ export default {
 </script>
 <style lang="less" scoped>
 @import '@/style/variables';
-
 .@{starter-prefix}-iframe-page {
   &__main {
     width: 100%;
