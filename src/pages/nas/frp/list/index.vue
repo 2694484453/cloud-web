@@ -214,11 +214,6 @@ export default Vue.extend({
           colKey: 'type',
         },
         {
-          title: '服务端',
-          width: 120,
-          colKey: 'frpServer',
-        },
-        {
           title: '客户端IP',
           width: 120,
           ellipsis: true,
