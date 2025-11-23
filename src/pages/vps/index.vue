@@ -104,7 +104,7 @@ export default {
         },
       ],
       LAST_7_DAYS,
-      overViewData:{},
+      overViewData: [],
       sysNoticeData: []
     };
   },

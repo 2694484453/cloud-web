@@ -2,105 +2,26 @@
   <div class="dashboard-detail">
     <t-card title="概览" class="dashboard-detail-card" :bordered="false">
       <t-row :gutter="[16, 16]">
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="任务总数">
-            <div class="dashboard-list-card__number">{{ data.jobTotalCount }}</div>
+        <t-col v-for="(item, index) in overViewData" :key="index" :xs="6" :xl="3">
+          <t-card :class="['dashboard-list-card']" :description="item.title">
+            <div class="dashboard-list-card__number">{{ item.count }}</div>
             <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <!--   <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon/>
-            </div>
-          </t-card>
-        </t-col>
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="成功数量">
-            <div class="dashboard-list-card__number">{{ data.jobSuccessCount }}</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <!--  <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon/>
-            </div>
-          </t-card>
-        </t-col>
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="执行中">
-            <div class="dashboard-list-card__number">{{ data.jobRunningCount }}</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <!-- <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon/>
-            </div>
-          </t-card>
-        </t-col>
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="失败数">
-            <div class="dashboard-list-card__number">{{ data.jobFailCount }}</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <!-- <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon/>
-            </div>
-          </t-card>
-        </t-col>
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="日志总数">
-            <div class="dashboard-list-card__number">{{ data.jobLogTotalCount }}</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <!-- <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon/>
+              <!--              <div class="dashboard-list-card__text-left">-->
+              <!--                环比-->
+              <!--                <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
+              <!--              </div>-->
+              <!--              <chevron-right-icon />-->
             </div>
           </t-card>
         </t-col>
       </t-row>
     </t-card>
-    <t-row :gutter="[16, 16]" class="row-margin">
-      <t-col :xs="12" :xl="9">
-        <t-card :class="{ 'dashboard-detail-card': true }" title="xxx趋势" subtitle="(件)" :bordered="false">
-          <template #actions>
-            <t-date-range-picker
-              style="width: 250px"
-              :default-value="LAST_7_DAYS"
-              theme="primary"
-              mode="date"
-              @change="onMaterialChange"
-            />
-          </template>
-          <div id="lineContainer" ref="lineContainer" style="width: 100%; height: 410px"></div>
-        </t-card>
-      </t-col>
-      <t-col :xs="12" :xl="3">
-        <product-card
-          v-for="(item, index) in PRODUCT_LIST"
-          :key="index"
-          :product="item"
-          :class="{ 'row-margin': index !== 0 }"
-        />
-      </t-col>
-    </t-row>
-    <t-card :class="{ 'dashboard-detail-card': true }" title="xxx度分布" class="row-margin" :bordered="false">
-      <template #actions>
-        <t-date-range-picker
-          style="display: inline-block; margin-right: 8px; width: 250px"
-          :defaultValue="LAST_7_DAYS"
-          theme="primary"
-          mode="date"
-          @change="onSatisfyChange"
-        >
-        </t-date-range-picker>
-        <t-button>导出数据</t-button>
-      </template>
-      <div id="scatterContainer" style="width: 100%; height: 374px"></div>
+    <t-card :class="{ 'dashboard-detail-card': true }"  class="row-margin" :bordered="false" title="系统公告" >
+      <t-timeline mode="same" :reverse="reverse" theme="default">
+        <t-space v-for="(item) in sysNoticeData">
+          <t-timeline-item :label="item.createTime" >{{item.noticeTitle}}</t-timeline-item>
+        </t-space>
+      </t-timeline>
     </t-card>
   </div>
 </template>
@@ -145,13 +66,8 @@ export default {
         },
       ],
       LAST_7_DAYS,
-      data: {
-        jobTotalCount: 0,
-        jobSuccessCount: 0,
-        jobRunningCount: 0,
-        jobFailCount: 0,
-        jobLogTotalCount: 0,
-      }
+      overViewData: [],
+      sysNoticeData: []
     };
   },
   computed: {
@@ -170,8 +86,10 @@ export default {
       this.updateContainer();
     });
     this.renderCharts();
-    // 请求
-    this.getList();
+  },
+  created() {
+    this.overView();
+    this.getNotice();
   },
   methods: {
     /** 采购商品满意度选择 */
@@ -213,13 +131,11 @@ export default {
       this.scatterChart = echarts.init(this.scatterContainer);
       this.scatterChart.setOption(getScatterDataSet({...chartColors}));
     },
-    getList() {
+    overView() {
       this.dataLoading = true;
-      this.$request.get('/scheduling/overView', {
-          params: this.formData
-        }).then((res) => {
+      this.$request.get('/scheduling/job/overView', {}).then((res) => {
         if (res.data.code === 200) {
-          this.data = res.data.data;
+          this.overViewData = res.data.data;
         }
       }).catch((e: Error) => {
         console.log(e);
@@ -227,6 +143,21 @@ export default {
         this.dataLoading = false;
       });
     },
+    getNotice() {
+      this.$request.get('/sysNotice/page',{
+        params: {
+          type: 'job',
+        }
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.sysNoticeData = res.data.rows;
+        }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
+    }
   },
 };
 </script>
