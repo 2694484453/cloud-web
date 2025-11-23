@@ -99,11 +99,11 @@
       showOverlay
       :sizeDraggable="true"
       :on-size-drag-end="handleSizeDrag"
-      size="40%"
+      :size="drawer.size"
       @cancel="drawer.visible = false"
       @close="drawer.visible = false"
       :onConfirm="onSubmitCreate">
-      <t-space direction="vertical" style="width: 100%">
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'"  direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
           :data="formData"
@@ -128,6 +128,21 @@
               <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
             </t-form-item>
         </t-form>
+      </t-space>
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
+        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
+          <t-descriptions-item label="任务名称">{{formData.jobName}}</t-descriptions-item>
+          <t-descriptions-item label="任务类型">{{formData.jobType}}</t-descriptions-item>
+          <t-descriptions-item label="任务状态">{{formData.status}}</t-descriptions-item>
+          <t-descriptions-item label="调用类">{{formData.jobClass}}</t-descriptions-item>
+          <t-descriptions-item label="调用方法">{{formData.jobMethod}}</t-descriptions-item>
+          <t-descriptions-item label="调用参数">{{formData.jobParams}}</t-descriptions-item>
+          <t-descriptions-item label="创建者">{{formData.createByUserName}}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
+          <t-descriptions-item label="更新者">{{formData.updateByUserName}}</t-descriptions-item>
+          <t-descriptions-item label="备注">{{formData.description}}</t-descriptions-item>
+        </t-descriptions>
       </t-space>
     </t-drawer>
   </div>
@@ -245,11 +260,23 @@ export default Vue.extend({
         title: '新增',
         visible: false,
         header: '新增',
+        operation: "",
+        size: "40%"
       },
       formData: {
         id: '',
-        name: '',
-        type: '',
+        jobName: '',
+        status: "",
+        jobType: '',
+        jobClass: '',
+        jobMethod: '',
+        jobParams: '',
+        createBy: '',
+        createTime: '',
+        updateTime: '',
+        updateBy: '',
+        createByUserName: '',
+        updateByUserName: '',
         cronExpression: "",
         description: '',
       },
@@ -377,7 +404,12 @@ export default Vue.extend({
       console.log('Page Info: ', pageInfo);
     },
     handleClickDetail(row) {
-
+      this.formData = row;
+      this.drawer.visible = true;
+      this.drawer.size = '30%';
+      this.drawer.operation = 'detail';
+      this.drawer.title = '详情-' + row.jobName;
+      this.drawer.header = '详情-' + row.jobName;
     },
     // 执行一次任务
     handleClickRun(row) {
@@ -398,7 +430,7 @@ export default Vue.extend({
     handleSetupContract() {
       this.form = {}
       this.drawer.visible = true;
-      this.drawer.operate = 'add';
+      this.drawer.operation = 'add';
       this.drawer.header = "新增";
       this.getTypeList();
     },
