@@ -114,9 +114,9 @@
           <t-descriptions-item label="地址"><a :href="formData.globalUrl">{{formData.globalUrl}}</a></t-descriptions-item>
           <t-descriptions-item label="描述">{{ formData.description }}</t-descriptions-item>
           <t-descriptions-item label="创建时间">{{ formData.createTime }}</t-descriptions-item>
-          <t-descriptions-item label="创建人">{{ formData.createBy }}</t-descriptions-item>
+          <t-descriptions-item label="创建人">{{ formData.createByUserName }}</t-descriptions-item>
           <t-descriptions-item label="更新时间">{{ formData.updateTime }}</t-descriptions-item>
-          <t-descriptions-item label="更新人">{{ formData.updateBy }}</t-descriptions-item>
+          <t-descriptions-item label="更新人">{{ formData.updateByUserName }}</t-descriptions-item>
         </t-descriptions>
       </t-space>
       <t-space v-show="drawer.operation === 'install'" direction="vertical" style="width: 100%">

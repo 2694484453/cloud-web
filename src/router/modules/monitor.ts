@@ -45,7 +45,7 @@ export default [
       {
         path: 'targetsMonitor',
         name: 'targetsMonitorBase',
-        component: () => import('@/pages/prometheus/list/index.vue'),
+        component: () => import('@/pages/prometheus/targets/index.vue'),
         meta: {title: '端点查询'},
       },
     ],
