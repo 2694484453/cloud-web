@@ -181,7 +181,7 @@ export default Vue.extend({
       this.$router.push(url);
     },
     navToGitHub() {
-      window.open('https://gitee.com/gpg-dev_admin/cloud-web');
+      window.open('https://github.com/2694484453/cloud-web');
     },
     // 帮助文档
     navToHelper() {
