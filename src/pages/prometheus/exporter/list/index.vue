@@ -39,15 +39,13 @@
         >
           <template #targets="{row}">
             <span v-for="item in row.targets.split(',')">
-                <t-tag theme="primary" variant="light">{{ item }}</t-tag>
+                <t-tag theme="primary" variant="light">{{item}}</t-tag>
             </span>
           </template>
-          <template #health="{row}">
-            <t-tag v-if="row.health === 'down'" theme="danger" variant="light">触发</t-tag>
-            <t-tag v-if="row.health === CONTRACT_STATUS.AUDIT_PENDING" theme="warning" variant="light">待审核</t-tag>
-            <t-tag v-if="row.health === CONTRACT_STATUS.EXEC_PENDING" theme="warning" variant="light">待履行</t-tag>
-            <t-tag v-if="row.health === CONTRACT_STATUS.EXECUTING" theme="success" variant="light">履行中</t-tag>
-            <t-tag v-if="row.health === 'up'" theme="success" variant="light">正常</t-tag>
+          <template #status="{row}">
+            <t-tag v-if="row.status === 'down'" theme="danger" variant="light">异常</t-tag>
+            <t-tag v-if="row.status === '' || row.status === null" theme="warning" variant="light">未知</t-tag>
+            <t-tag v-if="row.status === 'up'" theme="success" variant="light">正常</t-tag>
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
@@ -113,6 +111,7 @@
                 <t-tag theme="primary">{{item}}</t-tag>
             </t-space>
           </t-descriptions-item>
+          <t-descriptions-item label="地址"><a :href="formData.globalUrl">{{formData.globalUrl}}</a></t-descriptions-item>
           <t-descriptions-item label="描述">{{ formData.description }}</t-descriptions-item>
           <t-descriptions-item label="创建时间">{{ formData.createTime }}</t-descriptions-item>
           <t-descriptions-item label="创建人">{{ formData.createBy }}</t-descriptions-item>
@@ -230,7 +229,10 @@ export default Vue.extend({
         updateTime: "",
         createBy: "",
         updateBy: "",
-        status: ""
+        status: "",
+        globalUrl: "",
+        createByUserName: "",
+        updateByUserName: "",
       },
       // 对话框
       confirm: {
@@ -328,6 +330,7 @@ export default Vue.extend({
     handleClickDetail(row) {
       this.formData = row;
       this.drawer.visible = true;
+      this.drawer.header = row.jobName;
       this.drawer.operation = 'detail';
     },
     handleSetupContract() {
