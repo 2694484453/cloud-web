@@ -11,52 +11,50 @@
         :style="{ marginBottom: '8px' }"
       >
         <t-row justify="space-between">
-          <t-input v-model="searchForm.name" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
-            <template #suffix-icon>
-              <search-icon size="20px"/>
-            </template>
-          </t-input>
+          <div class="left-operation-container">
+            <t-button @click="handleSetupContract">上传</t-button>
+          </div>
+          <t-col :span="3" style="margin-top: 10px">
+            <t-form-item label="名称" name="name">
+              <t-input v-model="searchForm.name" :style="{ width: '200px' }" placeholder="请输入内容"/>
+            </t-form-item>
+          </t-col>
           <t-col :span="2" class="operation-container">
             <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
           </t-col>
+<!--          <t-button variant="outline" :icon="renderRefreshIcon" @click="loadingCount = loadingCount + 1">-->
+<!--            刷新-->
+<!--          </t-button>-->
         </t-row>
       </t-form>
       <div class="table-container">
         <t-space direction="vertical">
           <t-space :breakLine="true" :style="{ height: '700px', 'overflow-y': 'scroll' }">
-              <t-space v-for="item in data">
-                <t-image-viewer v-model="visible" :images="[item.url]" :closeOnEscKeydown="false">
-                  <template #trigger="{ open }">
-                    <div @click="open">
-                      <t-image
-                        :key="item"
-                        :src="item.url"
-                        :style="{ width: '280px', height: '140px' }"
-                        :lazy="true"
-                        :placeholder="item.name"
-                        :alt="item.name"
-                      />
-                      <div>
-<!--                        <span><browse-icon size="1.4em" /> 预览</span>-->
-                        <span>{{item.name}}</span>
-                      </div>
-                    </div>
-                  </template>
-                </t-image-viewer>
-              </t-space>
+            <t-space v-for="item in data">
+              <t-image
+                :key="item"
+                :src="item.url"
+                :style="{ width: '280px', height: '140px' }"
+                :lazy="true"
+                :placeholder="item.name"
+                :alt="item.name"
+              />
+            </t-space>
           </t-space>
         </t-space>
+        <div style="margin-top: 10px">
+          <t-pagination
+            v-model="searchForm.pageNum"
+            :total="pagination.total"
+            :page-size.sync="searchForm.pageSize"
+            @current-change="onCurrentChange"
+            @page-size-change="onPageSizeChange"
+            @change="onChange"
+          />
+        </div>
       </div>
     </t-card>
-    <t-pagination style="margin-top: 15px"
-                  v-model="searchForm.pageNum"
-                  :total="pagination.total"
-                  :page-size.sync="searchForm.pageSize"
-                  @current-change="onCurrentChange"
-                  @page-size-change="onPageSizeChange"
-                  @change="onChange"
-    />
     <t-dialog
       :header="confirm.header"
       :body="confirm.body"
@@ -110,7 +108,7 @@
 </template>
 <script lang="ts">
 import Vue from 'vue';
-import {SearchIcon, BrowseIcon} from 'tdesign-icons-vue';
+import {SearchIcon} from 'tdesign-icons-vue';
 import Trend from '@/components/trend/index.vue';
 import {prefix} from '@/config/global';
 
@@ -121,7 +119,6 @@ export default Vue.extend({
   components: {
     SearchIcon,
     Trend,
-    BrowseIcon,
   },
   data() {
     return {
@@ -231,8 +228,7 @@ export default Vue.extend({
         repoUrl: "",
         repoUpdateTime: ""
       },
-      typeList: [],
-      visible: false,
+      typeList: []
     };
   },
   computed: {
@@ -461,80 +457,5 @@ export default Vue.extend({
 
 .t-button + .t-button {
   margin-left: var(--td-comp-margin-s);
-}
-
-.tdesign-demo-image-viewer__ui-image {
-  width: 160px;
-  height: 160px;
-  display: inline-flex;
-  position: relative;
-  justify-content: center;
-  align-items: center;
-  border-radius: var(--td-radius-small);
-  overflow: hidden;
-}
-
-.tdesign-demo-image-viewer__ui-image--hover {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  left: 0;
-  top: 0;
-  opacity: 0;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: var(--td-text-color-anti);
-  line-height: 22px;
-  transition: 0.2s;
-}
-
-.tdesign-demo-image-viewer__ui-image:hover .tdesign-demo-image-viewer__ui-image--hover {
-  opacity: 1;
-  cursor: pointer;
-}
-
-.tdesign-demo-image-viewer__ui-image--img {
-  width: auto;
-  height: auto;
-  max-width: 100%;
-  max-height: 100%;
-  cursor: pointer;
-  position: absolute;
-}
-
-.tdesign-demo-image-viewer__ui-image--footer {
-  padding: 0 16px;
-  height: 56px;
-  width: 100%;
-  line-height: 56px;
-  font-size: 16px;
-  position: absolute;
-  bottom: 0;
-  color: var(--td-text-color-anti);
-  background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
-  display: flex;
-  box-sizing: border-box;
-}
-
-.tdesign-demo-image-viewer__ui-image--title {
-  flex: 1;
-}
-
-.tdesign-demo-popup__reference {
-  margin-left: 16px;
-}
-
-.tdesign-demo-image-viewer__ui-image--icons .tdesign-demo-icon {
-  cursor: pointer;
-}
-
-.tdesign-demo-image-viewer__base {
-  width: 160px;
-  height: 160px;
-  margin: 10px;
-  border: 4px solid var(--td-bg-color-secondarycontainer);
-  border-radius: var(--td-radius-medium);
 }
 </style>

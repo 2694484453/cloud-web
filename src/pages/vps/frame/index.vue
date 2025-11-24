@@ -21,6 +21,7 @@ export default {
       prefix,
       loading: true,
       grafana: {
+        domain: "",
         datasource: "prometheus.gpg123.vip",
         job: "node-exporter.hcs.gpg123.vip",
         host: "node-exporter.hcs.gpg123.vip"

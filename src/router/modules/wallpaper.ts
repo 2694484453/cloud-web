@@ -21,14 +21,14 @@ export default [
         path: 'list',
         name: 'list',
         component: () => import('@/pages/wallpaper/list/index.vue'),
-        meta: {title: '壁纸列表'},
+        meta: {title: '壁纸商店'},
       },
-      // {
-      //   path: 'access',
-      //   name: 'access',
-      //   component: () => import('@/pages/git/access/list/index.vue'),
-      //   meta: {title: '配置列表'},
-      // },
+      {
+        path: 'access',
+        name: 'access',
+        component: () => import('@/pages/git/access/list/index.vue'),
+        meta: {title: '我的壁纸'},
+      },
     ],
   },
 ]
