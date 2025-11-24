@@ -24,27 +24,26 @@
       </t-form>
       <div class="table-container">
         <t-space direction="vertical">
-          <t-space :breakLine="true" :style="{ height: '700px', 'overflow-y': 'scroll' }">
-              <t-space v-for="item in data">
-                <t-image-viewer v-model="visible" :images="[item.url]" :closeOnEscKeydown="false">
-                  <template #trigger="{ open }">
-                    <div @click="open">
-                      <t-image
-                        :key="item"
-                        :src="item.url"
-                        :style="{ width: '280px', height: '140px' }"
-                        :lazy="true"
-                        :placeholder="item.name"
-                        :alt="item.name"
-                      />
-                      <div>
-<!--                        <span><browse-icon size="1.4em" /> 预览</span>-->
-                        <a :href="item.url" target="_blank">{{item.name}}</a>
-                      </div>
+          <t-space :breakLine="true" :style="{ height: '700px', 'overflow-y': 'scroll' }" >
+            <t-image-viewer v-model="overView.visible" draggable mode="modeless" :images="[formData.url]">
+              <template #trigger="{open}">
+                <div @click="open">
+                  <t-space v-for="item in data" :key="item.id">
+                    <t-image
+                      :key="item"
+                      :src="item.url"
+                      :style="{ width: '280px', height: '140px' }"
+                      :lazy="true"
+                      :alt="item.name"
+                      @click="clickOverView(item)"
+                    />
+                    <div class="tdesign-demo-image-viewer__ui-image--hover">
+                      <a :href="item.url" target="_blank">{{ item.name }}</a>
                     </div>
-                  </template>
-                </t-image-viewer>
-              </t-space>
+                  </t-space>
+                </div>
+              </template>
+            </t-image-viewer>
           </t-space>
         </t-space>
       </div>
@@ -79,30 +78,32 @@
       :onConfirm="handleSubmit"
       @cancel="drawer.visible = false"
     >
-      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical"
+               style="width: 100%">
         <t-form
           ref="formValidatorStatus"
           :data="form"
           :label-width="100"
           @reset="onReset"
         >
-        <t-form-item label="id" name="id" v-show="false">
-          <t-input v-model="form.id" :maxlength="32" with="120"></t-input>
-        </t-form-item>
-        <t-form-item label="仓库名称" name="repoName">
-          <t-input v-model="form.repoName" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
-        </t-form-item>
-        <t-form-item label="仓库地址" name="repoUrl">
-          <t-input v-model="form.repoUrl" placeholder="请输入仓库地址" :maxlength="64" with="120"></t-input>
-        </t-form-item>
+          <t-form-item label="id" name="id" v-show="false">
+            <t-input v-model="form.id" :maxlength="32" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="仓库名称" name="repoName">
+            <t-input v-model="form.repoName" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="仓库地址" name="repoUrl">
+            <t-input v-model="form.repoUrl" placeholder="请输入仓库地址" :maxlength="64" with="120"></t-input>
+          </t-form-item>
         </t-form>
       </t-space>
       <t-space v-show="drawer.operation === 'info'" direction="vertical" style="width: 100%">
-        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
-          <t-descriptions-item label="仓库名称">{{form.repoName}}</t-descriptions-item>
-          <t-descriptions-item label="仓库主页"><a :href="form.repoUrl">{{form.repoUrl}}</a></t-descriptions-item>
-          <t-descriptions-item label="制品地址"><a :href="form.repoUrl+'/index.yaml'">{{form.repoUrl+"/index.yaml"}}</a></t-descriptions-item>
-          <t-descriptions-item label="更新时间">{{form.repoUpdateTime}}</t-descriptions-item>
+        <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
+          <t-descriptions-item label="仓库名称">{{ form.repoName }}</t-descriptions-item>
+          <t-descriptions-item label="仓库主页"><a :href="form.repoUrl">{{ form.repoUrl }}</a></t-descriptions-item>
+          <t-descriptions-item label="制品地址"><a
+            :href="form.repoUrl+'/index.yaml'">{{ form.repoUrl + "/index.yaml" }}</a></t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{ form.repoUpdateTime }}</t-descriptions-item>
         </t-descriptions>
       </t-space>
     </t-drawer>
@@ -208,7 +209,11 @@ export default Vue.extend({
         pageSize: 20
       },
       // 提交表单数据
-      formData: [],
+      formData: {
+        id: "",
+        name: "",
+        url: "",
+      },
       // 抽屉
       drawer: {
         header: "",
@@ -232,7 +237,10 @@ export default Vue.extend({
         repoUpdateTime: ""
       },
       typeList: [],
-      visible: false,
+      overView: {
+        visible: false,
+        selectedKey: "",
+      }
     };
   },
   computed: {
@@ -340,17 +348,22 @@ export default Vue.extend({
     onSubmit() {
       this.page();
     },
+    clickOverView(item) {
+      this.formData = item;
+      this.overView.visible = true;
+      this.overView.selectedKey = item.id;
+    },
     // 提交执行创建
     handleSubmit() {
       switch (this.drawer.operation) {
         // 添加
         case "add":
-          this.$request.post("/helmRepo/add", this.form).then(res=>{
+          this.$request.post("/helmRepo/add", this.form).then(res => {
             if (res.data.code === 200) {
               this.$message.success(res.data.msg);
               this.drawer.visible = false;
               this.getList();
-            }else {
+            } else {
               this.$message.error(res.data.msg);
             }
           })
@@ -361,11 +374,11 @@ export default Vue.extend({
         // 更新
         case "update":
           this.$request.put("/helmRepo/update?repoName=" + this.form.repoName).then(res => {
-            if(res.data.code === 200) {
+            if (res.data.code === 200) {
               this.$message.success(res.data.msg);
               this.confirm.visible = false;
               this.getList();
-            }else {
+            } else {
               this.$message.error(res.data.msg);
             }
           })
@@ -377,7 +390,7 @@ export default Vue.extend({
               this.$message.success(res.data.msg)
               this.confirm.visible = false;
               this.getList();
-            }else {
+            } else {
               this.$message.error(res.data.msg);
             }
           })
@@ -394,7 +407,7 @@ export default Vue.extend({
     handleExport() {
       this.$request.post('/helmRepo/export', {
         serverName: 'hcs.gpg123.vip',
-      },{responseType: 'blob'}).then(res => {
+      }, {responseType: 'blob'}).then(res => {
         const blob = new Blob([res.data]);
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -481,8 +494,10 @@ export default Vue.extend({
   justify-content: center;
   align-items: center;
   position: absolute;
-  left: 0;
-  top: 0;
+  left: 10px;
+  right: 10px;
+  top: 10px;
+  bottom: 10px;
   opacity: 0;
   background-color: rgba(0, 0, 0, 0.6);
   color: var(--td-text-color-anti);
@@ -500,8 +515,8 @@ export default Vue.extend({
   height: auto;
   max-width: 100%;
   max-height: 100%;
-  cursor: pointer;
-  position: absolute;
+  //cursor: pointer;
+  //position: absolute;
 }
 
 .tdesign-demo-image-viewer__ui-image--footer {
