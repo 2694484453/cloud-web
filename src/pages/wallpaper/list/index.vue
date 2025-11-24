@@ -24,20 +24,20 @@
       </t-form>
       <div class="table-container">
         <t-space direction="vertical">
-          <t-space :breakLine="true" :style="{ height: '700px', 'overflow-y': 'scroll' }" >
-            <t-image-viewer v-model="overView.visible" draggable mode="modeless" :images="[formData.url]">
+          <t-space :breakLine="true" :style="{ height: '710px', 'overflow-y': 'scroll' }" >
+            <t-image-viewer v-model="overView.visible" :images="[formData.url]">
               <template #trigger="{open}">
                 <div @click="open">
-                  <t-space v-for="item in data" :key="item.id">
+                  <t-space v-for="item in data" :key="item.id" direction="vertical">
                     <t-image
                       :key="item"
                       :src="item.url"
-                      :style="{ width: '280px', height: '140px' }"
+                      :style="{ width: '280px', height: '140px' ,marginLeft: '15px',marginRight:'15px'}"
                       :lazy="true"
                       :alt="item.name"
                       @click="clickOverView(item)"
                     />
-                    <div class="tdesign-demo-image-viewer__ui-image--hover">
+                    <div style="margin-left: 10px">
                       <a :href="item.url" target="_blank">{{ item.name }}</a>
                     </div>
                   </t-space>
