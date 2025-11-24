@@ -11,12 +11,12 @@ export default [
       icon: ImageIcon,
     },
     children: [
-      // {
-      //   path: 'overView',
-      //   name: 'overView',
-      //   component: () => import('@/pages/git/index.vue'),
-      //   meta: {title: '概览'},
-      // },
+      {
+        path: 'overView',
+        name: 'overView',
+        component: () => import('@/pages/wallpaper/index.vue'),
+        meta: {title: '概览'},
+      },
       {
         path: 'list',
         name: 'list',
@@ -26,7 +26,7 @@ export default [
       {
         path: 'access',
         name: 'access',
-        component: () => import('@/pages/git/access/list/index.vue'),
+        component: () => import('@/pages/wallpaper/mine/index.vue'),
         meta: {title: '我的壁纸'},
       },
     ],
