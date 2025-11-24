@@ -8,6 +8,7 @@
 <script lang="ts">
 import { prefix } from '@/config/global';
 import STYLE_CONFIG from '@/config/style';
+import {urlencoded} from "express";
 
 const computedStyle = getComputedStyle(document.documentElement);
 const sizeXxxl = computedStyle.getPropertyValue('--td-comp-size-xxxl');
@@ -19,7 +20,13 @@ export default {
     return {
       prefix,
       loading: true,
-      frameSrc: this.$cookies.get("username") !== null ? 'http://'+this.$cookies.get("username")+':8080/dashboard/#/' : 'https://traefik.ecs.gpg123.vip/dashboard/#/',
+      grafana: {
+        domain: "https://grafana.gpg123.vip",
+        datasource: "prometheus.gpg123.vip",
+        jobName: "node-exporter.hcs.gpg123.vip",
+        hostName: "node-exporter.hcs.gpg123.vip"
+      },
+      frameSrc: '',
       settingStore: { ...STYLE_CONFIG },
       getWrapStyle: `height: ${window.innerHeight}px`,
     };
@@ -29,13 +36,21 @@ export default {
     this.$nextTick(() => {
       this.calcHeight();
     });
+
+  },
+  created() {
+    // 取参数
+    this.grafana.datasource = this.$route.query.datasource;
+    this.grafana.jobName = this.$route.query.jobName;
+    this.grafana.hostName = this.$route.query.hostName;
+    let str = "&var-datasource="+encodeURI(this.grafana.datasource)+"&var-job="+encodeURI(this.grafana.jobName)+"&var-node="+encodeURI(this.grafana.hostName);
+    this.frameSrc = this.grafana.domain + "/d/rYdddlPWk/node-exporter-full?orgId=1&timezone=browser"+str+"&refresh=5s";
   },
   methods: {
     hideLoading() {
       this.loading = false;
       this.calcHeight();
     },
-
     getOuterHeight(dom: Element) {
       let height = dom.clientHeight;
       const computedStyle = window.getComputedStyle(dom);
@@ -45,7 +60,6 @@ export default {
       height += parseInt(computedStyle.borderBottomWidth, 10);
       return height;
     },
-
     calcHeight() {
       const iframe = this.$refs.frameRef;
       if (!iframe) {
@@ -72,7 +86,6 @@ export default {
 </script>
 <style lang="less" scoped>
 @import '@/style/variables';
-
 .@{starter-prefix}-iframe-page {
   &__main {
     width: 100%;

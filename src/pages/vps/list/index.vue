@@ -64,6 +64,7 @@
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
+            <a class="t-button-link" @click="handleClickMonitor(slotProps.row)">监控</a>
             <a class="t-button-link" @click="handleClickEdit(slotProps.row)">修改</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
@@ -470,6 +471,13 @@ export default Vue.extend({
       this.drawer.header = "详情";
       this.drawer.operation = 'detail';
       this.drawer.visible = true;
+    },
+    handleClickMonitor(row) {
+      this.$router.push({ path: '/vps/dashboard', query: {
+          datasource: encodeURI("prometheus.gpg123.vip"),
+          jobName: encodeURI(row.hostName),
+          hostName: encodeURI(row.hostName),
+        }})
     },
     // 编辑
     handleClickEdit(row) {
