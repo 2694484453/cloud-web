@@ -48,10 +48,10 @@
             <t-tag v-if="row.status === ''" theme="warning" variant="light">待履行</t-tag>
           </template>
           <template #tags="{row}">
-            <div v-for="item in row.tags.split(',')">
-              <t-space direction="horizontal">
-                <t-tag theme="primary">{{item}}</t-tag>
-              </t-space>
+            <div v-for="item in row.tags.split(',')" style="height: 17px;" >
+              <span >
+                <t-tag theme="primary" style="font-size: 13px;height: 15px">{{item}}</t-tag>
+              </span>
             </div>
           </template>
           <template #op="slotProps">
