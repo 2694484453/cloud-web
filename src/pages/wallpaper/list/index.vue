@@ -39,7 +39,7 @@
                       />
                       <div>
 <!--                        <span><browse-icon size="1.4em" /> 预览</span>-->
-                        <span>{{item.name}}</span>
+                        <a :href="item.url" target="_blank">{{item.name}}</a>
                       </div>
                     </div>
                   </template>
