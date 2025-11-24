@@ -335,7 +335,9 @@ export default Vue.extend({
     },
     handleSetupContract() {
       //this.$router.push('/prometheus/add');
-      this.$emit('transfer', "form")
+      this.drawer.visible = true;
+      this.drawer.header = "新增";
+      this.drawer.operation = 'add';
     },
     // 删除
     handleClickDelete(row: { rowIndex: any, type: any }) {

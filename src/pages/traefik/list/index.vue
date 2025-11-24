@@ -42,27 +42,17 @@
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
-          <template #status="{ row }">
-            <t-tag v-if="row.status === CONTRACT_STATUS.FAIL" theme="danger" variant="light">审核失败</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.AUDIT_PENDING" theme="warning" variant="light">待审核</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.EXEC_PENDING" theme="warning" variant="light">待履行</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.EXECUTING" theme="success" variant="light">履行中</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.FINISH" theme="success" variant="light">已完成</t-tag>
+          <template #status="{row}">
+            <t-tag v-if="row.status === 'enabled'" theme="success" variant="light">已开启</t-tag>
+            <t-tag v-if="row.status === null" theme="warning" variant="light">未知</t-tag>
+            <t-tag v-if="row.status === ''" theme="warning" variant="light">待履行</t-tag>
           </template>
-          <template #contractType="{ row }">
-            <p v-if="row.contractType === CONTRACT_TYPES.MAIN">审核失败</p>
-            <p v-if="row.contractType === CONTRACT_TYPES.SUB">待审核</p>
-            <p v-if="row.contractType === CONTRACT_TYPES.SUPPLEMENT">待履行</p>
-          </template>
-          <template #paymentType="{ row }">
-            <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.PAYMENT" class="payment-col">
-              付款
-              <trend class="dashboard-item-trend" type="up"/>
-            </p>
-            <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.RECEIPT" class="payment-col">
-              收款
-              <trend class="dashboard-item-trend" type="down"/>
-            </p>
+          <template #tags="{row}">
+            <div v-for="item in row.tags.split(',')">
+              <t-space direction="horizontal">
+                <t-tag theme="primary">{{item}}</t-tag>
+              </t-space>
+            </div>
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="editor.visible = true;handleClickDetail(slotProps.row)">查看</a>
@@ -131,30 +121,50 @@ export default Vue.extend({
         {
           title: '名称',
           align: 'left',
-          width: 200,
+          width: 120,
           ellipsis: true,
           colKey: 'name',
           fixed: 'left',
         },
         {
-          title: '路径',
-          width: 220,
+          title: '状态',
+          width: 80,
           ellipsis: true,
           fixed: 'left',
-          colKey: 'path',
+          colKey: 'status',
         },
         {
-          title: '文件大小',
-          width: 100,
+          title: '标签',
+          width: 120,
           ellipsis: true,
           fixed: 'left',
-          colKey: 'length',
+          colKey: 'tags',
+        },
+        {
+          title: '域名',
+          width: 120,
+          ellipsis: true,
+          fixed: 'left',
+          colKey: 'domains',
+        },
+        {
+          title: '负载地址',
+          width: 120,
+          ellipsis: true,
+          fixed: 'left',
+          colKey: 'serverUrls',
+        },
+        {
+          title: '创建时间',
+          width: 160,
+          ellipsis: true,
+          colKey: "createTime"
         },
         {
           title: '修改时间',
-          width: 200,
+          width: 160,
           ellipsis: true,
-          colKey: "lastModified"
+          colKey: "updateTime"
         },
         {
           align: 'left',
