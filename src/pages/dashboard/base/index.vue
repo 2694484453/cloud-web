@@ -6,16 +6,16 @@
       style="position: absolute"
       :offset="['24px', '80px']"
     >
-      <t-icon name="backtop" size="20px" />
+      <t-icon name="backtop" size="20px"/>
     </t-back-top>
     <!-- 顶部 card  -->
-    <top-panel class="row-container" />
+    <top-panel class="row-container" :data="cardData"/>
     <!-- 中部图表  -->
-    <middle-chart class="row-container" />
+    <middle-chart class="row-container"/>
     <!-- 列表排名 -->
-    <rank-list class="row-container" />
+    <rank-list class="row-container"/>
     <!-- 出入库概览 -->
-    <output-overview class="row-container" />
+    <output-overview class="row-container"/>
   </div>
 </template>
 <script>
@@ -32,12 +32,41 @@ export default {
     RankList,
     OutputOverview,
   },
+  data() {
+    return {
+      cardData: [],
+      noticeData: []
+    }
+  },
+  computed: {},
+  watch: {},
+  created() {
+    this.getCardData();
+  },
+  methods: {
+    getCardData() {
+      this.$request.get("/system/overView/card", {
+        params: {}
+      }).then(res => {
+        this.cardData = res.data.data;
+      }).catch()
+        .finally()
+    },
+    getNotice() {
+      this.$request.get("/system/overView/notice", {})
+        .then(res => {
+          this.noticeData = res.data.data;
+        }).catch()
+        .finally()
+    }
+  }
 };
 </script>
 <style scoped lang="less">
 .row-container {
   margin-bottom: 16px;
 }
+
 /deep/ .t-card__body {
   padding-top: 0;
 }
