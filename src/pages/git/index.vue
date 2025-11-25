@@ -1,219 +1,63 @@
 <template>
   <div class="dashboard-detail">
-    <t-card title="概览" class="dashboard-detail-card" :bordered="false">
-      <t-row :gutter="[16, 16]">
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="总配置数">
-            <div class="dashboard-list-card__number">{{data.totalAccessCount}}</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-<!--   <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon />
-            </div>
-          </t-card>
-        </t-col>
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="Gitee配置总数">
-            <div class="dashboard-list-card__number">{{data.giteeAccessCount}}</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <!--  <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon />
-            </div>
-          </t-card>
-        </t-col>
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="GitHub配置总数">
-            <div class="dashboard-list-card__number">{{data.githubAccessCount}}</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <!-- <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon />
-            </div>
-          </t-card>
-        </t-col>
-        <t-col :xs="6" :xl="3">
-          <t-card :class="['dashboard-list-card']" description="GitCode配置总数">
-            <div class="dashboard-list-card__number">{{data.gitCodeAccessCount}}</div>
-            <div class="dashboard-list-card__text">
-              <div class="dashboard-list-card__text-left">
-                环比
-                <!-- <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend" />-->
-              </div>
-              <chevron-right-icon />
-            </div>
-          </t-card>
-        </t-col>
-      </t-row>
-    </t-card>
-    <t-row :gutter="[16, 16]" class="row-margin">
-      <t-col :xs="12" :xl="9">
-        <t-card :class="{ 'dashboard-detail-card': true }" title="xxx趋势" subtitle="(件)" :bordered="false">
-          <template #actions>
-            <t-date-range-picker
-              style="width: 250px"
-              :default-value="LAST_7_DAYS"
-              theme="primary"
-              mode="date"
-              @change="onMaterialChange"
-            />
-          </template>
-          <div id="lineContainer" ref="lineContainer" style="width: 100%; height: 410px"></div>
-        </t-card>
-      </t-col>
-      <t-col :xs="12" :xl="3">
-        <product-card
-          v-for="(item, index) in PRODUCT_LIST"
-          :key="index"
-          :product="item"
-          :class="{ 'row-margin': index !== 0 }"
-        />
-      </t-col>
-    </t-row>
-    <t-card :class="{ 'dashboard-detail-card': true }" title="xxx度分布" class="row-margin" :bordered="false">
-      <template #actions>
-        <t-date-range-picker
-          style="display: inline-block; margin-right: 8px; width: 250px"
-          :defaultValue="LAST_7_DAYS"
-          theme="primary"
-          mode="date"
-          @change="onSatisfyChange"
-        >
-        </t-date-range-picker>
-        <t-button>导出数据</t-button>
-      </template>
-      <div id="scatterContainer" style="width: 100%; height: 374px"></div>
-    </t-card>
+    <TopCard :data="overViewData"/>
+    <div style="margin-top: 15px">
+      <NoticeCard :data="sysNoticeData"/>
+    </div>
   </div>
 </template>
 <script lang="ts">
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
-import { LineChart, ScatterChart } from 'echarts/charts';
-import { CanvasRenderer } from 'echarts/renderers';
-import * as echarts from 'echarts/core';
-import { mapState } from 'vuex';
-import { ChevronRightIcon } from 'tdesign-icons-vue';
-
-import Trend from '@/components/trend/index.vue';
-import ProductCard from '@/components/product-card/index.vue';
-
-import { LAST_7_DAYS } from '@/utils/date';
-import { changeChartsTheme } from '@/utils/color';
-
-import { PANE_LIST_DATA, PRODUCT_LIST } from '@/service/service-detail';
-import { getFolderLineDataSet, getScatterDataSet } from './index';
-
-echarts.use([GridComponent, LegendComponent, TooltipComponent, LineChart, ScatterChart, CanvasRenderer]);
-
+import TopCard from "@/components/top-card/TopCard.vue";
+import NoticeCard from "@/components/notice-card/NoticeCard.vue";
 export default {
   name: 'DashboardDetail',
-  components: { Trend, ProductCard, ChevronRightIcon },
+  components: {NoticeCard, TopCard},
   data() {
     return {
-      PANE_LIST_DATA,
-      PRODUCT_LIST,
-      dashboardBase: '',
-      lineContainer: '',
-      scatterContainer: '',
-      lineChart: '',
-      scatterChart: '',
-      productList: [
-        {
-          description: 'SSL证书又叫服务器证书，腾讯云为您提供证书的一站式服务，包括免费、付费证书的申请、管理及部',
-          index: 1,
-          isSetup: true,
-          name: 'SSL证书',
-          type: 4,
-        },
-      ],
-      LAST_7_DAYS,
-      data: {
-        totalAccessCount: 0,
-        giteeAccessCount: 0,
-        githubAccessCount: 0,
-        gitCodeAccessCount: 0,
-      }
+      overViewData: [],
+      sysNoticeData: [],
     };
   },
   computed: {
-    ...mapState('setting', ['brandTheme', 'mode']),
   },
   watch: {
-    brandTheme() {
-      changeChartsTheme([this.lineChart, this.scatterChart]);
-    },
-    mode() {
-      this.renderCharts();
-    },
+
   },
   mounted() {
     this.$nextTick(() => {
       this.updateContainer();
     });
     this.renderCharts();
-    // 请求
-    this.getList();
+  },
+  created() {
+    this.overView();
+    this.getNotice();
   },
   methods: {
-    /** 采购商品满意度选择 */
-    onSatisfyChange(value: string) {
-      const { chartColors } = this.$store.state.setting;
+    overView() {
+      this.$request.get("/git/overView", {}).then((res) => {
+        this.overViewData = res.data.data;
+      }).catch((err) => {
+        console.log(err);
+      }).finally(() => {
 
-      this.scatterChart.setOption(getScatterDataSet({ dateTime: value, ...chartColors }));
+      })
     },
-    /** 采购商品申请趋势选择 */
-    onMaterialChange(value: string) {
-      const { chartColors } = this.$store.state.setting;
-
-      this.lineChart.setOption(getFolderLineDataSet({ dateTime: value, ...chartColors }));
-    },
-    updateContainer() {
-      this.lineChart.resize?.({
-        width: this.lineContainer.clientWidth,
-        height: this.lineContainer.clientHeight,
-      });
-      this.scatterChart.resize?.({
-        width: this.scatterContainer.clientWidth,
-        height: this.scatterContainer.clientHeight,
-      });
-    },
-    renderCharts() {
-      const { chartColors } = this.$store.state.setting;
-
-      if (!this.lineContainer) {
-        this.lineContainer = document.getElementById('lineContainer');
-      }
-      this.lineChart = echarts.init(this.lineContainer);
-      this.lineChart.setOption(getFolderLineDataSet({ ...chartColors }));
-
-      window.addEventListener('resize', this.updateContainer, false);
-
-      if (!this.scatterContainer) {
-        this.scatterContainer = document.getElementById('scatterContainer');
-      }
-      this.scatterChart = echarts.init(this.scatterContainer);
-      this.scatterChart.setOption(getScatterDataSet({ ...chartColors }));
-    },
-    getList() {
-      this.dataLoading = true;
-      this.$request.get('/git/overView', {
-            params: this.formData
-          }).then((res) => {
+    getNotice() {
+      this.$request.get('/sysNotice/page', {
+        params: {
+          type: 'git',
+        }
+      }).then((res) => {
         if (res.data.code === 200) {
-          this.data = res.data.data;
+          this.sysNoticeData = res.data.rows;
         }
       }).catch((e: Error) => {
         console.log(e);
       }).finally(() => {
         this.dataLoading = false;
       });
-    },
+    }
   },
 };
 </script>

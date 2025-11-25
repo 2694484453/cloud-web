@@ -32,7 +32,7 @@ export default [
     path: '/traefikCloud',
     name: 'traefikCloud',
     component: Layout,
-    meta: {title: 'traefikCloud管理', icon: RectangleIcon},
+    meta: {title: 'traefik管理(cloud)', icon: RectangleIcon},
     children: [
       {
         path: 'dashboard',

@@ -2,33 +2,33 @@ import {PreciseMonitorIcon, MirrorIcon, NotificationIcon} from 'tdesign-icons-vu
 import Layout from '@/layouts/index.vue';
 
 export default [
-  // {
-  //   path: '/prometheus',
-  //   name: 'prometheus',
-  //   component: Layout,
-  //   //redirect: '/prometheus/base',
-  //   meta: {title: '监控中心(主机版)', icon: PreciseMonitorIcon},
-  //   children: [
-  //     {
-  //       path: 'dashboard',
-  //       name: 'DashboardBase',
-  //       component: () => import('@/pages/prometheus/index.vue'),
-  //       meta: {title: '监控视图'},
-  //     },
-  //     {
-  //       path: 'base',
-  //       name: 'MonitorBase',
-  //       component: () => import('@/pages/prometheus/index.vue'),
-  //       meta: {title: '监控列表'},
-  //     }
-  //   ],
-  // },
+  {
+    path: '/prometheus',
+    name: 'prometheus',
+    component: Layout,
+    //redirect: '/prometheus/base',
+    meta: {title: '监控中心', icon: PreciseMonitorIcon},
+    children: [
+      {
+        path: 'dashboard',
+        name: 'DashboardBase',
+        component: () => import('@/pages/prometheus/index.vue'),
+        meta: {title: '监控视图'},
+      },
+      {
+        path: 'base',
+        name: 'MonitorBase',
+        component: () => import('@/pages/prometheus/index.vue'),
+        meta: {title: '监控列表'},
+      }
+    ],
+  },
   {
     path: '/prometheus-cloud',
     name: 'prometheus-cloud',
     component: Layout,
     //redirect: '/prometheus/base',
-    meta: {title: '监控中心', icon: PreciseMonitorIcon},
+    meta: {title: '监控中心(cloud)', icon: PreciseMonitorIcon},
     children: [
       {
         path: 'overView',
