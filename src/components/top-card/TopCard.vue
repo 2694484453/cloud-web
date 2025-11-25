@@ -1,67 +1,53 @@
 <template>
-  <div class="dashboard-detail">
-    <TopCard :data="overViewData"/>
-    <div style="margin-top: 15px">
-      <NoticeCard :data="sysNoticeData"/>
-    </div>
+  <div>
+    <t-card :title="title" class="dashboard-detail-card" :bordered="false">
+      <t-row :gutter="[16, 16]">
+        <t-col v-for="(item, index) in data" :key="index" :xs="6" :xl="3">
+          <t-card :class="['dashboard-list-card']" :description="item.title">
+            <div class="dashboard-list-card__number">{{ item.count }}</div>
+            <div class="dashboard-list-card__text">
+              <div class="dashboard-list-card__text-left">
+                环比
+                <trend class="icon" :type="item.upTrend ? 'up' : 'down'" :describe="item.upTrend || item.downTrend"/>
+              </div>
+              <chevron-right-icon/>
+            </div>
+          </t-card>
+        </t-col>
+      </t-row>
+    </t-card>
   </div>
 </template>
+
 <script lang="ts">
-import TopCard from "@/components/top-card/TopCard.vue";
-import NoticeCard from "@/components/notice-card/NoticeCard.vue";
+import * as echarts from "echarts/core";
+import {GridComponent, LegendComponent, TooltipComponent} from "echarts/components";
+import {LineChart, ScatterChart} from "echarts/charts";
+import {CanvasRenderer} from "echarts/renderers";
+
+echarts.use([GridComponent, LegendComponent, TooltipComponent, LineChart, ScatterChart, CanvasRenderer]);
 export default {
-  name: 'DashboardDetail',
-  components: {NoticeCard, TopCard},
+  name: 'TopCard',
+  props: ['data'],
   data() {
     return {
-      overViewData: [],
-      sysNoticeData: [],
-    };
-  },
-  computed: {
-  },
-  watch: {
-
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.updateContainer();
-    });
-    this.renderCharts();
-  },
-  created() {
-    this.overView();
-    this.getNotice();
-  },
-  methods: {
-    overView() {
-      this.$request.get("/cloud-host/overView", {}).then((res) => {
-        this.overViewData = res.data.data;
-      }).catch((err) => {
-        console.log(err);
-      }).finally(() => {
-
-      })
-    },
-    getNotice() {
-      this.$request.get('/sysNotice/page', {
-        params: {
-          type: 'vps',
-        }
-      }).then((res) => {
-        if (res.data.code === 200) {
-          this.sysNoticeData = res.data.rows;
-        }
-      }).catch((e: Error) => {
-        console.log(e);
-      }).finally(() => {
-        this.dataLoading = false;
-      });
+      dataLoading: false,
+      data: [],
+      title: "概览",
     }
   },
-};
+  computed: {},
+  mounted() {
+
+  },
+  created() {
+  },
+  watch: {},
+  methods: {},
+}
 </script>
-<style lang="less" scoped>
+
+<style scoped lang="less">
 @import '@/style/variables.less';
 
 .row-margin {

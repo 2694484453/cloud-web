@@ -10,6 +10,8 @@
     </t-back-top>
     <!-- 顶部 card  -->
     <top-panel class="row-container" :data="cardData"/>
+    <!-- 通知 -->
+    <NoticeCard class="row-container" :data="noticeData"/>
     <!-- 中部图表  -->
     <middle-chart class="row-container"/>
     <!-- 列表排名 -->
@@ -23,10 +25,12 @@ import TopPanel from './components/TopPanel.vue';
 import MiddleChart from './components/MiddleChart.vue';
 import RankList from './components/RankList.vue';
 import OutputOverview from './components/OutputOverview.vue';
+import NoticeCard from "@/components/notice-card/NoticeCard.vue";
 
 export default {
   name: 'DashboardBase',
   components: {
+    NoticeCard,
     TopPanel,
     MiddleChart,
     RankList,
@@ -42,6 +46,7 @@ export default {
   watch: {},
   created() {
     this.getCardData();
+    this.getNotice();
   },
   methods: {
     getCardData() {
@@ -53,9 +58,9 @@ export default {
         .finally()
     },
     getNotice() {
-      this.$request.get("/system/overView/notice", {})
+      this.$request.get("/sysNotice/page", {})
         .then(res => {
-          this.noticeData = res.data.data;
+          this.noticeData = res.data.rows;
         }).catch()
         .finally()
     }

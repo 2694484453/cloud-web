@@ -4,7 +4,7 @@
       <t-col :xs="12" :xl="9">
         <t-card
           :bordered="false"
-          title="出入库概览"
+          title="概览"
           subtitle="(件)"
           :class="{ 'dashboard-overview-card': true, 'overview-panel': true }"
         >
