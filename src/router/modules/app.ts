@@ -10,6 +10,12 @@ export default [
     meta: {title: '应用中心', icon: AppIcon},
     children: [
       {
+        path: 'overView',
+        name: 'OverViewBase',
+        component: () => import('@/pages/app/index.vue'),
+        meta: {title: '概览'},
+      },
+      {
         path: 'repo',
         name: 'HelmRepoBase',
         component: () => import('@/pages/app/repo/list/index.vue'),

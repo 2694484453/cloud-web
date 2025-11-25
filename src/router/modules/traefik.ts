@@ -9,6 +9,12 @@ export default [
     meta: {title: 'traefik管理', icon: RectangleIcon},
     children: [
       {
+        path: 'overView',
+        name: 'OverViewBase',
+        component: () => import('@/pages/traefik/index.vue'),
+        meta: {title: '概览'},
+      },
+      {
         path: 'dashboard',
         name: 'DashboardBase',
         component: () => import('@/pages/traefik/dashboard/index.vue'),
