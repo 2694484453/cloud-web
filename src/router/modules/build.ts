@@ -21,7 +21,7 @@ export default [
       {
         path: 'chartRepo',
         name: 'chartRepoBase',
-        component: () => import('@/pages/repo/helm/index.vue'),
+        component: () => import('@/pages/docker/helm/index.vue'),
         meta: { title: '本地制品' },
       },
     ],

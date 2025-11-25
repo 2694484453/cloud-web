@@ -62,32 +62,35 @@
           :hover="hover"
           :selected-row-keys="selectedRowKeys"
           :loading="dataLoading"
-          @page-change="rehandlePageChange"
-          @change="rehandleChange"
-          @select-change="rehandleSelectChange"
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
-          <template #CreatedAt="{ row }">
-            <p>{{ new Date(row.CreatedAt).toLocaleString() }}</p>
+          <template #name="{row}">
+            <div  v-for="item in row.name" >
+              <t-space direction="vertical">
+                <t-tag theme="primary" variant="light">{{item}}</t-tag>
+              </t-space>
+            </div>
+          </template>
+          <template #created="{row}">
+            <p>{{row.created}}</p>
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail()">详情</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps)">删除</a>
           </template>
         </t-table>
-        <div>
-          <t-pagination
-            v-model="formData.pageNum"
-            :total="pagination.total"
-            :page-size.sync="formData.pageSize"
-            @current-change="onCurrentChange"
-            @page-size-change="onPageSizeChange"
-            @change="onChange"
-          />
-        </div>
       </div>
     </t-card>
+    <t-pagination
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"
+      style="margin-top: 15px"
+    />
     <t-dialog
       header="确认删除当前所选？"
       :body="confirmBody"
@@ -127,40 +130,40 @@ export default Vue.extend({
         {
           title: 'ID',
           align: 'left',
-          width: 100,
-          ellipsis: true,
-          colKey: 'ID',
-          fixed: 'left',
-        },
-        {
-          title: '名称',
-          align: 'left',
-          width: 230,
-          ellipsis: true,
-          colKey: 'Repository',
-          fixed: 'left',
-        },
-        {
-          title: '版本',
           width: 120,
           ellipsis: true,
+          colKey: 'id',
           fixed: 'left',
-          colKey: 'Tag',
+        },
+        {
+          title: '镜像名称',
+          align: 'left',
+          width: 260,
+          ellipsis: true,
+          colKey: 'name',
+          fixed: 'left',
+        },
+        {
+          title: '标签',
+          width: 80,
+          ellipsis: true,
+          fixed: 'left',
+          colKey: 'labels',
         },
         {
           title: '大小',
           width: 100,
           ellipsis: true,
           fixed: 'left',
-          colKey: 'Size',
+          colKey: 'size',
         },
-        {
-          title: 'Blob大小',
-          width: 100,
-          ellipsis: true,
-          fixed: 'left',
-          colKey: 'BlobSize',
-        },
+        // {
+        //   title: 'virtual大小',
+        //   width: 100,
+        //   ellipsis: true,
+        //   fixed: 'left',
+        //   colKey: 'virtualSize',
+        // },
         {
           title: '平台类型',
           width: 150,
@@ -169,20 +172,15 @@ export default Vue.extend({
           colKey: 'Platform',
         },
         {
-          title: '时长',
-          colKey: 'CreatedSince',
-          width: 150,
-        },
-        {
-          title: '创建时间',
-          width: 200,
+          title: '创建者',
+          width: 120,
           ellipsis: true,
-          colKey: "CreatedAt"
+          colKey: "created"
         },
         {
           align: 'left',
           fixed: 'right',
-          width: 150,
+          width: 120,
           colKey: 'op',
           title: '操作',
         },
@@ -202,12 +200,21 @@ export default Vue.extend({
       confirmVisible: false,
       deleteIdx: -1,
       deleteType: -1,
+      // 查询表单数据
+      searchForm: {
+        repoName: "",
+        pageNum: 1,
+        pageSize: 10
+      },
+      // 抽屉
+      drawer: {
+        header: "",
+        visible: false,
+        operation: "add",
+      },
       formData: {
         name: "",
         type: "",
-        namespace: "",
-        pageNum: 1,
-        pageSize: 10
       },
       typeList: [],
       namespaceList: []
@@ -228,29 +235,21 @@ export default Vue.extend({
   mounted() {
   },
   created() {
-    this.getTypeList();
-    this.getList();
-    this.getNamespaceList();
+    this.page();
   },
   methods: {
-    getNamespaceList() {
-      this.$request.get("/imageRepo/namespaceList").then(res => {
-        this.namespaceList = res.data.data;
-      })
-    },
     getContainer() {
       return document.querySelector('.tdesign-starter-layout');
     },
     onPageSizeChange(size, pageInfo) {
       console.log('Page Size:', this.pageSize, size, pageInfo);
       // 刷新
-      this.formData.pageSize = size
+      this.searchForm.pageSize = size
     },
     onCurrentChange(current, pageInfo) {
       console.log('Current Page', this.current, current, pageInfo);
       // 刷新
-      this.formData.pageNum = current
-      this.getList()
+      this.searchForm.pageNum = current
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
@@ -300,8 +299,7 @@ export default Vue.extend({
       this.getList();
     },
     onSubmit(data) {
-      console.log(this.formData);
-      this.getList(this.formData);
+      this.page();
     },
     getTypeList() {
       this.$request.get("/imageRepo/typeList").then(res => {
@@ -310,22 +308,19 @@ export default Vue.extend({
 
       })
     },
-    getList() {
+    page() {
       this.dataLoading = true;
       this.$request
-        .get('/imageRepo/page', {
-          params: this.formData
+        .get('/docker/image/page', {
+          params: this.searchForm
         }).then((res) => {
         if (res.data.code === 200) {
-          //console.log(res.data.data)
           this.data = res.data.rows;
           this.pagination.total = res.data.total;
         }
-      })
-        .catch((e: Error) => {
+      }).catch((e: Error) => {
           console.log(e);
-        })
-        .finally(() => {
+        }).finally(() => {
           this.dataLoading = false;
         });
     }

@@ -59,18 +59,17 @@
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
-        <div style="margin-top: 10px">
-          <t-pagination
-            v-model="searchForm.pageNum"
-            :total="pagination.total"
-            :page-size.sync="searchForm.pageSize"
-            @current-change="onCurrentChange"
-            @page-size-change="onPageSizeChange"
-            @change="onChange"
-          />
-        </div>
       </div>
     </t-card>
+    <t-pagination
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"
+      style="margin-top: 15px"
+    />
     <t-dialog
       :header="confirm.header"
       :body="confirm.body"
@@ -226,9 +225,7 @@ export default Vue.extend({
       drawer: {
         header: "",
         visible: false,
-        type: "",
         operation: "add",
-        row: {}
       },
       // 对话框
       confirm: {
