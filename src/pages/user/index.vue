@@ -4,16 +4,19 @@
       <t-col :flex="3">
         <div class="user-left-greeting">
           <div>
-            Hi，{{form.nickName}}
-            <span class="regular"> 下午好，今天是你加入云服务平台的第 {{Math.round((new Date().getTime() -new Date(form.createTime).getTime())/ (1000 * 3600 * 24))}} 天～</span>
+            Hi，{{ form.nickName }}
+            <span
+              class="regular"> 下午好，今天是你加入云服务平台的第 {{ Math.round((new Date().getTime() - new Date(form.createTime).getTime()) / (1000 * 3600 * 24)) }} 天～</span>
           </div>
-<!--          <img src="@/assets/assets-tencent-logo.png" class="logo"/>-->
+          <!--          <img src="@/assets/assets-tencent-logo.png" class="logo"/>-->
         </div>
 
         <t-card class="user-info-list" title="个人信息" :bordered="false">
           <div style="float: right;position: relative">
-            <t-button theme="default" shape="square" variant="text" style="width: 120px;float: right" @click="handleClickEdit">
-              <edit-icon size="18"/>编辑信息
+            <t-button theme="default" shape="square" variant="text" style="width: 120px;float: right"
+                      @click="handleClickEdit">
+              <edit-icon size="18"/>
+              编辑信息
             </t-button>
           </div>
           <t-row class="content" justify="space-between">
@@ -53,48 +56,48 @@
           </t-tabs>
         </t-card>
       </t-col>
-<!--      <t-col :flex="1">-->
-<!--        <t-card class="user-intro" :bordered="false">-->
-<!--          <t-avatar size="90px">T</t-avatar>-->
-<!--          <div class="name">My Account</div>-->
-<!--          <div class="position">XXG 港澳业务拓展组员工 直客销售</div>-->
-<!--        </t-card>-->
+      <!--      <t-col :flex="1">-->
+      <!--        <t-card class="user-intro" :bordered="false">-->
+      <!--          <t-avatar size="90px">T</t-avatar>-->
+      <!--          <div class="name">My Account</div>-->
+      <!--          <div class="position">XXG 港澳业务拓展组员工 直客销售</div>-->
+      <!--        </t-card>-->
 
-<!--        <t-card title="团队成员" class="user-team" :bordered="false">-->
-<!--          <template #option>-->
-<!--            <t-button theme="default" shape="square" variant="text">-->
-<!--              <edit-icon size="18"/>-->
-<!--            </t-button>-->
-<!--          </template>-->
-<!--          <t-list :split="false">-->
-<!--            <t-list-item v-for="(item, index) in TEAM_MEMBERS" :key="index">-->
-<!--              <t-list-item-meta :image="item.avatar" :title="item.title" :description="item.description"/>-->
-<!--            </t-list-item>-->
-<!--          </t-list>-->
-<!--        </t-card>-->
+      <!--        <t-card title="团队成员" class="user-team" :bordered="false">-->
+      <!--          <template #option>-->
+      <!--            <t-button theme="default" shape="square" variant="text">-->
+      <!--              <edit-icon size="18"/>-->
+      <!--            </t-button>-->
+      <!--          </template>-->
+      <!--          <t-list :split="false">-->
+      <!--            <t-list-item v-for="(item, index) in TEAM_MEMBERS" :key="index">-->
+      <!--              <t-list-item-meta :image="item.avatar" :title="item.title" :description="item.description"/>-->
+      <!--            </t-list-item>-->
+      <!--          </t-list>-->
+      <!--        </t-card>-->
 
-<!--        <t-card title="服务产品" class="product-container" :bordered="false">-->
-<!--          <template #option>-->
-<!--            <t-button theme="default" shape="square" variant="text">-->
-<!--              <edit-icon size="18"/>-->
-<!--            </t-button>-->
-<!--          </template>-->
-<!--          <t-row class="content" :getters="16">-->
-<!--            <t-col :span="3">-->
-<!--              <product-a-icon/>-->
-<!--            </t-col>-->
-<!--            <t-col :span="3">-->
-<!--              <product-b-icon/>-->
-<!--            </t-col>-->
-<!--            <t-col :span="3">-->
-<!--              <product-c-icon/>-->
-<!--            </t-col>-->
-<!--            <t-col :span="3">-->
-<!--              <product-d-icon/>-->
-<!--            </t-col>-->
-<!--          </t-row>-->
-<!--        </t-card>-->
-<!--      </t-col>-->
+      <!--        <t-card title="服务产品" class="product-container" :bordered="false">-->
+      <!--          <template #option>-->
+      <!--            <t-button theme="default" shape="square" variant="text">-->
+      <!--              <edit-icon size="18"/>-->
+      <!--            </t-button>-->
+      <!--          </template>-->
+      <!--          <t-row class="content" :getters="16">-->
+      <!--            <t-col :span="3">-->
+      <!--              <product-a-icon/>-->
+      <!--            </t-col>-->
+      <!--            <t-col :span="3">-->
+      <!--              <product-b-icon/>-->
+      <!--            </t-col>-->
+      <!--            <t-col :span="3">-->
+      <!--              <product-c-icon/>-->
+      <!--            </t-col>-->
+      <!--            <t-col :span="3">-->
+      <!--              <product-d-icon/>-->
+      <!--            </t-col>-->
+      <!--          </t-row>-->
+      <!--        </t-card>-->
+      <!--      </t-col>-->
     </t-row>
     <t-drawer
       :visible.sync="formConfig.visible"
@@ -105,7 +108,7 @@
       showOverlay
       :sizeDraggable="true"
       :on-size-drag-end="handleSizeDrag"
-      size="40%"
+      size="30%"
       @cancel="formConfig.visible = false"
       @close="handleClose"
       :onConfirm="onSubmit">
@@ -121,19 +124,22 @@
           <t-form-item label="id" name="id" v-show="false">
             <t-input v-model="form.id" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
           </t-form-item>
-          <t-form-item label="名称" name="nickName" >
+          <t-form-item label="名称" name="nickName">
             <t-input v-model="form.nickName" placeholder="请输入名称" :maxlength="32" with="200"></t-input>
           </t-form-item>
-          <t-form-item label="性别" name="sex" >
-            <t-input v-model="form.sex" placeholder="请输入性别" :maxlength="32" with="200"></t-input>
+          <t-form-item label="性别" name="sex">
+            <t-select v-model="form.sex">
+              <t-option value="0" label="男">男</t-option>
+              <t-option value="1" label="女">女</t-option>
+            </t-select>
           </t-form-item>
-          <t-form-item label="电话" name="phonenumber" >
+          <t-form-item label="电话" name="phonenumber">
             <t-input v-model="form.phonenumber" placeholder="请选择"></t-input>
           </t-form-item>
-          <t-form-item label="邮箱" name="email" >
+          <t-form-item label="邮箱" name="email">
             <t-input v-model="form.email" placeholder="请选择" style="width: 322px"></t-input>
           </t-form-item>
-          <t-form-item label="备注" name="remark" >
+          <t-form-item label="备注" name="remark">
             <t-textarea v-model="form.remark" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
           </t-form-item>
         </t-form>
@@ -259,7 +265,7 @@ export default {
     },
     // 提交信息
     onSubmit() {
-      this.$request.put("/system/user/profile/updateProfile",this.form).then(res => {
+      this.$request.put("/system/user/profile/updateProfile", this.form).then(res => {
         if (res.data.code === 200) {
           this.$message.success(res.data.msg);
           this.formConfig.visible = false;
