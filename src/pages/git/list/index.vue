@@ -39,37 +39,33 @@
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
-          <template #status="{ row }">
+          <template #status="{row}">
             <!--            <t-tag v-if="row.status === CONTRACT_STATUS.FAIL" theme="danger" variant="light">校验失败</t-tag>-->
             <!--            <t-tag v-if="row.status === CONTRACT_STATUS.AUDIT_PENDING" theme="warning" variant="light">打包失败</t-tag>-->
             <!--            <t-tag v-if="row.status === CONTRACT_STATUS.EXEC_PENDING" theme="warning" variant="light">未知</t-tag>-->
             <!--            <t-tag v-if="row.status === CONTRACT_STATUS.EXECUTING" theme="success" variant="light">打包中</t-tag>-->
             <!--            <t-tag v-if="row.status === CONTRACT_STATUS.FINISH" theme="success" variant="light">已完成</t-tag>-->
           </template>
-          <template #language="{ row }">
-            <p v-if="row.language === '' || row.language === null">未知</p>
-            <p v-else>{{ row.language }}</p>
-          </template>
-          <template #html_url="{ row }">
-            <a :href="row.html_url" target="_blank">{{ row.html_url }}</a>
+          <template #url="{row}">
+            <a :href="row.url" target="_blank">{{ row.url }}</a>
           </template>
           <template #op="slotProps">
-            <!--            <a class="t-button-link" @click="handleClickSuccess()">在线开发</a>-->
+            <a class="t-button-link" @click="handleClickIde(slotProps.row)">dev</a>
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
+            <a class="t-button-link" @click="handleClickEdit(slotProps.row)">编辑</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
       </div>
     </t-card>
-    <div>
-      <t-pagination
-        v-model="searchForm.pageNum"
-        :total="pagination.total"
-        :page-size.sync="searchForm.pageSize"
-        @current-change="onCurrentChange"
-        @page-size-change="onPageSizeChange"
-        @change="onChange"/>
-    </div>
+    <t-pagination
+      style="margin-top: 15px"
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"/>
     <t-dialog
       header="确认删除当前所选合同？"
       :body="confirmBody"
@@ -171,7 +167,7 @@ export default Vue.extend({
         {
           title: '仓库名称',
           align: 'left',
-          width: 160,
+          width: 120,
           ellipsis: true,
           colKey: 'name',
           fixed: 'left',
@@ -179,14 +175,9 @@ export default Vue.extend({
         {
           title: "类型",
           align: 'left',
-          width: 120,
+          width: 80,
           ellipsis: true,
           colKey: 'type',
-        },
-        {
-          title: '语言',
-          colKey: 'language',
-          width: 120
         },
         {
           title: '状态',
@@ -196,32 +187,32 @@ export default Vue.extend({
         },
         {
           title: '地址',
-          width: 180,
+          width: 160,
           ellipsis: true,
-          colKey: 'gitUrl',
+          colKey: 'url',
         },
         {
           title: '创建时间',
-          width: 180,
+          width: 120,
           ellipsis: true,
           colKey: 'createTime',
         },
         {
           title: '更新时间',
-          width: 180,
+          width: 120,
           ellipsis: true,
           colKey: 'updateTime',
         },
         {
           title: '描述',
-          width: 200,
+          width: 160,
           ellipsis: true,
           colKey: 'description',
         },
         {
           align: 'left',
           fixed: 'right',
-          width: 120,
+          width: 150,
           colKey: 'op',
           title: '操作',
         },
@@ -332,7 +323,6 @@ export default Vue.extend({
       });
     },
     getRepoTypeList() {
-      this.dataLoading = true;
       this.$request.get('/git/common/types').then((res) => {
         if (res.data.code === 200) {
           console.log("types", res.data.data)
@@ -380,6 +370,10 @@ export default Vue.extend({
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
+    },
+    handleClickIde(row) {
+      this.formData = row;
+
     },
     handleClickDetail(row) {
       this.formData = row;
