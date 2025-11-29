@@ -9,7 +9,7 @@
   >
     <template v-if="type == 'password'">
       <t-form-item name="account">
-        <t-input v-model="formData.account" size="large" placeholder="请输入账号：admin">
+        <t-input v-model="formData.account" size="large" placeholder="请输入账号：admin(测试账号)">
           <template #prefix-icon>
             <user-icon/>
           </template>
@@ -23,7 +23,7 @@
           :type="showPsw ? 'text' : 'password'"
           clearable
           key="password"
-          placeholder="请输入登录密码：admin123"
+          placeholder="请输入登录密码：admin123(测试密码)"
         >
           <template #prefix-icon>
             <lock-on-icon/>

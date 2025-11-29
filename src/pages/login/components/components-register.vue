@@ -8,31 +8,20 @@
     @submit="onSubmit"
   >
     <!--手机号注册-->
-    <template v-if="type == 'phone'">
-      <t-form-item name="phone">
-        <t-input v-model="formData.phone" :maxlength="11" size="large" placeholder="请输入您的手机号">
-          <template #prefix-icon>
-            <user-icon/>
-          </template>
-        </t-input>
-      </t-form-item>
-    </template>
+<!--    <template v-if="type == 'phone'">-->
+<!--      <t-form-item name="phone">-->
+<!--        <t-input v-model="formData.phone" :maxlength="11" size="large" placeholder="请输入您的手机号">-->
+<!--          <template #prefix-icon>-->
+<!--            <user-icon/>-->
+<!--          </template>-->
+<!--        </t-input>-->
+<!--      </t-form-item>-->
+<!--    </template>-->
 
     <!--邮箱注册-->
-    <template v-if="type == 'email'">
+    <template>
       <t-form-item name="email">
         <t-input v-model="formData.email" type="text" size="large" placeholder="请输入您的邮箱">
-          <template #prefix-icon>
-            <mail-icon/>
-          </template>
-        </t-input>
-      </t-form-item>
-    </template>
-
-    <!-- 集群域名注册 -->
-    <template v-if="type == 'cluster'">
-      <t-form-item name="cluster">
-        <t-input v-model="formData.cluster" type="text" size="large" placeholder="请输入您的集群域名/IP">
           <template #prefix-icon>
             <mail-icon/>
           </template>
@@ -69,7 +58,7 @@
 
     <t-form-item class="check-container" name="checked">
       <t-checkbox v-model="formData.checked">我已阅读并同意</t-checkbox>
-      <span>TDesign服务协议</span> 和 <span>TDesign 隐私声明</span>
+<!--      <span>TDesign服务协议</span> 和 <span>TDesign 隐私声明</span>-->
     </t-form-item>
 
     <t-form-item>
@@ -85,15 +74,13 @@ import {UserIcon, MailIcon, BrowseIcon, BrowseOffIcon, LockOnIcon} from 'tdesign
 const INITIAL_DATA = {
   phone: '',
   email: '',
-  cluster: 'ark.gpg123.vip',
-  password: 'ark.gpg123.vip',
+  password: '',
   verifyCode: '',
-  type: 'cluster',
+  type: '',
   checked: false,
 };
 
 const FORM_RULES = {
-  cluster: [{required: true, message: '集群域名/IP必填', type: 'error'}],
   phone: [{required: true, message: '手机号必填', type: 'error'}],
   email: [{required: true, email: true, message: '邮箱必填', type: 'error'}],
   password: [{required: true, message: '密码必填', type: 'error'}],
@@ -142,9 +129,6 @@ export default Vue.extend({
             break;
           case "phone":
             this.formData.type = "phone";
-            break;
-          case "cluster":
-            this.formData.type = "cluster";
             break;
         }
         await this.$request.post("/register", this.formData).then((res) => {

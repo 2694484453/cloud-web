@@ -39,7 +39,7 @@
         >
           <template #targets="{row}">
             <span v-for="item in row.targets.split(',')">
-                <t-tag theme="primary" variant="light">{{item}}</t-tag>
+                <t-tag theme="primary" variant="light">{{ item }}</t-tag>
             </span>
           </template>
           <template #status="{row}">
@@ -84,7 +84,8 @@
       :onConfirm="handleDrawerOk"
       @cancel="onCancelDrawer"
     >
-      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical"
+               style="width: 100%">
         <t-form
           ref="formValidatorStatus"
           :data="formData"
@@ -92,13 +93,18 @@
           @reset="onReset"
         >
           <t-form-item label="名称" name="jobName">
-            <t-input v-model="formData.jobName" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
+            <t-input v-model="formData.jobName" placeholder="请输入名称" :maxlength="64" with="120"></t-input>
           </t-form-item>
           <t-form-item label="类型" name="exporterType">
-            <t-input v-model="formData.exporterType" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
+            <t-select v-model="formData.exporterType" class="demo-select-base" clearable filterable
+                      placeholder="请选择类型">
+              <t-option v-for="(item, index) in typeList" :value="item" :label="item" :key="index">
+                {{ item }}
+              </t-option>
+            </t-select>
           </t-form-item>
           <t-form-item label="地址" name="url">
-            <t-input v-model="formData.description" placeholder="请输入仓库地址" :maxlength="64" with="120"></t-input>
+            <t-input v-model="formData.globalUrl" placeholder="请输入地址" :maxlength="64" with="120"></t-input>
           </t-form-item>
         </t-form>
       </t-space>
@@ -108,10 +114,11 @@
           <t-descriptions-item label="类型">{{ formData.exporterType }}</t-descriptions-item>
           <t-descriptions-item label="端点">
             <t-space v-for="item in formData.targets.split(',')">
-                <t-tag theme="primary">{{item}}</t-tag>
+              <t-tag theme="primary">{{ item }}</t-tag>
             </t-space>
           </t-descriptions-item>
-          <t-descriptions-item label="地址"><a :href="formData.globalUrl">{{formData.globalUrl}}</a></t-descriptions-item>
+          <t-descriptions-item label="地址"><a :href="formData.globalUrl">{{ formData.globalUrl }}</a>
+          </t-descriptions-item>
           <t-descriptions-item label="描述">{{ formData.description }}</t-descriptions-item>
           <t-descriptions-item label="创建时间">{{ formData.createTime }}</t-descriptions-item>
           <t-descriptions-item label="创建人">{{ formData.createByUserName }}</t-descriptions-item>
@@ -338,6 +345,7 @@ export default Vue.extend({
       this.drawer.visible = true;
       this.drawer.header = "新增";
       this.drawer.operation = 'add';
+      this.types();
     },
     // 删除
     handleClickDelete(row: { rowIndex: any, type: any }) {
@@ -380,6 +388,19 @@ export default Vue.extend({
         case 'detail':
           this.drawer.visible = false;
           break;
+        case 'add':
+          this.$request.post("/prometheus/exporter/add", this.formData).then(res => {
+            if (res.data.code == 200) {
+              this.$message.success(res.data.msg);
+              this.drawer.visible = false;
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          }).catch(err => {
+
+          }).finally(() => {
+            this.page();
+          })
       }
     },
     onCancel() {
@@ -401,8 +422,8 @@ export default Vue.extend({
     page() {
       this.dataLoading = true;
       this.$request.get('/prometheus/exporter/page', {
-          params: this.searchForm
-        }).then((res) => {
+        params: this.searchForm
+      }).then((res) => {
         if (res.data.code === 200) {
           this.data = res.data.rows;
           this.pagination.total = res.data.total;
@@ -412,6 +433,18 @@ export default Vue.extend({
       }).finally(() => {
         this.dataLoading = false;
       });
+    },
+    // 查询类型
+    types() {
+      this.$request.get("/prometheus/exporter/types", {}).then((res) => {
+        if (res.data.code === 200) {
+          this.typeList = res.data.data;
+        }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+
+      })
     }
   },
 });
