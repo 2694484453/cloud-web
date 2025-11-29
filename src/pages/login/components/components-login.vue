@@ -8,8 +8,8 @@
     @submit="onSubmit"
   >
     <template v-if="type == 'password'">
-      <t-form-item name="account">
-        <t-input v-model="formData.account" size="large" placeholder="请输入账号：admin(测试账号)">
+      <t-form-item name="email">
+        <t-input v-model="formData.account" size="large" placeholder="请输入账号/邮箱：admin(测试账号)">
           <template #prefix-icon>
             <user-icon/>
           </template>
@@ -42,44 +42,44 @@
     </template>
 
     <!-- 扫码登陆 -->
-    <template v-else-if="type == 'qrcode'">
-      <div class="tip-container">
-        <span class="tip">请使用微信扫一扫登录</span>
-        <span class="refresh"
-        >刷新
-          <refresh-icon color="#0052D9"/>
-        </span>
-      </div>
-      <qrcode-vue value="" :size="192" level="H"/>
-    </template>
+<!--    <template v-else-if="type == 'qrcode'">-->
+<!--      <div class="tip-container">-->
+<!--        <span class="tip">请使用微信扫一扫登录</span>-->
+<!--        <span class="refresh"-->
+<!--        >刷新-->
+<!--          <refresh-icon color="#0052D9"/>-->
+<!--        </span>-->
+<!--      </div>-->
+<!--      <qrcode-vue value="" :size="192" level="H"/>-->
+<!--    </template>-->
 
-    <!-- 手机号登陆 -->
-    <template v-else-if="type == 'phone'">
-      <t-form-item name="phone">
-        <t-input v-model="formData.phone" size="large" placeholder="请输入您的手机号">
-          <template #prefix-icon>
-            <user-icon/>
-          </template>
-        </t-input>
-      </t-form-item>
-      <t-form-item class="verification-code" name="verifyCode">
-        <t-input v-model="formData.verifyCode" size="large" placeholder="请输入验证码" key="verifyCode"/>
-        <t-button variant="outline" :disabled="countDown > 0" @click="handleCounter">
-          {{ countDown == 0 ? '发送验证码' : `${countDown}秒后可重发` }}
-        </t-button>
-      </t-form-item>
-    </template>
+<!--    &lt;!&ndash; 手机号登陆 &ndash;&gt;-->
+<!--    <template v-else-if="type == 'phone'">-->
+<!--      <t-form-item name="phone">-->
+<!--        <t-input v-model="formData.phone" size="large" placeholder="请输入您的手机号">-->
+<!--          <template #prefix-icon>-->
+<!--            <user-icon/>-->
+<!--          </template>-->
+<!--        </t-input>-->
+<!--      </t-form-item>-->
+<!--      <t-form-item class="verification-code" name="verifyCode">-->
+<!--        <t-input v-model="formData.verifyCode" size="large" placeholder="请输入验证码" key="verifyCode"/>-->
+<!--        <t-button variant="outline" :disabled="countDown > 0" @click="handleCounter">-->
+<!--          {{ countDown == 0 ? '发送验证码' : `${countDown}秒后可重发` }}-->
+<!--        </t-button>-->
+<!--      </t-form-item>-->
+<!--    </template>-->
 
     <!--使用邮箱登录-->
-    <template v-else-if="type == 'email'">
-      <t-form-item name="email">
-        <t-input v-model="formData.email" size="large" placeholder="请输入您的邮箱地址">
-          <template #prefix-icon>
-            <user-icon/>
-          </template>
-        </t-input>
-      </t-form-item>
-    </template>
+<!--    <template v-else-if="type == 'email'">-->
+<!--      <t-form-item name="email">-->
+<!--        <t-input v-model="formData.email" size="large" placeholder="请输入您的邮箱地址">-->
+<!--          <template #prefix-icon>-->
+<!--            <user-icon/>-->
+<!--          </template>-->
+<!--        </t-input>-->
+<!--      </t-form-item>-->
+<!--    </template>-->
 
     <template v-else>
 
@@ -90,10 +90,10 @@
     </t-form-item>
 
     <div class="switch-container">
-      <span v-if="type !== 'password'" class="tip" @click="switchType('password')">使用账号密码登录</span>
-      <span v-if="type !== 'qrcode'" class="tip" @click="switchType('qrcode')">使用微信扫码登录</span>
-      <span v-if="type !== 'phone'" class="tip" @click="switchType('phone')">使用手机号登录</span>
-      <span v-if="type !== 'email'" class="tip" @click="switchType('email')">使用邮箱登录</span>
+<!--      <span v-if="type !== 'password'" class="tip" @click="switchType('password')">使用账号密码登录</span>-->
+<!--      <span v-if="type !== 'qrcode'" class="tip" @click="switchType('qrcode')">使用微信扫码登录</span>-->
+<!--      <span v-if="type !== 'phone'" class="tip" @click="switchType('phone')">使用手机号登录</span>-->
+<!--      <span v-if="type !== 'email'" class="tip" @click="switchType('email')">使用邮箱登录</span>-->
     </div>
   </t-form>
 </template>
@@ -114,7 +114,6 @@ const INITIAL_DATA = {
 const FORM_RULES = {
   phone: [{required: true, message: '手机号必填', type: 'error'}],
   account: [{required: true, message: '账号必填', type: 'error'}],
-  email: [{required: true, message: '邮箱必填', type: 'error'}],
   password: [{required: true, message: '密码必填', type: 'error'}],
   verifyCode: [{required: true, message: '验证码必填', type: 'error'}],
 };
@@ -151,7 +150,7 @@ export default Vue.extend({
       if (validateResult === true) {
         const data = {
           userName: this.formData.account,
-          passWord: this.formData.password
+          passWord: this.formData.password,
         }
         await this.$store.dispatch('user/login', data);
         this.$request.post('/login', data).then((res) => {
