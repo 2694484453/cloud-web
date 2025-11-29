@@ -12,7 +12,7 @@
       >
         <t-row justify="space-between">
           <div class="left-operation-container">
-            <t-button @click="handleSetupContract">添加</t-button>
+            <!--            <t-button @click="handleSetupContract">添加</t-button>-->
             <!--            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出</t-button>-->
             <!--            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>-->
           </div>
@@ -50,7 +50,7 @@
             <a :href="row.url" target="_blank">{{ row.url }}</a>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="handleClickCodeSpace(slotProps.row)">开发</a>
+            <a class="t-button-link" @click="handleClickIde(slotProps.row)">dev</a>
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickEdit(slotProps.row)">编辑</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
@@ -371,7 +371,7 @@ export default Vue.extend({
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
     },
-    handleClickCodeSpace(row) {
+    handleClickIde(row) {
       this.formData = row;
 
     },
@@ -472,7 +472,7 @@ export default Vue.extend({
     },
     page() {
       this.dataLoading = true;
-      this.$request.get('/git/repo/page', {
+      this.$request.get('/git/codeSpace/page', {
         params: this.searchForm
       }).then((res) => {
         if (res.data.code === 200) {
