@@ -50,7 +50,8 @@
             <a :href="row.url" target="_blank">{{ row.url }}</a>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="handleClickCodeSpace(slotProps.row)">开发</a>
+            <a class="t-button-link"
+               @click="handleClickCodeSpace(slotProps.row)">{{ slotProps.row.exist != null ? '开发' : '创建' }}</a>
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickEdit(slotProps.row)">编辑</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
@@ -67,10 +68,10 @@
       @page-size-change="onPageSizeChange"
       @change="onChange"/>
     <t-dialog
-      header="确认删除当前所选合同？"
-      :body="confirmBody"
-      :visible.sync="confirmVisible"
-      @confirm="onConfirmDelete"
+      :header="confirm.header"
+      :body="confirm.body"
+      :visible.sync="confirm.visible"
+      @confirm="onConfirmOk"
       :onCancel="onCancel"
     >
     </t-dialog>
@@ -89,7 +90,8 @@
       :onConfirm="handleDrawerOk"
       @cancel="onCancelDrawer"
     >
-      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical"
+               style="width: 100%">
         <t-form
           ref="formValidatorStatus"
           :data="formData"
@@ -97,7 +99,7 @@
           @reset="onReset"
         >
           <t-form-item label="Git地址" name="url">
-            <t-input v-model="formData.url"  class="search-input" placeholder="" clearable></t-input>
+            <t-input v-model="formData.url" class="search-input" placeholder="" clearable></t-input>
           </t-form-item>
           <t-form-item label="仓库名称" name="name">
             <t-input v-model="formData.name" class="search-input" placeholder="" clearable></t-input>
@@ -115,21 +117,22 @@
             </t-select>
           </t-form-item>
           <t-form-item label="描述" name="name">
-            <t-textarea v-model="formData.description" class="search-input" placeholder="" clearable maxlength="256"></t-textarea>
+            <t-textarea v-model="formData.description" class="search-input" placeholder="" clearable
+                        maxlength="256"></t-textarea>
           </t-form-item>
         </t-form>
       </t-space>
       <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
-        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
-          <t-descriptions-item label="名称">{{formData.name}}</t-descriptions-item>
-          <t-descriptions-item label="类型">{{formData.type}}</t-descriptions-item>
-          <t-descriptions-item label="状态">{{formData.status}}</t-descriptions-item>
-          <t-descriptions-item label="地址">{{formData.url}}</t-descriptions-item>
-          <t-descriptions-item label="创建者">{{formData.createByUserName}}</t-descriptions-item>
-          <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
-          <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
-          <t-descriptions-item label="更新者">{{formData.updateByUserName}}</t-descriptions-item>
-          <t-descriptions-item label="备注">{{formData.description}}</t-descriptions-item>
+        <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
+          <t-descriptions-item label="名称">{{ formData.name }}</t-descriptions-item>
+          <t-descriptions-item label="类型">{{ formData.type }}</t-descriptions-item>
+          <t-descriptions-item label="状态">{{ formData.status }}</t-descriptions-item>
+          <t-descriptions-item label="地址">{{ formData.url }}</t-descriptions-item>
+          <t-descriptions-item label="创建者">{{ formData.createByUserName }}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{ formData.createTime }}</t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{ formData.updateTime }}</t-descriptions-item>
+          <t-descriptions-item label="更新者">{{ formData.updateByUserName }}</t-descriptions-item>
+          <t-descriptions-item label="备注">{{ formData.description }}</t-descriptions-item>
         </t-descriptions>
       </t-space>
     </t-drawer>
@@ -285,7 +288,7 @@ export default Vue.extend({
   created() {
     this.page()
   },
-  watch:{
+  watch: {
     "searchForm.name"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.page()
@@ -373,7 +376,40 @@ export default Vue.extend({
     },
     handleClickCodeSpace(row) {
       this.formData = row;
+      if (row.exist != null && row.exist != '') {
+        this.$request.get('/git/codeSpace/isExist', {
+          params: {
+            repoId: row.id
+          },
+        }).then((res) => {
+          if (res.data.code === 200) {
+            if (res.data.data != null) {
+              this.$message.success(res.data.msg)
+              setTimeout(() => {
+                // 建议始终使用 '_blank' 作为目标
+                const newWindow = window.open(res.data.data.spaceUrl, '_blank');
 
+                // 可选：检查窗口是否成功打开（可能被浏览器或扩展程序拦截）
+                if (newWindow === null || newWindow.closed) {
+                  console.warn('新窗口打开可能被阻止了。请检查浏览器弹出窗口拦截设置。');
+                } else {
+                  // 可选：将焦点移至新窗口
+                  newWindow.focus();
+                }
+              }, 3000)
+            }
+          }
+        }).catch((e: Error) => {
+          console.log(e);
+        }).finally(() => {
+
+        })
+      } else {
+        this.confirm.visible = true;
+        this.confirm.operation = 'codeSpaceAdd';
+        this.confirm.header = '创建' + row.name + '代码空间';
+        this.confirm.body = '本次操作将会创建' + row.name + '仓库的代码空间，是否继续？';
+      }
     },
     handleClickDetail(row) {
       this.formData = row;
@@ -401,17 +437,37 @@ export default Vue.extend({
     handleClickSuccess() {
       this.$router.push('/build/success');
     },
-    // 确认删除
-    onConfirmDelete() {
-      // 真实业务请发起请求
-      this.$request.delete("/git/repo/delete?id=" + this.formData.params.id).then(res => {
-        if (res.data.code === 200) {
-          this.$message.success(res.data.msg)
-          this.confirmVisible = false;
-          this.resetIdx();
-          this.getList();
-        }
-      })
+    // 确认对话框
+    onConfirmOk() {
+      switch (this.confirm.operation) {
+        case 'codeSpaceAdd':
+          this.$request.post('/git/codeSpace/add', {
+            spaceName: this.formData.name,
+            repoId: this.formData.id
+          }).then((res) => {
+            if (res.data.code === 200) {
+              this.$message.success("地址已分配完成，正在初始化数据中...")
+              setTimeout(() => {
+                this.$router.push('/git/codeSpace')
+              },10000)
+            }
+          }).catch((e: Error) => {
+            console.log(e)
+          }).finally(() => {
+
+          })
+          break;
+        case 'delete':
+          this.$request.delete("/git/repo/delete?id=" + this.formData.params.id).then(res => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg)
+              this.confirmVisible = false;
+              this.resetIdx();
+              this.getList();
+            }
+          })
+          break;
+      }
     },
     // 确认对话框
     onConfirmDialog() {
@@ -423,34 +479,32 @@ export default Vue.extend({
     },
     // 确认抽屉
     handleDrawerOk() {
-        switch (this.drawer.operation) {
-          case 'add':
-            this.$request.post('/git/repo/add',this.formData).then((res) => {
-              if (res.data.code === 200) {
-                console.log(res.data.data);
-                this.$message.success(res.data.msg);
-                this.drawer.visible = false;
-              } else  {
-                this.$message.error(res.data.msg);
-              }
-            }).catch((err) => {
+      switch (this.drawer.operation) {
+        case 'add':
+          this.$request.post('/git/repo/add', this.formData).then((res) => {
+            if (res.data.code === 200) {
+              console.log(res.data.data);
+              this.$message.success(res.data.msg);
+              this.drawer.visible = false;
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          }).catch((err) => {
 
-            }).finally(() => {
-              this.page();
-              this.dataLoading = false;
-            })
-            break;
-          case 'edit':
-            break;
-          case 'detail':
-            break;
-        }
+          }).finally(() => {
+            this.page();
+            this.dataLoading = false;
+          })
+          break;
+        case 'edit':
+          break;
+        case 'detail':
+          break;
+      }
     },
     // 取消删除
     onCancel() {
       this.confirm.visible = false;
-      this.dataLoading = false;
-      this.$message.info("取消删除！");
     },
     // 取消抽屉
     onCancelDrawer() {

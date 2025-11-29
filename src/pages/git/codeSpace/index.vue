@@ -50,7 +50,7 @@
             <a :href="row.url" target="_blank">{{ row.url }}</a>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="handleClickIde(slotProps.row)">dev</a>
+            <a class="t-button-link" @click="handleClickIde(slotProps.row)">访问</a>
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickEdit(slotProps.row)">编辑</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
@@ -165,11 +165,11 @@ export default Vue.extend({
       columns: [
         {colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left'},
         {
-          title: '仓库名称',
+          title: '空间名称',
           align: 'left',
           width: 120,
           ellipsis: true,
-          colKey: 'name',
+          colKey: 'spaceName',
           fixed: 'left',
         },
         {
@@ -183,13 +183,19 @@ export default Vue.extend({
           title: '状态',
           width: 80,
           ellipsis: true,
-          colKey: 'status',
+          colKey: 'spaceStatus',
         },
         {
-          title: '地址',
+          title: 'url地址',
+          width: 120,
+          ellipsis: true,
+          colKey: 'spaceUrl',
+        },
+        {
+          title: '描述',
           width: 160,
           ellipsis: true,
-          colKey: 'url',
+          colKey: 'description',
         },
         {
           title: '创建时间',
@@ -202,12 +208,6 @@ export default Vue.extend({
           width: 120,
           ellipsis: true,
           colKey: 'updateTime',
-        },
-        {
-          title: '描述',
-          width: 160,
-          ellipsis: true,
-          colKey: 'description',
         },
         {
           align: 'left',
