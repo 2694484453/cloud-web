@@ -8,15 +8,15 @@
     @submit="onSubmit"
   >
     <!--手机号注册-->
-<!--    <template v-if="type == 'phone'">-->
-<!--      <t-form-item name="phone">-->
-<!--        <t-input v-model="formData.phone" :maxlength="11" size="large" placeholder="请输入您的手机号">-->
-<!--          <template #prefix-icon>-->
-<!--            <user-icon/>-->
-<!--          </template>-->
-<!--        </t-input>-->
-<!--      </t-form-item>-->
-<!--    </template>-->
+    <!--    <template v-if="type == 'phone'">-->
+    <!--      <t-form-item name="phone">-->
+    <!--        <t-input v-model="formData.phone" :maxlength="11" size="large" placeholder="请输入您的手机号">-->
+    <!--          <template #prefix-icon>-->
+    <!--            <user-icon/>-->
+    <!--          </template>-->
+    <!--        </t-input>-->
+    <!--      </t-form-item>-->
+    <!--    </template>-->
 
     <!--邮箱注册-->
     <template>
@@ -58,7 +58,7 @@
 
     <t-form-item class="check-container" name="checked">
       <t-checkbox v-model="formData.checked">我已阅读并同意</t-checkbox>
-<!--      <span>TDesign服务协议</span> 和 <span>TDesign 隐私声明</span>-->
+      <!--      <span>TDesign服务协议</span> 和 <span>TDesign 隐私声明</span>-->
     </t-form-item>
 
     <t-form-item>
@@ -118,32 +118,18 @@ export default Vue.extend({
     },
     async onSubmit({validateResult}: { validateResult: boolean }) {
       if (validateResult === true) {
-        if (!this.formData.checked) {
-          this.$message.error('请同意TDesign服务协议和TDesign 隐私声明');
-          return;
-        }
-        // 判断注册方式
-        switch (this.type) {
-          case "email":
-            this.formData.type = "email";
-            break;
-          case "phone":
-            this.formData.type = "phone";
-            break;
-        }
         await this.$request.post("/register", this.formData).then((res) => {
           console.log(res)
           if (res.data.code === 200) {
             this.$message.success(res.data.msg);
-            setTimeout(()=>{
-              this.$router.push("/login").catch(err => {
-              });
-            },2000)
+            setTimeout(() => {
+              this.$emit('reset');
+            }, 2000)
           } else {
             this.$message.error(res.data.msg);
           }
         })
-        this.$emit('registerSuccess');
+        this.$emit('register-success', 'login');
       }
     },
     handleCounter() {
