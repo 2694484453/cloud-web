@@ -7,7 +7,7 @@
             Hi，{{form.nickName}}
             <span class="regular"> 下午好，今天是你加入云服务平台的第 {{Math.round((new Date().getTime() -new Date(form.createTime).getTime())/ (1000 * 3600 * 24))}} 天～</span>
           </div>
-          <img src="@/assets/assets-tencent-logo.png" class="logo"/>
+<!--          <img src="@/assets/assets-tencent-logo.png" class="logo"/>-->
         </div>
 
         <t-card class="user-info-list" title="个人信息" :bordered="false">
@@ -53,48 +53,48 @@
           </t-tabs>
         </t-card>
       </t-col>
-      <t-col :flex="1">
-        <t-card class="user-intro" :bordered="false">
-          <t-avatar size="90px">T</t-avatar>
-          <div class="name">My Account</div>
-          <div class="position">XXG 港澳业务拓展组员工 直客销售</div>
-        </t-card>
+<!--      <t-col :flex="1">-->
+<!--        <t-card class="user-intro" :bordered="false">-->
+<!--          <t-avatar size="90px">T</t-avatar>-->
+<!--          <div class="name">My Account</div>-->
+<!--          <div class="position">XXG 港澳业务拓展组员工 直客销售</div>-->
+<!--        </t-card>-->
 
-        <t-card title="团队成员" class="user-team" :bordered="false">
-          <template #option>
-            <t-button theme="default" shape="square" variant="text">
-              <edit-icon size="18"/>
-            </t-button>
-          </template>
-          <t-list :split="false">
-            <t-list-item v-for="(item, index) in TEAM_MEMBERS" :key="index">
-              <t-list-item-meta :image="item.avatar" :title="item.title" :description="item.description"/>
-            </t-list-item>
-          </t-list>
-        </t-card>
+<!--        <t-card title="团队成员" class="user-team" :bordered="false">-->
+<!--          <template #option>-->
+<!--            <t-button theme="default" shape="square" variant="text">-->
+<!--              <edit-icon size="18"/>-->
+<!--            </t-button>-->
+<!--          </template>-->
+<!--          <t-list :split="false">-->
+<!--            <t-list-item v-for="(item, index) in TEAM_MEMBERS" :key="index">-->
+<!--              <t-list-item-meta :image="item.avatar" :title="item.title" :description="item.description"/>-->
+<!--            </t-list-item>-->
+<!--          </t-list>-->
+<!--        </t-card>-->
 
-        <t-card title="服务产品" class="product-container" :bordered="false">
-          <template #option>
-            <t-button theme="default" shape="square" variant="text">
-              <edit-icon size="18"/>
-            </t-button>
-          </template>
-          <t-row class="content" :getters="16">
-            <t-col :span="3">
-              <product-a-icon/>
-            </t-col>
-            <t-col :span="3">
-              <product-b-icon/>
-            </t-col>
-            <t-col :span="3">
-              <product-c-icon/>
-            </t-col>
-            <t-col :span="3">
-              <product-d-icon/>
-            </t-col>
-          </t-row>
-        </t-card>
-      </t-col>
+<!--        <t-card title="服务产品" class="product-container" :bordered="false">-->
+<!--          <template #option>-->
+<!--            <t-button theme="default" shape="square" variant="text">-->
+<!--              <edit-icon size="18"/>-->
+<!--            </t-button>-->
+<!--          </template>-->
+<!--          <t-row class="content" :getters="16">-->
+<!--            <t-col :span="3">-->
+<!--              <product-a-icon/>-->
+<!--            </t-col>-->
+<!--            <t-col :span="3">-->
+<!--              <product-b-icon/>-->
+<!--            </t-col>-->
+<!--            <t-col :span="3">-->
+<!--              <product-c-icon/>-->
+<!--            </t-col>-->
+<!--            <t-col :span="3">-->
+<!--              <product-d-icon/>-->
+<!--            </t-col>-->
+<!--          </t-row>-->
+<!--        </t-card>-->
+<!--      </t-col>-->
     </t-row>
     <t-drawer
       :visible.sync="formConfig.visible"
