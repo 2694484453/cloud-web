@@ -290,7 +290,8 @@ export default Vue.extend({
     this.getList()
   },
   methods: {
-    options, marked,
+    options,
+    marked,
     getList() {
       this.dataLoading = true;
       this.$request

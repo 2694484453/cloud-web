@@ -24,9 +24,9 @@ instance.interceptors.retry = 3;
 
 //请求发起之前拦截操作，判断发送的请求里面是否含有token
 instance.interceptors.request.use(config => {
-    if (localStorage.getItem("ACCESS_TOKEN")) {
+    if (localStorage.getItem("token")) {
       //如果token存在，则请求头上面携带token给后端传输
-      config.headers['Authorization'] = 'Bearer ' + localStorage.getItem("ACCESS_TOKEN")
+      config.headers['Authorization'] = 'Bearer ' + localStorage.getItem("token")
       //config.headers.token = this.$cookies.VueCookies.get("token")
     }
     return config
