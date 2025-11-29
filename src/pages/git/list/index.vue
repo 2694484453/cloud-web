@@ -22,7 +22,7 @@
             </template>
           </t-input>
           <t-col :span="2" class="operation-container">
-            <t-button theme="primary" :style="{ marginLeft: '8px' }"> 查询</t-button>
+            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
           </t-col>
         </t-row>
@@ -55,7 +55,7 @@
           </template>
           <template #op="slotProps">
             <!--            <a class="t-button-link" @click="handleClickSuccess()">在线开发</a>-->
-            <a class="t-button-link" @click="handleClickDetail(slotProps)">详情</a>
+            <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
@@ -88,7 +88,7 @@
       :sizeDraggable="true"
       placement="right"
       destroyOnClose
-      size="30%"
+      size="35%"
       @close="onCancelDrawer"
       :onConfirm="handleDrawerOk"
       @cancel="onCancelDrawer"
@@ -101,10 +101,10 @@
           @reset="onReset"
         >
           <t-form-item label="Git地址" name="url">
-            <t-input v-model="formData.url" style="width: 250px" class="search-input" placeholder="" clearable></t-input>
+            <t-input v-model="formData.url"  class="search-input" placeholder="" clearable></t-input>
           </t-form-item>
           <t-form-item label="仓库名称" name="name">
-            <t-input v-model="formData.name" style="width: 250px" class="search-input" placeholder="" clearable></t-input>
+            <t-input v-model="formData.name" class="search-input" placeholder="" clearable></t-input>
           </t-form-item>
           <t-form-item label="类型" name="type">
             <t-select
@@ -119,9 +119,22 @@
             </t-select>
           </t-form-item>
           <t-form-item label="描述" name="name">
-            <t-textarea v-model="formData.description" style="width: 250px" class="search-input" placeholder="" clearable maxlength="256"></t-textarea>
+            <t-textarea v-model="formData.description" class="search-input" placeholder="" clearable maxlength="256"></t-textarea>
           </t-form-item>
         </t-form>
+      </t-space>
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
+        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
+          <t-descriptions-item label="名称">{{formData.name}}</t-descriptions-item>
+          <t-descriptions-item label="类型">{{formData.type}}</t-descriptions-item>
+          <t-descriptions-item label="状态">{{formData.status}}</t-descriptions-item>
+          <t-descriptions-item label="地址">{{formData.url}}</t-descriptions-item>
+          <t-descriptions-item label="创建者">{{formData.createByUserName}}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
+          <t-descriptions-item label="更新者">{{formData.updateByUserName}}</t-descriptions-item>
+          <t-descriptions-item label="备注">{{formData.description}}</t-descriptions-item>
+        </t-descriptions>
       </t-space>
     </t-drawer>
   </div>
@@ -133,10 +146,12 @@ import Trend from '@/components/trend/index.vue';
 import {prefix} from '@/config/global';
 
 import {CONTRACT_STATUS, CONTRACT_STATUS_OPTIONS, CONTRACT_TYPES, CONTRACT_PAYMENT_TYPES} from '@/constants';
+import MonacoEditor from "@/components/editor/MonacoEditor.vue";
 
 export default Vue.extend({
   name: 'ListBase',
   components: {
+    MonacoEditor,
     SearchIcon,
     Trend,
   },
@@ -236,6 +251,11 @@ export default Vue.extend({
         name: "",
         url: "",
         type: "",
+        status: "",
+        createByUserName: '',
+        updateByUserName: '',
+        createTime: '',
+        updateTime: '',
         description: "",
       },
       // 对话框
@@ -294,7 +314,7 @@ export default Vue.extend({
   methods: {
     getRepoList() {
       this.dataLoading = true;
-      this.$request.get('/git/accessRepo/page', {
+      this.$request.get('/git/repo/page', {
         params: {
           type: this.dialog.type,
           name: this.dialog.name
@@ -364,11 +384,13 @@ export default Vue.extend({
     handleClickDetail(row) {
       this.formData = row;
       this.drawer.operation = 'detail';
+      this.drawer.header = row.name
       this.drawer.visible = true;
     },
     // 点击导入
     handleSetupContract() {
       this.drawer.operation = 'add'
+      this.drawer.title = '添加仓库'
       this.drawer.visible = true
       this.getRepoTypeList()
     },
@@ -413,13 +435,15 @@ export default Vue.extend({
               if (res.data.code === 200) {
                 console.log(res.data.data);
                 this.$message.success(res.data.msg);
+                this.drawer.visible = false;
               } else  {
                 this.$message.error(res.data.msg);
               }
             }).catch((err) => {
 
             }).finally(() => {
-
+              this.page();
+              this.dataLoading = false;
             })
             break;
           case 'edit':

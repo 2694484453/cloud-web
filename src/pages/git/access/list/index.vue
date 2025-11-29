@@ -294,8 +294,7 @@ export default Vue.extend({
     getList() {
       this.dataLoading = true;
       this.$request
-        .get('/gitAccess/page')
-        .then((res) => {
+        .get('/git/token/page').then((res) => {
           if (res.data.code === 200) {
             this.data = res.data.rows;
             this.pagination = {
@@ -303,11 +302,9 @@ export default Vue.extend({
               total: res.data.total,
             };
           }
-        })
-        .catch((e: Error) => {
+        }).catch((e: Error) => {
           console.log(e);
-        })
-        .finally(() => {
+        }).finally(() => {
           this.dataLoading = false;
         });
     },

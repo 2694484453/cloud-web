@@ -160,7 +160,7 @@ export default Vue.extend({
             // this.$cookies.set('token', res.data.data.token);
             this.$cookies.set("username", this.formData.account)
             this.$cookies.set("token", res.data.token)
-            localStorage.setItem("ACCESS_TOKEN", res.data.token)
+            localStorage.setItem("token", res.data.token)
             this.$message.success("登录成功")
             setTimeout(()=>{
               this.$router.push("/").catch(err => {
