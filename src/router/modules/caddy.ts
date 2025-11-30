@@ -14,8 +14,8 @@ export default [
         meta: {title: '监控面板'},
       },
       {
-        path: "add",
-        name: 'AddBase',
+        path: "list",
+        name: 'list',
         component: () => import("@/pages/caddy/list/index.vue"),
         meta: {title: '配置列表'},
       }
