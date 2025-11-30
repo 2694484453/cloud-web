@@ -66,7 +66,7 @@
       :header="confirm.header"
       :body="confirm.body"
       :visible.sync="confirm.visible"
-      @confirm=""
+      @confirm="onConfirmOk"
       :onCancel="onCancel">
     </t-dialog>
     <!--抽屉-->
@@ -346,11 +346,14 @@ export default Vue.extend({
       this.types();
     },
     // 删除
-    handleClickDelete(row: { rowIndex: any, type: any }) {
-      this.confirmVisible = true;
-      console.log("this", this.deleteType)
+    handleClickDelete(row) {
+      this.formData = row;
+      this.confirm.visible = true;
+      this.confirm.header = '删除' + row.jobName;
+      this.confirm.body = '本次操作将会删除' + row.jobName + '的数据，是否继续？';
+      this.confirm.operation = 'delete';
     },
-    onConfirmDelete() {
+    onConfirmOk() {
       // 真实业务请发起请求
       this.data.splice(this.deleteIdx, 1);
       this.pagination.total = this.data.length;
