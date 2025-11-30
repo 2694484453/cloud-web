@@ -339,7 +339,6 @@ export default Vue.extend({
       this.drawer.operation = 'detail';
     },
     handleSetupContract() {
-      //this.$router.push('/prometheus/add');
       this.drawer.visible = true;
       this.drawer.header = "新增";
       this.drawer.operation = 'add';
@@ -354,25 +353,27 @@ export default Vue.extend({
       this.confirm.operation = 'delete';
     },
     onConfirmOk() {
-      // 真实业务请发起请求
-      this.data.splice(this.deleteIdx, 1);
-      this.pagination.total = this.data.length;
-      const selectedIdx = this.selectedRowKeys.indexOf(this.deleteIdx);
-      if (selectedIdx > -1) {
-        this.selectedRowKeys.splice(selectedIdx, 1);
+      switch (this.confirm.operation) {
+        case 'add':
+          break;
+        case 'delete':
+          // 请求删除
+          this.$request.delete("/monitor/delete", {
+            params: {
+              id: this.formData.id,
+            }
+          }).then(res => {
+            if (res.data.code == 200) {
+              this.$message.success(res.data.msg);
+              this.confirm.visible = false;
+            }
+            this.$message.error(res.data.msg);
+          }).catch(err => {
+          }).finally(() => {
+
+          })
+          break;
       }
-      this.confirmVisible = false;
-      // 请求删除
-      this.$request.delete("/monitor/delete", {
-        params: {
-          index: this.deleteIdx,
-          type: this.deleteType
-        }
-      }).then(res => {
-        this.$message.success(res.data.msg);
-      }).catch(err => {
-      })
-      this.resetIdx();
     },
     // 取消抽屉
     onCancelDrawer() {
