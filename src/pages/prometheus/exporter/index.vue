@@ -104,7 +104,7 @@
             </t-select>
           </t-form-item>
           <t-form-item label="地址" name="url">
-            <t-input v-model="formData.globalUrl" placeholder="请输入地址" :maxlength="64" with="120"></t-input>
+            <t-input v-model="formData.targets" placeholder="请输入地址" :maxlength="64" with="120"></t-input>
           </t-form-item>
         </t-form>
       </t-space>
@@ -125,8 +125,6 @@
           <t-descriptions-item label="更新时间">{{ formData.updateTime }}</t-descriptions-item>
           <t-descriptions-item label="更新人">{{ formData.updateByUserName }}</t-descriptions-item>
         </t-descriptions>
-      </t-space>
-      <t-space v-show="drawer.operation === 'install'" direction="vertical" style="width: 100%">
       </t-space>
     </t-drawer>
   </div>
