@@ -16,14 +16,14 @@ export default [
         meta: {title: '概览'},
       },
       {
-        path: 'dashboard',
-        name: 'DashboardBase',
+        path: 'exporter',
+        name: 'exporter',
         component: () => import('@/pages/prometheus/exporter/index.vue'),
         meta: {title: '端点接入'},
       },
       {
-        path: 'base',
-        name: 'MonitorBase',
+        path: 'target',
+        name: 'target',
         component: () => import('@/pages/prometheus/targets/index.vue'),
         meta: {title: '端点查询'},
       }

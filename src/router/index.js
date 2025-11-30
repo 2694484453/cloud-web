@@ -9,7 +9,7 @@ import buildRouters from './modules/build';
 // 域名
 import domainRouters from './modules/domain';
 // 监控
-import monitorRouters from "@/router/modules/monitor";
+import prometheusRouters from "@/router/modules/prometheus";
 // 应用
 import appRouters from "@/router/modules/app";
 // 仓库
@@ -53,9 +53,9 @@ import wallpaperRouters from "@/router/modules/wallpaper";
 const env = import.meta.env.MODE || 'development';
 import proxy from '@/config/host';
 // 开发模式
-const devRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...discoveryRouters, ...monitorRouters, ...tracingRouters, ...appRouters, ...dockerRouters, ...traefikRouters, ...clusterRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...backupRouters, ...scheduleRouters, ...toolsRouters, ...othersRouters]
+const devRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...discoveryRouters, ...prometheusRouters, ...tracingRouters, ...appRouters, ...dockerRouters, ...traefikRouters, ...clusterRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...backupRouters, ...scheduleRouters, ...toolsRouters, ...othersRouters]
 // 生产模式
-const prodRouterList = [...appRouters, ...dockerRouters, ...gitRouters, ...IdeRouters, ...devopsRouters, ...discoveryRouters, ...monitorRouters, ...tracingRouters, ...traefikRouters, ...clusterRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, ...backupRouters, ...testRouters, ...userInfoRouters]
+const prodRouterList = [...appRouters, ...dockerRouters, ...gitRouters, ...IdeRouters, ...devopsRouters, ...discoveryRouters, ...prometheusRouters, ...tracingRouters, ...traefikRouters, ...clusterRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, ...backupRouters, ...testRouters, ...userInfoRouters]
 // 独立nas-frp
 const nasRouterList = [...nasRouters]
 // 独立

@@ -52,7 +52,7 @@ export default [
         meta: {title: '监控面板'},
       },
       {
-        path: "add",
+        path: "list",
         name: 'AddBase',
         component: () => import("@/pages/vps/list/index.vue"),
         meta: {title: '主机列表'},
