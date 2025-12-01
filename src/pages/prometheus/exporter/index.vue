@@ -49,6 +49,7 @@
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
+            <a class="t-button-link" @click="handleClickEdit(slotProps.row)">编辑</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
@@ -105,6 +106,9 @@
           </t-form-item>
           <t-form-item label="地址" name="url">
             <t-input v-model="formData.targets" placeholder="请输入地址" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="描述" name="description">
+            <t-textarea v-model="formData.description" placeholder="请输入描述" :maxlength="200"></t-textarea>
           </t-form-item>
         </t-form>
       </t-space>
@@ -163,6 +167,7 @@ export default Vue.extend({
           fixed: 'left',
         },
         {
+          align: 'center',
           title: '状态',
           colKey: 'status',
           fixed: 'left',
@@ -184,28 +189,27 @@ export default Vue.extend({
         },
         {
           title: '描述',
-          align: 'left',
-          width: 230,
+          width: 220,
           ellipsis: true,
           colKey: 'description',
           fixed: 'left',
         },
         {
           title: '创建时间',
-          width: 160,
+          width: 150,
           ellipsis: true,
           colKey: "createTime"
         },
         {
           title: '更新时间',
-          width: 160,
+          width: 150,
           ellipsis: true,
           colKey: "updateTime"
         },
         {
-          align: 'left',
+          align: 'center',
           fixed: 'right',
-          width: 120,
+          width: 150,
           colKey: 'op',
           title: '操作',
         },
@@ -338,6 +342,15 @@ export default Vue.extend({
       this.drawer.header = row.jobName;
       this.drawer.operation = 'detail';
     },
+    // 编辑
+    handleClickEdit(row) {
+      this.formData = row;
+      this.drawer.visible = true;
+      this.drawer.header = row.jobName;
+      this.drawer.operation = 'edit';
+      this.types();
+    },
+    // 新增
     handleSetupContract() {
       this.drawer.visible = true;
       this.drawer.header = "新增";
@@ -349,7 +362,7 @@ export default Vue.extend({
       this.formData = row;
       this.confirm.visible = true;
       this.confirm.header = '删除' + row.jobName;
-      this.confirm.body = '本次操作将会删除' + row.jobName + '的数据，是否继续？';
+      this.confirm.body = '本次操作将会彻底删除' + row.jobName + '的数据，是否继续？';
       this.confirm.operation = 'delete';
     },
     onConfirmOk() {
@@ -358,7 +371,7 @@ export default Vue.extend({
           break;
         case 'delete':
           // 请求删除
-          this.$request.delete("/monitor/delete", {
+          this.$request.delete("/prometheus/exporter/delete", {
             params: {
               id: this.formData.id,
             }
@@ -366,11 +379,12 @@ export default Vue.extend({
             if (res.data.code == 200) {
               this.$message.success(res.data.msg);
               this.confirm.visible = false;
+            }else {
+              this.$message.error(res.data.msg);
             }
-            this.$message.error(res.data.msg);
           }).catch(err => {
           }).finally(() => {
-
+            this.page();
           })
           break;
       }
