@@ -14,28 +14,13 @@
           <div class="left-operation-container">
             <t-button @click="handleSetupContract">添加</t-button>
             <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出</t-button>
-<!--            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>-->
+            <!--            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>-->
           </div>
-          <t-input v-model="formData.keyWord" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
+          <t-input v-model="formData.domainName" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
             <template #suffix-icon>
-              <search-icon size="20px" />
+              <search-icon size="20px"/>
             </template>
           </t-input>
-          <t-col :span="3">
-            <t-form-item label="域名列表" name="type">
-              <t-select
-                v-model="formData.domainName"
-                :style="{ width: '200px' }"
-                placeholder="请选择域名"
-                class="demo-select-base"
-                clearable
-              >
-                <t-option v-for="(item, index) in typeList" :key="index" :value="item" :label="item">
-                  {{ item }}
-                </t-option>
-              </t-select>
-            </t-form-item>
-          </t-col>
           <t-col :span="2" class="operation-container">
             <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
@@ -51,9 +36,6 @@
           :hover="hover"
           :selected-row-keys="selectedRowKeys"
           :loading="dataLoading"
-          @page-change="rehandlePageChange"
-          @change="rehandleChange"
-          @select-change="rehandleSelectChange"
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
@@ -70,7 +52,7 @@
             <p v-if="row.contractType === CONTRACT_TYPES.SUPPLEMENT">待履行</p>
           </template>
           <template #CreateTimestamp="{ row }">
-            <p>{{new Date(row.CreateTimestamp).toLocaleString()}}</p>
+            <p>{{ new Date(row.CreateTimestamp).toLocaleString() }}</p>
           </template>
           <template #Status="{ row }">
             <p v-if="row.Status === 'ENABLE'" class="payment-col">
@@ -83,29 +65,73 @@
             </p>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="handleClickDetail()">详情</a>
-            <a class="t-button-link" @click="handleClickDelete(slotProps)">删除</a>
+            <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
+            <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
-        <div>
-          <t-pagination
-            v-model="formData.pageNum"
-            :total="pagination.total"
-            :page-size.sync="formData.pageSize"
-            @current-change="onCurrentChange"
-            @page-size-change="onPageSizeChange"
-            @change="onChange"/>
-        </div>
       </div>
     </t-card>
+    <t-pagination
+      style="margin-top: 15px"
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"/>
     <t-dialog
-      header="确认删除当前所选合同？"
-      :body="confirmBody"
-      :visible.sync="confirmVisible"
-      @confirm="onConfirmDelete"
+      :header="confirm.header"
+      :body="confirm.body"
+      :visible.sync="confirm.visible"
+      @confirm="onConfirmOk"
       :onCancel="onCancel"
     >
     </t-dialog>
+    <!--抽屉-->
+    <t-drawer
+      :visible.sync="drawer.visible"
+      :header="drawer.header"
+      :on-overlay-click="() => (drawer.visible = false)"
+      :on-size-drag-end="handleSizeDrag"
+      showOverlay
+      :sizeDraggable="true"
+      placement="right"
+      destroyOnClose
+      size="30%"
+      @close="onCancelDrawer"
+      :onConfirm="handleDrawerOk"
+      @cancel="onCancelDrawer"
+    >
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical"
+               style="width: 100%">
+        <t-form
+          ref="formValidatorStatus"
+          :data="formData"
+          :label-width="100"
+          @reset="onReset"
+        >
+          <t-form-item label="域名" name="url">
+            <t-input v-model="formData.domainName" class="search-input" placeholder="" clearable></t-input>
+          </t-form-item>
+          <t-form-item label="描述" name="name">
+            <t-textarea v-model="formData.description" class="search-input" placeholder="" clearable
+                        maxlength="256"></t-textarea>
+          </t-form-item>
+        </t-form>
+      </t-space>
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
+        <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
+          <t-descriptions-item label="名称">{{ formData.domainName }}</t-descriptions-item>
+          <t-descriptions-item label="类型">{{ formData.type }}</t-descriptions-item>
+          <t-descriptions-item label="状态">{{ formData.status }}</t-descriptions-item>
+          <t-descriptions-item label="创建者">{{ formData.createByUserName }}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{ formData.createTime }}</t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{ formData.updateTime }}</t-descriptions-item>
+          <t-descriptions-item label="更新者">{{ formData.updateByUserName }}</t-descriptions-item>
+          <t-descriptions-item label="备注">{{ formData.description }}</t-descriptions-item>
+        </t-descriptions>
+      </t-space>
+    </t-drawer>
   </div>
 </template>
 <script lang="ts">
@@ -136,55 +162,47 @@ export default Vue.extend({
       columns: [
         {colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left'},
         {
-          title: '子域名',
-          align: 'left',
-          width: 120,
-          ellipsis: true,
-          colKey: 'RR',
-          fixed: 'left',
-        },
-        {
-          title: '主域名',
+          title: '域名',
           align: 'left',
           width: 150,
           ellipsis: true,
-          colKey: 'DomainName',
+          colKey: 'domainName',
           fixed: 'left',
         },
         {
           title: '状态',
           colKey: 'Status',
-          width: 100,
+          width: 80,
           cell: {col: 'Status'}
         },
         {
-          title: '解析值',
+          title: '类型',
           width: 160,
           ellipsis: true,
-          colKey: 'Value',
+          colKey: 'type',
         },
         {
-          title: 'ttl(秒)',
-          width: 100,
+          title: '描述',
+          width: 160,
           ellipsis: true,
-          colKey: 'TTL',
+          colKey: 'description',
         },
         {
           title: '创建时间',
           width: 150,
           ellipsis: true,
-          colKey: 'CreateTimestamp',
+          colKey: 'createTime',
         },
         {
-          title: '备注',
+          title: '更新时间',
           width: 150,
           ellipsis: true,
-          colKey: 'Remark',
+          colKey: 'updateTime',
         },
         {
-          align: 'left',
+          align: 'center',
           fixed: 'right',
-          width: 200,
+          width: 120,
           colKey: 'op',
           title: '操作',
         },
@@ -203,11 +221,38 @@ export default Vue.extend({
       searchValue: '',
       confirmVisible: false,
       deleteIdx: -1,
-      formData: {
-        domainName: "",
-        keyWord: "",
+      // 搜索框
+      searchForm: {
+        name: "",
+        type: "",
         pageNum: 1,
         pageSize: 10
+      },
+      formData: {
+        domainName: "",
+        type: "",
+        status: "",
+        createByUserName: '',
+        updateByUserName: '',
+        createTime: '',
+        updateTime: '',
+        description: "",
+      },
+      // 对话框
+      confirm: {
+        header: "",
+        body: "",
+        operation: "update",
+        visible: false
+      },
+      // 抽屉
+      drawer: {
+        header: "",
+        visible: false,
+        type: "",
+        operation: "add",
+        row: {},
+        dynamicForm: {}
       },
       typeList: []
     };
@@ -227,32 +272,26 @@ export default Vue.extend({
   mounted() {
   },
   created() {
-    this.getTypeList()
-    this.getList()
+    this.page()
   },
   methods: {
-    getList() {
+    page() {
       this.dataLoading = true;
-      this.$request
-        .get('/domain/page', {
-          params: this.formData
-        }).then((res) => {
+      this.$request.get('/domain/page', {
+        params: this.formData
+      }).then((res) => {
         if (res.data.code === 200) {
-          //console.log(res.data.data)
-          this.data = res.data.data.DomainRecords.Record;
-          //console.log(this.data)
+          this.data = res.data.rows;
           this.pagination = {
             ...this.pagination,
-            total: res.data.data.TotalCount,
+            total: res.data.total,
           };
         }
-      })
-        .catch((e: Error) => {
-          console.log(e);
-        })
-        .finally(() => {
-          this.dataLoading = false;
-        });
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
     },
     getTypeList() {
       this.$request.get("/domain/domainList").then(res => {
@@ -280,12 +319,15 @@ export default Vue.extend({
       console.log('Page Info: ', pageInfo);
     },
     handleClickDetail(row) {
-      //this.$router.push('/detail/base');
-      this.$emit('transfer', "detail", row)
+      this.drawer.operation = 'detail';
+      this.drawer.visible = true;
+      this.drawer.header = row.domainName;
+      this.formData = row
     },
     handleSetupContract() {
-      //this.$router.push('/form/base');
-      this.$emit('transfer', "form")
+      this.drawer.operation = 'add';
+      this.drawer.header = '新增';
+      this.drawer.visible = true;
     },
     handleClickDelete(row: { rowIndex: any }) {
       this.deleteIdx = row.rowIndex;
@@ -313,10 +355,80 @@ export default Vue.extend({
       console.log(data);
     },
     onSubmit(data) {
-      console.log(this.formData);
-      this.getList(this.formData);
+      this.page();
+    },
+    // drawer大小
+    handleSizeDrag({size}) {
+      console.log('size drag size: ', size);
+    },
+    // 确认抽屉
+    handleDrawerOk() {
+      switch (this.drawer.operation) {
+        case 'add':
+          this.$request.post('/domain/add', this.formData).then((res) => {
+            if (res.data.code === 200) {
+              console.log(res.data.data);
+              this.$message.success(res.data.msg);
+              this.drawer.visible = false;
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          }).catch((err) => {
+
+          }).finally(() => {
+            this.page();
+            this.dataLoading = false;
+          })
+          break;
+        case 'edit':
+          break;
+        case 'detail':
+          break;
+      }
+    },
+    // 确认对话框
+    onConfirmOk() {
+      switch (this.confirm.operation) {
+        case 'codeSpaceAdd':
+          this.$request.post('/git/codeSpace/add', {
+            spaceName: this.formData.name,
+            repoId: this.formData.id
+          }).then((res) => {
+            if (res.data.code === 200) {
+              this.$message.success("地址已分配完成，正在初始化数据中...")
+              setTimeout(() => {
+                this.$router.push('/git/codeSpace')
+              },10000)
+            }
+          }).catch((e: Error) => {
+            console.log(e)
+          }).finally(() => {
+
+          })
+          break;
+        case 'delete':
+          this.$request.delete("/git/repo/delete?id=" + this.formData.params.id).then(res => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg)
+              this.confirmVisible = false;
+              this.resetIdx();
+              this.getList();
+            }
+          })
+          break;
+      }
+    },
+    // 取消删除
+    onCancel() {
+      this.confirm.visible = false;
+    },
+    // 取消抽屉
+    onCancelDrawer() {
+      this.drawer.visible = false;
+      this.dataLoading = false;
     },
   },
+
 });
 </script>
 
