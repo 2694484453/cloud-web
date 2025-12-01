@@ -65,6 +65,7 @@
             </p>
           </template>
           <template #op="slotProps">
+            <a class="t-button-link" @click="handleClickDownload(slotProps.row)">生成</a>
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
@@ -202,7 +203,7 @@ export default Vue.extend({
         {
           align: 'center',
           fixed: 'right',
-          width: 120,
+          width: 150,
           colKey: 'op',
           title: '操作',
         },
@@ -329,6 +330,9 @@ export default Vue.extend({
       this.drawer.header = '新增';
       this.drawer.visible = true;
     },
+    handleClickDownload(row) {
+
+    },
     handleClickDelete(row: { rowIndex: any }) {
       this.deleteIdx = row.rowIndex;
       this.confirmVisible = true;
@@ -343,9 +347,6 @@ export default Vue.extend({
       }
       this.confirmVisible = false;
       this.$message.success('删除成功');
-      this.resetIdx();
-    },
-    onCancel() {
       this.resetIdx();
     },
     resetIdx() {
