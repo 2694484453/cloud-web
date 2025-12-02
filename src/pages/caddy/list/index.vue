@@ -43,29 +43,75 @@
             <p>{{ new Date(row.CreatedAt).toLocaleString() }}</p>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="handleClickDetail()">详情</a>
-            <a class="t-button-link" @click="handleClickDelete(slotProps)">删除</a>
+            <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
+            <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
-        <div>
-          <t-pagination
-            v-model="formData.pageNum"
-            :total="pagination.total"
-            :page-size.sync="formData.pageSize"
-            @current-change="onCurrentChange"
-            @page-size-change="onPageSizeChange"
-            @change="onChange"/>
-        </div>
       </div>
     </t-card>
+    <t-pagination
+      style="margin-top: 15px"
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"/>
     <t-dialog
-      header="确认删除当前所选？"
-      :body="confirmBody"
-      :visible.sync="confirmVisible"
-      @confirm="onConfirmDelete"
+      :header="confirm.header"
+      :body="confirm.body"
+      :visible.sync="confirm.visible"
+      @confirm="onConfirmOk"
       :onCancel="onCancel"
     >
     </t-dialog>
+    <!--抽屉-->
+    <t-drawer
+      :visible.sync="drawer.visible"
+      :header="drawer.header"
+      :on-overlay-click="() => (drawer.visible = false)"
+      :on-size-drag-end="handleSizeDrag"
+      showOverlay
+      :sizeDraggable="true"
+      placement="right"
+      destroyOnClose
+      size="35%"
+      @close="onCancelDrawer"
+      :onConfirm="handleDrawerOk"
+      @cancel="onCancelDrawer"
+    >
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical"
+               style="width: 100%">
+        <t-form
+          ref="formValidatorStatus"
+          :data="formData"
+          :label-width="100"
+          @reset="onReset"
+        >
+          <t-form-item label="名称" name="name">
+            <t-input v-model="formData.name" class="search-input" placeholder="" clearable></t-input>
+          </t-form-item>
+          <t-form-item label="配置" name="type">
+            <t-textarea v-model="formData.config"></t-textarea>
+          </t-form-item>
+          <t-form-item label="描述" name="name">
+            <t-textarea v-model="formData.description" placeholder="" clearable maxlength="200"></t-textarea>
+          </t-form-item>
+        </t-form>
+      </t-space>
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
+        <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
+          <t-descriptions-item label="名称">{{ formData.name }}</t-descriptions-item>
+          <t-descriptions-item label="类型">{{ formData.type }}</t-descriptions-item>
+          <t-descriptions-item label="状态">{{ formData.status }}</t-descriptions-item>
+          <t-descriptions-item label="创建者">{{ formData.createByUserName }}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{ formData.createTime }}</t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{ formData.updateTime }}</t-descriptions-item>
+          <t-descriptions-item label="更新者">{{ formData.updateByUserName }}</t-descriptions-item>
+          <t-descriptions-item label="备注">{{ formData.description }}</t-descriptions-item>
+        </t-descriptions>
+      </t-space>
+    </t-drawer>
   </div>
 </template>
 <script lang="ts">
@@ -97,35 +143,41 @@ export default Vue.extend({
         {
           title: '名称',
           align: 'left',
-          width: 230,
+          width: 120,
           ellipsis: true,
-          colKey: 'fileName',
+          colKey: 'name',
           fixed: 'left',
         },
         {
-          title: '大小',
-          width: 100,
+          title: '状态',
+          width: 80,
           ellipsis: true,
           fixed: 'left',
-          colKey: 'size',
+          colKey: 'status',
         },
         {
-          title: '路径',
-          width: 100,
+          title: '描述',
+          width: 150,
           ellipsis: true,
           fixed: 'left',
-          colKey: 'filePath',
+          colKey: 'description',
         },
         {
           title: '创建时间',
-          width: 200,
+          width: 150,
           ellipsis: true,
           colKey: "createTime"
         },
         {
+          title: '更新时间',
+          width: 150,
+          ellipsis: true,
+          colKey: "updateTime"
+        },
+        {
           align: 'left',
           fixed: 'right',
-          width: 150,
+          width: 120,
           colKey: 'op',
           title: '操作',
         },
@@ -148,9 +200,36 @@ export default Vue.extend({
       formData: {
         name: "",
         type: "",
-        namespace: "",
+        status: "",
+        description: "",
+        config: "",
+        createTime: '',
+        createByUserName: '',
+        updateTime: '',
+        updateByUserName: '',
+      },
+      // 搜索框
+      searchForm: {
+        name: "",
+        type: "",
         pageNum: 1,
         pageSize: 10
+      },
+      // 对话框
+      confirm: {
+        header: "",
+        body: "",
+        operation: "update",
+        visible: false
+      },
+      // 抽屉
+      drawer: {
+        header: "",
+        visible: false,
+        type: "",
+        operation: "add",
+        row: {},
+        dynamicForm: {}
       },
       typeList: [],
       namespaceList: []
@@ -171,9 +250,7 @@ export default Vue.extend({
   mounted() {
   },
   created() {
-    this.getTypeList();
-    this.getList();
-    this.getNamespaceList();
+    this.page();
   },
   methods: {
     getNamespaceList() {
@@ -199,11 +276,16 @@ export default Vue.extend({
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
     },
-    handleClickDetail() {
-      this.$router.push('/detail/base');
+    handleClickDetail(row) {
+      this.formData = row;
+      this.drawer.operation = 'detail';
+      this.drawer.header = row.name
+      this.drawer.visible = true;
     },
     handleSetupContract() {
-      this.$router.push('/prometheus/add');
+      this.drawer.operation = 'add'
+      this.drawer.header = '添加'
+      this.drawer.visible = true
     },
     handleClickDelete(row: { rowIndex: any, type: any }) {
       this.deleteIdx = row.rowIndex;
@@ -233,43 +315,97 @@ export default Vue.extend({
       })
       this.resetIdx();
     },
-    onCancel() {
-      this.resetIdx();
-    },
     resetIdx() {
       this.deleteIdx = -1;
     },
-    onReset(data) {
-      console.log(data);
-      this.getList();
+    onReset() {
+      this.page();
     },
-    onSubmit(data) {
-      console.log(this.formData);
-      this.getList(this.formData);
+    onSubmit() {
+      this.page();
     },
-    getTypeList() {
-      this.$request.get("/imageRepo/typeList").then(res => {
-        this.typeList = res.data.data
-      }).catch((err) => {
+    // 确认对话框
+    onConfirmOk() {
+      switch (this.confirm.operation) {
+        case 'codeSpaceAdd':
+          this.$request.post('/caddy/add', {
+            spaceName: this.formData.name,
+            repoId: this.formData.id
+          }).then((res) => {
+            if (res.data.code === 200) {
+              this.$message.success("地址已分配完成，正在初始化数据中...")
+              setTimeout(() => {
+                this.$router.push('/git/codeSpace')
+              },10000)
+            }
+          }).catch((e: Error) => {
+            console.log(e)
+          }).finally(() => {
 
-      })
+          })
+          break;
+        case 'delete':
+          this.$request.delete("/caddy/delete?id=" + this.formData.params.id).then(res => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg)
+              this.confirmVisible = false;
+              this.resetIdx();
+              this.getList();
+            }
+          })
+          break;
+      }
     },
-    getList() {
+    // 确认抽屉
+    handleDrawerOk() {
+      switch (this.drawer.operation) {
+        case 'add':
+          this.$request.post('/caddy/add', this.formData).then((res) => {
+            if (res.data.code === 200) {
+              console.log(res.data.data);
+              this.$message.success(res.data.msg);
+              this.drawer.visible = false;
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          }).catch((err) => {
+
+          }).finally(() => {
+            this.page();
+            this.dataLoading = false;
+          })
+          break;
+        case 'edit':
+          break;
+        case 'detail':
+          break;
+      }
+    },
+    // 取消删除
+    onCancel() {
+      this.confirm.visible = false;
+    },
+    // 取消抽屉
+    onCancelDrawer() {
+      this.drawer.visible = false;
+      this.dataLoading = false;
+    },
+    // drawer大小
+    handleSizeDrag({size}) {
+      console.log('size drag size: ', size);
+    },
+    page() {
       this.dataLoading = true;
-      this.$request
-        .get('/caddy/page', {
+      this.$request.get('/caddy/page', {
           params: this.formData
         }).then((res) => {
         if (res.data.code === 200) {
-          //console.log(res.data.data)
           this.data = res.data.rows;
           this.pagination.total = res.data.total;
         }
-      })
-        .catch((e: Error) => {
+      }).catch((e: Error) => {
           console.log(e);
-        })
-        .finally(() => {
+        }).finally(() => {
           this.dataLoading = false;
         });
     }
