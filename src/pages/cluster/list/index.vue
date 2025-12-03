@@ -104,28 +104,14 @@
           :label-width="100"
           @reset="onReset"
         >
-          <t-form-item label="id" name="id" v-show="false">
-            <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>
-          </t-form-item>
           <t-form-item label="集群名称" name="repoName">
-            <t-input v-model="formData.clusterName" placeholder="请输入集群名称" :maxlength="64" with="120"></t-input>
+            <t-input v-model="formData.clusterName" placeholder="请输入集群名称（域名格式）" :maxlength="64" with="120" clearable></t-input>
           </t-form-item>
-          <t-form-item label="配置文件" name="file">
-            <div style="width: 350px">
-              <!-- abridgeName 省略中间文本，首尾保留的文本字符 -->
-              <t-upload
-                v-model="formData.file"
-                :size-limit="{ size: 1, unit: 'MB' }"
-                tips="上传文件大小在 1M 以内"
-                theme="file-input"
-                placeholder="未选择文件"
-                @success="onSuccess"
-                @fail="handleFail"
-              ></t-upload>
-            </div>
+          <t-form-item label="配置内容" name="file">
+            <t-textarea v-model="formData.config" placeholder="请输入配置内容" clearable :autosize="{ minRows:10 }"></t-textarea>
           </t-form-item>
           <t-form-item label="备注" name="description">
-            <t-textarea v-model="formData.description" name="name"  placeholder="请输入内容" />
+            <t-textarea v-model="formData.description" placeholder="请输入内容" maxlength="200" clearable :autosize="{ minRows:3 }"/>
           </t-form-item>
         </t-form>
       </t-space>
@@ -333,13 +319,17 @@ export default Vue.extend({
       this.form = {};
       this.drawer.header = "新增";
       this.drawer.operation = 'add';
-      this.drawer.size = '30%';
+      this.drawer.size = '40%';
       this.drawer.visible = true;
     },
     // 导出
     handleExporter() {
-      this.$request.post("/kubernetes/cluster/exporter").then(response => {
-
+      this.$request.post("/kubernetes/cluster/export",{responseType: 'blob'}).then(res => {
+        const blob = new Blob([res.data]); // 根据文件类型设置
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'config.yaml'; // 设置下载文件名
+        link.click();
       })
     },
     // 删除
@@ -394,6 +384,17 @@ export default Vue.extend({
       switch (this.drawer.operation) {
         case 'add':
           this.drawer.visible = false;
+          this.$request.post("/kubernetes/cluster/add", this.formData).then(res => {
+            if (res.data.code == 200) {
+              this.$message.success(res.data.msg);
+              this.drawer.visible = false;
+              this.page();
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          }).catch(e => {
+            console.log(e)
+          })
           break;
         case 'detail':
           this.drawer.visible = false;
@@ -423,6 +424,10 @@ export default Vue.extend({
     onSuccess() {
       console.log(this.formData.file);
       this.tips = '';
+    },
+    // drawer大小
+    handleSizeDrag({size}) {
+      console.log('size drag size: ', size);
     },
   },
 });
