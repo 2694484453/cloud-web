@@ -13,7 +13,7 @@
         <t-row justify="space-between">
           <div class="left-operation-container">
             <t-button @click="handleSetupContract">添加</t-button>
-            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length">导出</t-button>
+            <t-button @click="handleExporter">导出</t-button>
             <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>
           </div>
           <t-input v-model="searchValue" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
@@ -121,6 +121,7 @@ import Trend from '@/components/trend/index.vue';
 import {prefix} from '@/config/global';
 
 import {CONTRACT_STATUS, CONTRACT_STATUS_OPTIONS, CONTRACT_TYPES, CONTRACT_PAYMENT_TYPES} from '@/constants';
+import {downloadFile} from "tdesign-vue/es/image-viewer/utils";
 
 export default Vue.extend({
   name: 'ListBase',
@@ -287,6 +288,22 @@ export default Vue.extend({
       this.drawer.header = '添加'
       this.drawer.visible = true
     },
+    // 导出
+    handleExporter() {
+      this.$request.post("/caddy/export", {responseType: 'blob'}).then(res => {
+        const blob = new Blob([res.data]); // 根据文件类型设置
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'caddy.json'; // 设置下载文件名
+        link.click();
+        URL.revokeObjectURL(link.href);
+      }).catch(err => {
+        console.log(err);
+      }).finally(() => {
+
+      })
+    },
+    // 删除
     handleClickDelete(row: { rowIndex: any, type: any }) {
       this.deleteIdx = row.rowIndex;
       this.deleteType = row.type;
@@ -336,7 +353,7 @@ export default Vue.extend({
               this.$message.success("地址已分配完成，正在初始化数据中...")
               setTimeout(() => {
                 this.$router.push('/git/codeSpace')
-              },10000)
+              }, 10000)
             }
           }).catch((e: Error) => {
             console.log(e)
@@ -397,17 +414,17 @@ export default Vue.extend({
     page() {
       this.dataLoading = true;
       this.$request.get('/caddy/page', {
-          params: this.formData
-        }).then((res) => {
+        params: this.formData
+      }).then((res) => {
         if (res.data.code === 200) {
           this.data = res.data.rows;
           this.pagination.total = res.data.total;
         }
       }).catch((e: Error) => {
-          console.log(e);
-        }).finally(() => {
-          this.dataLoading = false;
-        });
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
     }
   },
 });
