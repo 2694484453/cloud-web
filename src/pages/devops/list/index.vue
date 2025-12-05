@@ -12,7 +12,7 @@
       >
         <t-row justify="space-between">
           <div class="left-operation-container">
-            <t-button @click="handleSetupContract"> 新建</t-button>
+            <t-button @click="handleSetupContract">新建</t-button>
             <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出配置</t-button>
             <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>
           </div>
@@ -72,24 +72,23 @@
             <a class="t-button-link" @click="handleClickDelete(slotProps)">删除</a>
           </template>
         </t-table>
-        <div style="margin-top: 10px">
-          <t-pagination
-              v-model="formData.pageNum"
-              :total="pagination.total"
-              :page-size.sync="formData.pageSize"
-              @current-change="onCurrentChange"
-              @page-size-change="onPageSizeChange"
-              @change="onChange"
-          />
-        </div>
       </div>
     </t-card>
+    <t-pagination
+      style="margin-top: 15px"
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"/>
     <t-dialog
-        header="确认删除当前所选？"
-        :body="confirmBody"
-        :visible.sync="confirmVisible"
-        @confirm="onConfirmDelete"
-        :onCancel="onCancel">
+      :header="confirm.header"
+      :body="confirm.body"
+      :visible.sync="confirm.visible"
+      @confirm="onConfirmOk"
+      :onCancel="onCancel"
+    >
     </t-dialog>
     <t-drawer
       :visible.sync="editor.visible"
@@ -107,77 +106,70 @@
       <MonacoEditor :config="editor" :value="editor.value"/>
     </t-drawer>
     <t-drawer
-        :visible.sync="formConfig.visible"
-        :header="formConfig.header"
-        :on-overlay-click="() => (editor.visible = false)"
+        :visible.sync="drawer.visible"
+        :header="drawer.header"
+        :on-overlay-click="() => (drawer.visible = false)"
         placement="right"
         destroyOnClose
         showOverlay
         :sizeDraggable="true"
         :on-size-drag-end="handleSizeDrag"
         size="50%"
-        @cancel="formConfig.visible = false"
+        @cancel="drawer.visible = false"
         @close="handleClose"
         :onConfirm="onSubmitCreateJob">
       <t-space direction="vertical" style="width: 80%">
         <t-form
           ref="formValidatorStatus"
-          :data="form"
-          :rules="rules"
+          :data="formData"
           :label-width="120"
-          :status-icon="formStatusIcon"
           @reset="onReset"
         >
           <t-space direction="vertical" size="32px">
-            <t-tabs :value="form.step" placement="left" @change="handlerChange">
+            <t-tabs :value="formData" placement="left" @change="handlerChange">
               <t-tab-panel value="git" label="仓库">
                 <p style="padding: 25px;width: 100%;" >
-                  <t-form-item label="仓库类型" name="type" >
-                    <t-select v-model="form.params.git.taskGitType" placeholder="请选择" @change="getGitRepoList">
-                      <t-option v-for="(item,index) in form.gitRepoTypeList" :key="index" :label="item" :value="item" >{{item}}</t-option>
-                    </t-select>
-                  </t-form-item>
-                  <t-form-item label="地址" name="url" >
-                    <t-select v-model="form.params.git.taskGitUrl" placeholder="请选择" style="width: 322px">
-                      <t-option v-for="item in form.gitRepoList" :key="item.id" :label="item.name" :value="item.gitUrl" >{{item.name}}</t-option>
+                  <t-form-item label="仓库名称" name="type" >
+                    <t-select v-model="formData.git.taskGitType" placeholder="请选择" @change="getGitRepoList">
+                      <t-option v-for="(item,index) in gitRepoList" :key="index" :label="item" :value="item" >{{item}}</t-option>
                     </t-select>
                   </t-form-item>
                   <t-form-item label="分支" name="branch" >
-                    <t-input v-model="form.params.git.taskGitBranch" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
+                    <t-input v-model="formData.git.taskGitBranch" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
                   </t-form-item>
                 </p>
               </t-tab-panel>
               <t-tab-panel value="build" label="构建">
                 <p style="padding: 25px">
                   <t-form-item label="任务名称" name="taskBuildName" >
-                    <t-input v-model="form.params.build.taskBuildName" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
+                    <t-input v-model="formData.build.taskBuildName" placeholder="请输入内容" :maxlength="32" with="200"></t-input>
                   </t-form-item>
                   <t-form-item label="任务类型" name="taskBuildType" >
-                    <t-select v-model="form.params.build.taskBuildType" placeholder="请选择" style="width: 322px" @change="getTaskBuildImageList">
-                      <t-option v-for="(item,index) in form.taskBuildTypeList" :key="index" :label="item" :value="item" >{{item}}</t-option>
+                    <t-select v-model="formData.build.taskBuildType" placeholder="请选择" style="width: 322px" @change="getTaskBuildImageList">
+                      <t-option v-for="(item,index) in taskBuildTypeList" :key="index" :label="item" :value="item" >{{item}}</t-option>
                     </t-select>
                   </t-form-item>
                   <t-form-item label="镜像名称" name="taskBuildImage">
-                    <t-select v-model="form.params.build.taskBuildImage" placeholder="请选择" style="width: 322px" clearable="">
-                      <t-option v-for="(item,index) in form.taskBuildImageList" :key="index" :label="item" :value="item" >{{item}}</t-option>
+                    <t-select v-model="formData.build.taskBuildImage" placeholder="请选择" style="width: 322px" clearable="">
+                      <t-option v-for="(item,index) in taskBuildImageList" :key="index" :label="item" :value="item" >{{item}}</t-option>
                     </t-select>
                   </t-form-item>
                   <t-form-item label="容器名称" name="containerName">
-                    <t-input v-model="form.params.build.containerName" placeholder="请输入内容"></t-input>
+                    <t-input v-model="formData.build.containerName" placeholder="请输入内容"></t-input>
                   </t-form-item>
                   <t-form-item label="环境变量" name="env">
-                    <t-input v-model="form.params.build.env" placeholder="请输入内容"></t-input>
+                    <t-input v-model="formData.build.env" placeholder="请输入内容"></t-input>
                   </t-form-item>
                   <t-form-item label="命令行" name="">
                     <t-textarea
-                      v-model="form.params.build.cmd"
+                      v-model="formData.build.cmd"
                       placeholder="['/bin/sh', '-c', 'xxx']"
                       name="description"
                       :autosize="{ minRows: 3, maxRows: 20 }"
                     />
                   </t-form-item>
                   <t-form-item label="重试机制" name="restartPolicy">
-                    <t-input v-model="form.restartPolicy" placeholder="请输入内容"></t-input>
+                    <t-input v-model="formData.restartPolicy" placeholder="请输入内容"></t-input>
                   </t-form-item>
                 </p>
               </t-tab-panel>
@@ -287,6 +279,13 @@ export default Vue.extend({
         total: 0,
         defaultCurrent: 1,
       },
+      // 对话框
+      confirm: {
+        header: "",
+        body: "",
+        operation: "update",
+        visible: false
+      },
       searchValue: '',
       confirmVisible: false,
       deleteIdx: -1,
@@ -297,33 +296,47 @@ export default Vue.extend({
         pageNum: 1,
         pageSize: 10,
       },
-      form: {
-        step: "git",
-        params:{
-          git: {
-            taskGitType: "",
-            taskGitUrl: "",
-            taskGitBranch: "",
-          },
-          build: {
-            taskBuildName: "",
-            taskBuildType: "",
-            taskBuildImage: "",
-            containerName: "",
-            env: [],
-            cmd: "",
-            restartPolicy: "OnFailure"
-          }
+      // 搜索框
+      searchForm: {
+        name: "",
+        type: "",
+        pageNum: 1,
+        pageSize: 10
+      },
+      formData: {
+        name: "",
+        git: {
+          taskGitType: "",
+          taskGitUrl: "",
+          taskGitBranch: "",
         },
-        gitRepoList: [],
-        gitRepoTypeList: [],
-        taskBuildTypeList: [],
-        taskBuildImageList: [],
+        build: {
+          taskBuildName: "",
+          taskBuildType: "",
+          taskBuildImage: "",
+          containerName: "",
+          env: [],
+          cmd: "",
+          restartPolicy: "OnFailure"
+        },
         name: "",
       },
+      gitRepoList: [],
+      gitRepoTypeList: [],
+      taskBuildTypeList: [],
+      taskBuildImageList: [],
       formConfig: {
         visible: false,
         header: "新增"
+      },
+      // 抽屉
+      drawer: {
+        header: "",
+        visible: false,
+        type: "",
+        operation: "add",
+        row: {},
+        dynamicForm: {}
       },
       typeList: [],
       // monaco
@@ -359,7 +372,7 @@ export default Vue.extend({
   },
   created() {
     this.getGitRepoTypeList();
-    this.getList();
+    this.page();
     this.getTaskBuildTypeList();
   },
   beforeDestroy() {
@@ -367,14 +380,28 @@ export default Vue.extend({
       this.eventSource.close();
     }
   },
+  watch: {
+    "searchForm.name"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageSize"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageNum"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    }
+  },
   methods: {
     getGitRepoList() {
       this.dataLoading = true;
       this.$request.get('/git/repo/list',{
-        params: {
-          type: this.form.params.git.taskGitType,
-          name: this.form.params.git.name
-        }
+        params: this.searchForm
       }).then((res) => {
         if (res.data.code === 200) {
           console.log("data",res.data.data)
@@ -458,15 +485,10 @@ export default Vue.extend({
     },
     // 新增
     handleSetupContract() {
-      // 打开drawer
-      this.formConfig.visible = true;
-      this.getGitRepoTypeList();
+      this.drawer.visible = true;
     },
-    handleClickDelete(row: { rowIndex: any, type: any }) {
-      this.deleteIdx = row.rowIndex;
-      this.deleteType = row.type;
-      this.confirmVisible = true;
-      console.log("this", this.deleteType)
+    handleClickDelete(row: any) {
+      this.confirm.visible = true;
     },
     onConfirmDelete() {
       // 真实业务请发起请求
@@ -476,7 +498,7 @@ export default Vue.extend({
       if (selectedIdx > -1) {
         this.selectedRowKeys.splice(selectedIdx, 1);
       }
-      this.confirmVisible = false;
+      this.confirm.visible = false;
       // 请求删除
       this.$request.delete("/monitor/delete", {
         params: {
@@ -499,25 +521,18 @@ export default Vue.extend({
     resetIdx() {
       this.deleteIdx = -1;
     },
-    onReset(data) {
-      console.log(data);
+    onReset() {
     },
-    onSubmit(data) {
-      console.log(this.formData);
-      this.getList(this.formData);
+    onSubmit() {
+      this.page();
     },
     // 创建job
     onSubmitCreateJob() {
-      this.$request.post("/devops/job/add", {
-        git: this.form.params.git,
-        build: this.form.params.build,
-        push: this.form.params.push,
-        deploy: this.form.params.deploy
-      }).then(res => {
+      this.$request.post("/devops/job/add", this.formData).then(res => {
         if (res.data.code === 200) {
           this.$message.success(res.data.msg);
-          this.formConfig.visible = false;
-          this.getList();
+          this.drawer.visible = false;
+          this.page();
         }else {
           this.$message.error(res.data.msg);
         }
@@ -532,11 +547,10 @@ export default Vue.extend({
 
       })
     },
-    getList() {
+    page() {
       this.dataLoading = true;
-      this.$request
-          .get('/devops/job/page', {
-            params: this.formData
+      this.$request.get('/devops/job/page', {
+            params: this.searchForm
           }).then((res) => {
         if (res.data.code === 200) {
           this.data = res.data.rows;
