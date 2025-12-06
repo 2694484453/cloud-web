@@ -86,9 +86,9 @@
       placement="right"
       destroyOnClose
       size="35%"
-      @close="onCancelDrawer"
+      @close="onCancel"
       :onConfirm="handleDrawerOk"
-      @cancel="onCancelDrawer"
+      @cancel="onCancel"
     >
       <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical"
                style="width: 100%">
