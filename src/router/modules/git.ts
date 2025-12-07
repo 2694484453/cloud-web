@@ -34,7 +34,7 @@ export default [
         path: 'gitToken',
         name: 'gitToken',
         component: () => import('@/pages/git/access/list/index.vue'),
-        meta: {title: '配置列表'},
+        meta: {title: 'Token配置'},
       },
     ],
   },
