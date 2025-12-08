@@ -27,7 +27,7 @@ export default [
       {
         path: 'codeSpace',
         name: 'codeSpace',
-        component: () => import('@/pages/git/codeSpace/index.vue'),
+        component: () => import('@/pages/git/codespace/index.vue'),
         meta: {title: '代码空间'},
       },
       {
