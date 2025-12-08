@@ -7,12 +7,12 @@ export default [
     component: Layout,
     meta: {title: 'Caddy管理', icon: ChartPieIcon},
     children: [
-      {
-        path: 'dashboard',
-        name: 'DashboardBase',
-        component: () => import('@/pages/caddy/index.vue'),
-        meta: {title: '监控面板'},
-      },
+      // {
+      //   path: 'dashboard',
+      //   name: 'DashboardBase',
+      //   component: () => import('@/pages/caddy/index.vue'),
+      //   meta: {title: '监控面板'},
+      // },
       {
         path: "list",
         name: 'list',
