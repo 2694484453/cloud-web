@@ -360,14 +360,12 @@ export default Vue.extend({
     onPageSizeChange(size, pageInfo) {
       console.log('Page Size:', this.pageSize, size, pageInfo);
       // 刷新
-      this.formData.pageSize = size
-      this.getList()
+      this.searchForm.pageSize = size
     },
     onCurrentChange(current, pageInfo) {
       console.log('Current Page', this.current, current, pageInfo);
       // 刷新
-      this.formData.pageNum = current
-      this.getList()
+      this.searchForm.pageNum = current
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
