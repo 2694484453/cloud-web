@@ -39,8 +39,16 @@
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
-          <template #CreatedAt="{ row }">
-            <p>{{ new Date(row.CreatedAt).toLocaleString() }}</p>
+          <template #status="{row}">
+            <span v-if="row.status === 'ok'">
+              <t-tag theme="success" variant="light">正常</t-tag>
+            </span>
+            <span v-if="row.status === 'fail'">
+              <t-tag theme="danger" variant="light">异常</t-tag>
+            </span>
+            <span v-if="row.status === null">
+              <t-tag theme="danger" variant="light">未知</t-tag>
+            </span>
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
@@ -155,6 +163,14 @@ export default Vue.extend({
           ellipsis: true,
           fixed: 'left',
           colKey: 'status',
+        },
+        {
+          title: '域名',
+          align: 'left',
+          width: 120,
+          ellipsis: true,
+          colKey: 'domain',
+          fixed: 'left',
         },
         {
           title: '描述',

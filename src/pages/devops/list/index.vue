@@ -39,7 +39,7 @@
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
-          <template #status="{ row }">
+          <template #status="{row}">
             <span v-if="row.status === 'done'">
               <t-tag theme="success" variant="light">已完成</t-tag>
             </span>
@@ -53,12 +53,12 @@
               <t-tag theme="danger" variant="light">未知</t-tag>
             </span>
           </template>
-          <template #metadata.labels="{ row }">
+          <template #metadata.labels="{row}">
             <span v-for="(v,k) in row.metadata.labels">
               <t-tag theme="primary" variant="light">{{ k }}:{{ v }}</t-tag>
             </span>
           </template>
-          <template #paymentType="{ row }">
+          <template #paymentType="{row}">
             <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.PAYMENT" class="payment-col">
               付款
               <trend class="dashboard-item-trend" type="up"/>
