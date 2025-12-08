@@ -27,7 +27,7 @@ export default [
       {
         path: 'access',
         name: 'access',
-        component: () => import('@/pages/git/access/list/index.vue'),
+        component: () => import('@/pages/git/token/list/index.vue'),
         meta: {title: '配置列表'},
       },
     ],

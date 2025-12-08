@@ -12,9 +12,9 @@
       >
         <t-row justify="space-between">
           <div class="left-operation-container">
-            <t-button @click="handleSetupContract">新建</t-button>
-            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出</t-button>
-            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>
+            <t-button @click="handleSetupContract">添加</t-button>
+<!--            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出</t-button>-->
+<!--            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>-->
           </div>
           <t-input v-model="searchValue" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
             <template #suffix-icon>
@@ -39,19 +39,19 @@
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
-          <template #status="{ row }">
+          <template #status="{row}">
             <t-tag v-if="row.status === CONTRACT_STATUS.FAIL" theme="danger" variant="light">校验失败</t-tag>
             <t-tag v-if="row.status === CONTRACT_STATUS.AUDIT_PENDING" theme="warning" variant="light">打包失败</t-tag>
             <t-tag v-if="row.status === CONTRACT_STATUS.EXEC_PENDING" theme="warning" variant="light">未知</t-tag>
             <t-tag v-if="row.status === CONTRACT_STATUS.EXECUTING" theme="success" variant="light">打包中</t-tag>
             <t-tag v-if="row.status === CONTRACT_STATUS.FINISH" theme="success" variant="light">已完成</t-tag>
           </template>
-          <template #contractType="{ row }">
+          <template #contractType="{row}">
             <p v-if="row.contractType === CONTRACT_TYPES.MAIN">审核失败</p>
             <p v-if="row.contractType === CONTRACT_TYPES.SUB">待审核</p>
             <p v-if="row.contractType === CONTRACT_TYPES.SUPPLEMENT">待履行</p>
           </template>
-          <template #paymentType="{ row }">
+          <template #paymentType="{row}">
             <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.PAYMENT" class="payment-col">
               推送成功
               <trend class="dashboard-item-trend" type="up"/>
@@ -61,13 +61,13 @@
               <trend class="dashboard-item-trend" type="down"/>
             </p>
           </template>
-          <template #html_url="{ row }">
+          <template #html_url="{row}">
             <a :href="row.html_url" target="_blank">{{ row.html_url }}</a>
           </template>
           <template #op="slotProps">
-            <a class="t-button-link" @click="handleClickDetail(slotProps)">详情</a>
-            <a class="t-button-link" @click="handleClickEdit(slotProps)">编辑</a>
-            <a class="t-button-link" @click="handleClickDelete(slotProps)">删除</a>
+            <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
+            <a class="t-button-link" @click="handleClickEdit(slotProps.row)">编辑</a>
+            <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
       </div>
@@ -332,13 +332,6 @@ export default Vue.extend({
       this.$emit('transfer', "detail", row)
       this.form.header = "详情"
       this.form.visible = true
-      this.$request.get("/gitAccess/info",{
-        params:{
-          id:row.id
-        }
-      }).then(res=>{
-        this.form.row = res.data.data
-      })
     },
     handleSetupContract() {
       this.form.header = "添加"

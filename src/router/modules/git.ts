@@ -33,7 +33,7 @@ export default [
       {
         path: 'gitToken',
         name: 'gitToken',
-        component: () => import('@/pages/git/access/list/index.vue'),
+        component: () => import('@/pages/git/token/list/index.vue'),
         meta: {title: 'Token管理'},
       },
     ],
