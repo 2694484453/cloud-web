@@ -72,23 +72,21 @@
         </t-table>
       </div>
     </t-card>
-    <div>
-      <t-pagination
-        v-model="formData.pageNum"
-        :total="pagination.total"
-        :page-size.sync="formData.pageSize"
-        @current-change="onCurrentChange"
-        @page-size-change="onPageSizeChange"
-        @change="onChange"/>
-    </div>
+    <t-pagination
+      style="margin-top: 15px"
+      v-model="formData.pageNum"
+      :total="pagination.total"
+      :page-size.sync="formData.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"/>
     <t-dialog
-      header="确认删除当前所选？"
-      :body="confirmBody"
-      :visible.sync="confirmVisible"
-      @confirm="onConfirmDelete"
+      :header="confirm.header"
+      :body="confirm.body"
+      :visible.sync="confirm.visible"
+      @confirm="onConfirmOk"
       :onCancel="onCancel"
-    >
-    </t-dialog>
+    />
     <!--抽屉-->
     <t-drawer
       :visible.sync="form.visible"
@@ -238,8 +236,15 @@ export default Vue.extend({
       formData: {
         name: "",
         type: "",
-        pageNum: 1,
-        pageSize: 10
+        status: "",
+        homeUrl: "",
+        accessToken: "",
+        description: "",
+        config: "",
+        createTime: '',
+        createByUserName: '',
+        updateTime: '',
+        updateByUserName: '',
       },
       form: {
         header: "",
