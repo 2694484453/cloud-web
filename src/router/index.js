@@ -5,7 +5,6 @@ import componentsRouters from './modules/components';
 // 其他
 import othersRouters from './modules/others';
 // 构建
-import buildRouters from './modules/build';
 // 域名
 import domainRouters from './modules/domain';
 // 监控
