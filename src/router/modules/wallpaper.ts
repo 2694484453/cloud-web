@@ -23,12 +23,12 @@ export default [
         component: () => import('@/pages/wallpaper/list/index.vue'),
         meta: {title: '壁纸商店'},
       },
-      {
-        path: 'access',
-        name: 'access',
-        component: () => import('@/pages/wallpaper/mine/index.vue'),
-        meta: {title: '我的壁纸'},
-      },
+      // {
+      //   path: 'access',
+      //   name: 'access',
+      //   component: () => import('@/pages/wallpaper/mine/index.vue'),
+      //   meta: {title: '我的壁纸'},
+      // },
     ],
   },
 ]
