@@ -2,7 +2,7 @@
  root * /var/www/html/dist
  try_files {path} /index.html
  handle_path {$PREFIX_PATH:/api}/* {
- 	reverse_proxy {$PROXY:localhost:3000}
+ 	reverse_proxy {$PROXY:localhost:9099}
  }
  file_server
 }
