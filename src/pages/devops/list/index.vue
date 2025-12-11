@@ -53,26 +53,12 @@
               <t-tag theme="danger" variant="light">未知</t-tag>
             </span>
           </template>
-          <template #metadata.labels="{row}">
-            <span v-for="(v,k) in row.metadata.labels">
-              <t-tag theme="primary" variant="light">{{ k }}:{{ v }}</t-tag>
-            </span>
-          </template>
-          <template #paymentType="{row}">
-            <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.PAYMENT" class="payment-col">
-              付款
-              <trend class="dashboard-item-trend" type="up"/>
-            </p>
-            <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.RECEIPT" class="payment-col">
-              收款
-              <trend class="dashboard-item-trend" type="down"/>
-            </p>
-          </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickExec(slotProps.row)">执行</a>
             <a class="t-button-link" @click="handleClickEdit(slotProps.row)">编辑</a>
-            <a class="t-button-link" @click="handleClickDetail(slotProps.row)">日志</a>
-            <a class="t-button-link" @click="handleClickDelete(slotProps)">删除</a>
+<!--            <a class="t-button-link" @click="handleClickDetail(slotProps.row)">日志</a>-->
+            <a class="t-button-link" @click="handleClickLogs(slotProps.row)">日志</a>
+            <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
       </div>
@@ -148,24 +134,22 @@
               </t-tab-panel>
               <t-tab-panel value="git" label="git仓库">
                 <t-form-item label="仓库名称" name="type">
-                  <t-select v-model="formData.git.taskGitType" placeholder="请选择" @change="getGitRepoList"
-                            :maxlength="32" with="200">
+                  <t-select v-model="formData.git.url" placeholder="请选择" @change="getGitRepoList" :maxlength="32" with="200" clearable>
                     <t-option v-for="(item,index) in gitRepoList" :key="index" :label="item.name" :value="item.url">
                       {{ item.name }}
                     </t-option>
                   </t-select>
                 </t-form-item>
                 <t-form-item label="分支" name="branch">
-                  <t-input v-model="formData.git.taskGitBranch" placeholder="请输入内容" :maxlength="32"
-                           with="200"></t-input>
+                  <t-input v-model="formData.git.branch" placeholder="请输入内容" :maxlength="32" with="200" clearable></t-input>
                 </t-form-item>
               </t-tab-panel>
               <t-tab-panel value="build" label="镜像构建">
                 <t-form-item label="镜像名称" name="taskBuildImage">
-                  <t-input v-model="formData.build.taskBuildImage" maxlength="256"></t-input>
+                  <t-input v-model="formData.build.imageName" maxlength="256"></t-input>
                 </t-form-item>
                 <t-form-item label="镜像版本" name="containerName">
-                  <t-input v-model="formData.build.containerName" placeholder="请输入内容"></t-input>
+                  <t-input v-model="formData.build.imageVersion" placeholder="请输入内容"></t-input>
                 </t-form-item>
                 <t-form-item label="环境变量" name="env">
                   <t-input v-model="formData.build.env" placeholder="请输入内容"></t-input>
@@ -197,6 +181,7 @@ import Vue from 'vue';
 import {SearchIcon} from 'tdesign-icons-vue';
 import Trend from '@/components/trend/index.vue';
 import {prefix} from '@/config/global';
+import { sseService } from '@/utils/sse';
 
 import {CONTRACT_STATUS, CONTRACT_STATUS_OPTIONS, CONTRACT_TYPES, CONTRACT_PAYMENT_TYPES} from '@/constants';
 import MonacoEditor from "@/components/editor/MonacoEditor.vue";
@@ -296,12 +281,6 @@ export default Vue.extend({
       confirmVisible: false,
       deleteIdx: -1,
       deleteType: -1,
-      formData: {
-        name: "",
-        type: "",
-        pageNum: 1,
-        pageSize: 10,
-      },
       // 搜索框
       searchForm: {
         name: "",
@@ -314,19 +293,18 @@ export default Vue.extend({
         contextName: "",
         description: "",
         git: {
-          taskGitType: "",
-          taskGitUrl: "",
-          taskGitBranch: "",
+          type: "",
+          url: "",
+          branch: "",
         },
         build: {
           imageName: "",
-          version: "",
+          imageVersion: "",
           env: [],
           cmd: ""
         },
         push: {},
-        deploy: {},
-        name: "",
+        deploy: {}
       },
       gitRepoList: [],
       clusterList: [],
@@ -361,6 +339,7 @@ export default Vue.extend({
         nameSpace: ""
       },
       eventSource: null,
+      isConnected: false,
     };
   },
   computed: {
@@ -379,6 +358,8 @@ export default Vue.extend({
   },
   created() {
     this.page();
+    this.isConnected = false;
+    sseService.close();
   },
   beforeDestroy() {
     if (this.eventSource) {
@@ -479,13 +460,28 @@ export default Vue.extend({
     handleSizeDrag({size}) {
       console.log('size drag size: ', size);
     },
-    handleClickDetail(row) {
+    handleClickLogs(row:any) {
       this.formData = row;
       // 连接sse
-      this.connectSSE({
-        jobName: row.metadata.name,
-        nameSpace: row.metadata.namespace
-      }, "onmessage")
+      sseService.connect({
+        url: "/devops/job/jobLogs?jobName=" + row.jobName + "&nameSpace=" + row.nameSpace,
+        withCredentials: true,
+        onOpen: () => {
+          this.isConnected = true;
+          this.$message.success('SSE连接成功');
+        },
+        onMessage: (event: MessageEvent) => {
+          this.handleNewMessage(event.data);
+        },
+        onError: (error: Event) => {
+          console.error('SSE错误:', error);
+          this.$message.error('SSE连接错误');
+        }
+      });
+      // 监听自定义事件[8](@ref)
+      sseService.addEventListener('logs', (event: MessageEvent) => {
+        console.log(event.data);
+      });
     },
     // 新增
     handleSetupContract() {
@@ -501,7 +497,7 @@ export default Vue.extend({
     handleClickExec(row) {
 
     },
-    handleClickEdit(row) {
+    handleClickEdit(row:any) {
       this.formData = row;
       this.drawer.visible = true;
       this.drawer.header = row.jobName;
@@ -509,21 +505,23 @@ export default Vue.extend({
       this.getGitRepoList();
       this.getClusterList();
     },
-    onConfirmDelete() {
-      // 真实业务请发起请求
-      this.confirm.visible = false;
-      // 请求删除
-      this.$request.delete("/monitor/delete", {
-        params: {
-          index: this.deleteIdx,
-          type: this.deleteType
-        }
-      }).then(res => {
-        this.$message.success(res.data.msg);
-      }).catch(err => {
+    onConfirmOk() {
+      switch (this.confirm.operation) {
+        case "delete":
+          // 真实业务请发起请求
+          this.confirm.visible = false;
+          // 请求删除
+          this.$request.delete("/monitor/delete", {
+            params: {
+              id: this.formData.id
+            }
+          }).then(res => {
+            this.$message.success(res.data.msg);
+          }).catch(err => {
 
-      })
-      this.resetIdx();
+          })
+          break;
+      }
     },
     onCancel() {
       this.drawer.visible = false;
@@ -594,54 +592,8 @@ export default Vue.extend({
         this.dataLoading = false;
       });
     },
-    connectWebSocket(params) {
-      const socket = new WebSocket('ws://ecs.gpg123.vip:9099/ws/podLog?podName=' + params.podName + "&nameSpace=" + params.nameSpace);
-      // 连接成功时触发
-      socket.onopen = () => {
-        console.log('WebSocket connection established');
-      };
-      // 收到消息时触发
-      socket.onmessage = (event) => {
-        console.log('Message from server ', event.data);
-        this.editor.value = this.editor.value + "\n" + event.data
-      };
-      // 连接关闭时触发
-      socket.onclose = () => {
-        console.log('WebSocket connection closed');
-      };
-      // 发生错误时触发
-      socket.onerror = (error) => {
-        console.error('WebSocket error observed:', error);
-      };
-    },
-    connectSSE(params) {
-      if (!!window.EventSource) {
-        // 打开连接
-        this.eventSource = new EventSource("https://my-server.gpg123.vip/devops/job/jobLogs?jobName=" + params.jobName + "&nameSpace=" + params.nameSpace);
-        // 接收消息
-        this.eventSource.onmessage = (event) => {
-          //console.log(event)
-          // 传递给monaco
-          this.editor.value = this.editor.value + "\n\t" + event.data
-        }
-        // 打开通道
-        this.eventSource.onopen = (event) => {
-          //console.log(event)
-        };
-        // 异常
-        this.eventSource.onerror = (event) => {
-          //console.log(event)
-        };
-      } else {
-        console.log('您的浏览器不支持SSE.');
-      }
-    },
     closeSSE() {
-      console.log("调用关闭SSE...");
-      if (this.eventSource) {
-        this.eventSource.close();
-        console.log("SSE连接已关闭");
-      }
+      sseService.close();
     },
   }
 });

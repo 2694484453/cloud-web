@@ -2,7 +2,6 @@ import {loadEnv} from 'vite';
 import {viteMockServe} from 'vite-plugin-mock';
 import {createVuePlugin} from 'vite-plugin-vue2';
 import {createSvgPlugin} from 'vite-plugin-vue2-svg';
-
 const MonacoWebpackPlugin = require('monaco-editor-esm-webpack-plugin');
 import path from 'path';
 
@@ -45,12 +44,17 @@ export default ({mode}) => {
       port: 3000,
       //https: true,
       proxy: {
-        '/dev-api': {
+         "/dev-api" : {
           // 用于开发环境下的转发请求
           // 更多请参考：https://vitejs.dev/config/#server-proxy
-          target: 'http://ecs.gpg123.vip:9099',
+          target: 'http://localhost:9099',
           ws: true,        //如果要代理 websockets，配置这个参数
           rewrite: (path) => path.replace("^/dev-api", '/'),
+          changeOrigin: true,
+        },
+        '/ws': {
+          target: 'http://localhost:9099',
+          ws: true,
           changeOrigin: true,
         },
         "/prod-api": {
@@ -60,11 +64,6 @@ export default ({mode}) => {
           ws: true,        //如果要代理 websockets，配置这个参数
           rewrite: (path) => path.replace("^/prod-api", '/'),
           changeOrigin: true,
-        },
-        "/gitee-api": {
-          target: "https://gitee.com/api/v5/",
-          rewrite: (path) => path.replace("^/gitee-api", "/"),
-          changeOrigin: true
         }
       },
     },

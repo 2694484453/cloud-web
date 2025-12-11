@@ -2,7 +2,7 @@ FROM caddy:2.8
 LABEL authors="gaopuguang"
 COPY ./dist /var/www/html
 COPY ./Caddyfile /etc/caddy
-ENV PORT=8011
-ENV PREFIX_PATH="/prod-api"
+ENV PORT=3000
+ENV PREFIX_PATH="/api"
 ENV PROXY="cloud-server.gpg123.vip:9099"
-EXPOSE 8011
+EXPOSE 3000
