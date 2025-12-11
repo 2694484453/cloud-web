@@ -1,7 +1,7 @@
-:{$PORT} {
+:{$PORT:3000} {
  root * /var/www/html
- handle_path {$PREFIX_PATH}/* {
- 	reverse_proxy {$PROXY}
+ handle_path {$PREFIX_PATH:/api}/* {
+ 	reverse_proxy {$PROXY:localhost:3000}
  }
  file_server
 }
