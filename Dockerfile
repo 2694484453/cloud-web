@@ -1,4 +1,4 @@
-FROM caddy:2.8
+FROM caddy:2.10
 LABEL authors="gaopuguang"
 COPY ./dist /var/www/html
 COPY ./Caddyfile /etc/caddy
