@@ -1,4 +1,4 @@
-FROM caddy:2.8
+FROM registry.cn-hangzhou.aliyuncs.com/gpg_dev/caddy:latest
 LABEL authors="gaopuguang"
 COPY ./dist /var/www/html
 COPY ./Caddyfile /etc/caddy
