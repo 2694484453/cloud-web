@@ -2,7 +2,7 @@ import {loadEnv} from 'vite';
 import {viteMockServe} from 'vite-plugin-mock';
 import {createVuePlugin} from 'vite-plugin-vue2';
 import {createSvgPlugin} from 'vite-plugin-vue2-svg';
-const MonacoWebpackPlugin = require('monaco-editor-esm-webpack-plugin');
+// const MonacoWebpackPlugin = require('monaco-editor-esm-webpack-plugin');
 import path from 'path';
 
 const CWD = process.cwd();

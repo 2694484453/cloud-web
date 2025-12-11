@@ -18,7 +18,12 @@ import store from './store';
 import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
+// Vercel Speed Insights
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
+
+// Initialize Vercel Speed Insights (client-side only)
+injectSpeedInsights();
 
 Vue.use(VueRouter);
 Vue.use(TDesign);
