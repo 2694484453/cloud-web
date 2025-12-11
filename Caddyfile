@@ -1,5 +1,5 @@
 :{$PORT:3001} {
- root * /var/www/html/dist
+ root * /var/www/html
  try_files {path} /index.html
  handle_path {$PREFIX_PATH:/api}/* {
  	reverse_proxy {$PROXY:localhost:9099}
