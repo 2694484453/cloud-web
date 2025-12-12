@@ -56,18 +56,17 @@
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
-        <div style="margin-top: 10px">
-          <t-pagination
-            v-model="searchForm.pageNum"
-            :total="pagination.total"
-            :page-size.sync="searchForm.pageSize"
-            @current-change="onCurrentChange"
-            @page-size-change="onPageSizeChange"
-            @change="onChange"
-          />
-        </div>
       </div>
     </t-card>
+    <t-pagination
+      style="margin-top: 15px"
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"
+    />
     <t-dialog
       :header="confirm.header"
       :body="confirm.body"
@@ -182,7 +181,7 @@ export default Vue.extend({
           fixed: 'left',
         },
         {
-          title: '任务状态',
+          title: '状态',
           align: 'center',
           colKey: 'status',
           width: 80,
@@ -191,10 +190,10 @@ export default Vue.extend({
           }
         },
         {
-          title: '分组',
+          title: '类型',
           width: 80,
           ellipsis: true,
-          colKey: 'jobGroup',
+          colKey: 'jobType',
         },
         {
           title: '表达式',
@@ -226,7 +225,7 @@ export default Vue.extend({
           width: 120,
           align: 'left',
           ellipsis: true,
-          colKey: 'remark',
+          colKey: 'description',
         },
         {
           title: '执行结果',
@@ -351,7 +350,7 @@ export default Vue.extend({
     },
     // 类型列表
     getTypeList() {
-      this.$request.get('/scheduling/common/types').then((res) => {
+      this.$request.get('/scheduling/job/types').then((res) => {
           if (res.data.code === 200) {
             this.typeList = res.data.data;
           }
@@ -375,23 +374,29 @@ export default Vue.extend({
     },
     // 创建
     onSubmitCreate() {
-      console.log(this.form);
-      if (this.form.id === '') {
-        this.$request.post("/nas/frpc/add", this.form).then(res => {
-          if (res.data.code === 200) {
-            this.$message.success(res.data.msg);
-            this.getList();
-            this.formConfig.visible = false;
-          }
-        })
-      } else {
-        this.$request.put("/nas/frpc/edit", this.form).then(res => {
-          if (res.data.code === 200) {
-            this.$message.success(res.data.msg);
-            this.getList();
-            this.formConfig.visible = false;
-          }
-        })
+      switch (this.drawer.operation) {
+          case 'add':
+            this.$request.post("/scheduling/job/add", this.formData).then(res => {
+              if (res.data.code === 200) {
+                this.$message.success(res.data.msg);
+                this.page();
+                this.drawer.visible = false;
+              }else {
+                this.$message.error(res.data.msg);
+              }
+            })
+            break;
+          case 'edit':
+            this.$request.put("/scheduling/job/edit", this.formData).then(res => {
+              if (res.data.code === 200) {
+                this.$message.success(res.data.msg);
+                this.page();
+                this.drawer.visible = false;
+              }else {
+                this.$message.error(res.data.msg);
+              }
+            })
+            break;
       }
     },
     getContainer() {
@@ -430,12 +435,13 @@ export default Vue.extend({
     handleClickEdit(row) {
       this.formData = row;
       this.drawer.visible = true;
+      this.drawer.operation = 'edit';
       this.drawer.header = "编辑" + row.jobName;
       this.getTypeList();
     },
     // 新建
     handleSetupContract() {
-      this.form = {}
+      this.formData = {}
       this.drawer.visible = true;
       this.drawer.operation = 'add';
       this.drawer.header = "新增";
@@ -455,10 +461,9 @@ export default Vue.extend({
       })
     },
     // 点击删除
-    handleClickDelete(row: { rowIndex: any }) {
-      this.deleteIdx = row.rowIndex;
+    handleClickDelete(row: any) {
+      this.searchForm = row;
       this.confirm.visible = true;
-      this.form.id = row.id;
     },
     // 确认操作
     onConfirm() {

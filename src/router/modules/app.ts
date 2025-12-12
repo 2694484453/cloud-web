@@ -16,12 +16,6 @@ export default [
         meta: {title: '概览'},
       },
       {
-        path: 'repo',
-        name: 'HelmRepoBase',
-        component: () => import('@/pages/app/repo/list/index.vue'),
-        meta: {title: '应用仓库'},
-      },
-      {
         path: 'market',
         name: 'HelmMarketBase',
         component: () => import('@/pages/app/market/list/index.vue'),

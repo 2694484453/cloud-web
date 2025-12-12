@@ -51,7 +51,7 @@ import wallpaperRouters from "@/router/modules/wallpaper";
 const env = import.meta.env.MODE || 'development';
 import proxy from '@/config/host';
 // 开发模式
-const devRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...discoveryRouters, ...prometheusRouters, ...tracingRouters, ...appRouters, ...dockerRouters, ...traefikRouters, ...clusterRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...backupRouters, ...scheduleRouters, ...toolsRouters, ...othersRouters]
+const devRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...prometheusRouters, ...tracingRouters, ...appRouters, ...dockerRouters, ...traefikRouters, ...clusterRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...backupRouters, ...scheduleRouters, ...toolsRouters, ...othersRouters]
 // 生产模式
 const prodRouterList = [...gitRouters, ...devopsRouters, ...appRouters, ...prometheusRouters, ...tracingRouters, ...traefikRouters, ...clusterRouters, ...dockerRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, ...scheduleRouters, ...noticeRouters, ...backupRouters]
 // 独立nas-frp

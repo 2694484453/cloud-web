@@ -22,7 +22,7 @@
             </template>
           </t-input>
           <t-col :span="2" class="operation-container">
-            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }" @click="operation='search';handleSubmit"> 查询</t-button>
+            <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
           </t-col>
         </t-row>
@@ -65,21 +65,20 @@
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickEdit(slotProps.row)">管理</a>
-            <a class="t-button-link" @click="operation = 'delete';handleClickConfirm(slotProps.row)">卸载</a>
+            <a class="t-button-link" @click="handleClickConfirm(slotProps.row)">卸载</a>
           </template>
         </t-table>
-        <div>
-          <t-pagination
-            v-model="searchForm.pageNum"
-            :total="pagination.total"
-            :page-size.sync="searchForm.pageSize"
-            @current-change="onCurrentChange"
-            @page-size-change="onPageSizeChange"
-            @change="onChange"
-          />
-        </div>
       </div>
     </t-card>
+    <t-pagination
+      style="margin-top: 15px"
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"
+    />
     <t-dialog
       :header="confirm.header"
       :body="confirm.body"
@@ -88,56 +87,54 @@
       :onCancel="onCancel">
     </t-dialog>
     <t-drawer
-      :visible.sync="formConfig.visible"
-      :header="formConfig.header"
-      :on-overlay-click="() => (formConfig.visible = false)"
+      :visible.sync="drawer.visible"
+      :header="drawer.header"
+      :on-overlay-click="() => (drawer.visible = false)"
       placement="right"
       destroyOnClose
       showOverlay
       :sizeDraggable="true"
       :on-size-drag-end="handleSizeDrag"
-      :size="formConfig.size"
+      :size="drawer.size"
       @close="onCancelDrawer"
       :onConfirm="handleDrawerOk"
       @cancel="onCancelDrawer">
-      <t-space direction="vertical" style="width: 100%" v-show="formConfig.operate !== 'info'">
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'"  direction="vertical" style="width: 100%">
         <t-form
           ref="formValidatorStatus"
-          :data="form"
-          :rules="rules"
+          :data="formData"
           :label-width="120"
-          :status-icon="formStatusIcon"
           @reset="onReset"
         >
-          <t-form-item label="id" name="id" v-show="false">
-            <t-input v-model="form.id" placeholder="请输入内容" :maxlength="32" with="200" :readonly="formConfig.operate === 'info'"></t-input>
-          </t-form-item>
-          <t-form-item label="服务名称" name="branch">
-            <t-input v-model="form.name" placeholder="请输入英文字母和数字的组合名称" :maxlength="64" with="200" :readonly="formConfig.operate === 'info'"></t-input>
+          <t-form-item label="应用名称" name="branch">
+            <t-input v-model="formData.appName" placeholder="请输入英文字母和数字的组合名称" :maxlength="64" with="200" clearable></t-input>
           </t-form-item>
           <t-form-item label="命名空间" name="localIp">
-            <t-input v-model="form.namespace" :maxlength="64" with="200" :readonly="formConfig.operate === 'info'"></t-input>
+            <t-input v-model="formData.nameSpace" :maxlength="64" with="200" clearable></t-input>
           </t-form-item>
-          <t-form-item label="版本" name="localPort">
-            <t-input v-model="form.version" :maxlength="32" with="200" :readonly="formConfig.operate === 'info'"></t-input>
+          <t-form-item label="集群" name="kubeContext">
+            <t-input v-model="formData.kubeContext" placeholder="example.kube.com" :maxlength="32" with="200" clearable></t-input>
           </t-form-item>
-          <t-form-item label="状态" name="customDomains">
-            <t-input v-model="form.info.status" placeholder="请输入域名地址" :maxlength="32" with="200" :readonly="formConfig.operate === 'info'"></t-input>
+          <t-form-item label="安装包地址" name="chartUrl">
+            <t-input v-model="formData.chartUrl" placeholder="https://example.com/helm-charts/example-app-1.0.0.tgz" :maxlength="32" with="200" clearable></t-input>
+          </t-form-item>
+          <t-form-item label="参数" name="description">
+            <t-textarea v-model="formData.chartValues" placeholder="请输入备注内容" :maxlength="9999" with="200" :autosize="{minRows:5}"></t-textarea>
           </t-form-item>
           <t-form-item label="描述" name="description">
-            <t-textarea v-model="form.info.description" placeholder="请输入备注内容" :maxlength="120" with="200" :readonly="formConfig.operate === 'info'"></t-textarea>
+            <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="200" with="200" :autosize="{minRows:2}"></t-textarea>
           </t-form-item>
         </t-form>
       </t-space>
-      <t-space direction="vertical" style="width: 100%" v-show="formConfig.operate === 'info'">
-        <t-descriptions :title="form.name+'应用详情'" bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
-          <t-descriptions-item label="名称" >{{form.name}}</t-descriptions-item>
-          <t-descriptions-item label="命名空间">{{form.namespace}}</t-descriptions-item>
-          <t-descriptions-item label="版本">{{form.version}}</t-descriptions-item>
-          <t-descriptions-item label="状态">{{form.info.status}}</t-descriptions-item>
-          <t-descriptions-item label="第一次部署">{{form.info.first_deployed}}</t-descriptions-item>
-          <t-descriptions-item label="最近一次部署">{{form.info.last_deployed}}</t-descriptions-item>
-          <t-descriptions-item label="描述">{{form.info.description}}</t-descriptions-item>
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%" >
+        <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
+          <t-descriptions-item label="应用名称" >{{formData.appName}}</t-descriptions-item>
+          <t-descriptions-item label="命名空间">{{formData.nameSpace}}</t-descriptions-item>
+          <t-descriptions-item label="版本">{{formData.version}}</t-descriptions-item>
+          <t-descriptions-item label="状态">{{formData.status}}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
+          <t-descriptions-item label="创建者">{{formData.createBy}}</t-descriptions-item>
+          <t-descriptions-item label="描述">{{formData.description}}</t-descriptions-item>
         </t-descriptions>
       </t-space>
     </t-drawer>
@@ -201,7 +198,7 @@ export default Vue.extend({
           title: '集群',
           width: 180,
           ellipsis: true,
-          colKey: 'clusterName',
+          colKey: 'kubeContext',
         },
         {
           title: '描述',
@@ -238,18 +235,30 @@ export default Vue.extend({
       confirmVisible: false,
       deleteIdx: -1,
       formData: {
-        name: "",
-        version: "",
+        id: '',
+        appName: '',
+        chartName: "",
+        chartUrl: "",
+        chartValues: "",
+        home: "",
+        icon: "",
+        nameSpace: '',
+        version: '',
         type: "",
-        namespace: "",
+        description: "",
+        kubeContext: '',
+        createTime: '',
+        updateTime: '',
+        createBy: '',
+        updateBy: '',
+        status: "",
       },
       // 抽屉
       drawer: {
         header: "",
         visible: false,
-        type: "",
         operation: "add",
-        row: {}
+        size: '50%',
       },
       // 对话框
       confirm: {
@@ -265,38 +274,9 @@ export default Vue.extend({
         pageNum: 1,
         pageSize: 10
       },
-      form: {
-        id: '',
-        name: '',
-        namespace: '',
-        version: '',
-        info: {
-          deleted: "",
-          description: "",
-          first_deployed: "",
-          last_deployed: "",
-          status: ""
-        },
-        manifest: 80,
-      },
-      operation: "search",
-      formConfig: {
-        title: '新增',
-        visible: false,
-        header: '新增',
-        operate: "add",
-        size: '50%',
-      },
     };
   },
   computed: {
-    confirmBody() {
-      if (this.deleteIdx > -1) {
-        const {name} = this.data?.[this.deleteIdx];
-        return `删除后，${name}的所有合同信息将被清空，且无法恢复`;
-      }
-      return '';
-    },
     offsetTop() {
       return this.$store.state.setting.isUseTabsRouter ? 48 : 0;
     },
@@ -304,23 +284,22 @@ export default Vue.extend({
   mounted() {
   },
   created() {
-    this.operation = 'search'
-    this.handleSubmit();
+    this.page();
   },
   watch:{
     "searchForm.name"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit()
+        this.page();
       }
     },
     "searchForm.pageSize"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit()
+        this.page();
       }
     },
     "searchForm.pageNum"(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.handleSubmit()
+        this.page();
       }
     }
   },
@@ -386,38 +365,28 @@ export default Vue.extend({
       console.log('统一Change', changeParams, triggerAndData);
     },
     // 详情
-    handleClickDetail(row) {
-      this.formConfig = {
-        header: '详情',
-        visible: true,
-        operate: "info",
-        size: '40%',
-      };
-      this.$request.get('/helm/info', {
-        params: {
-          name: row.appName
-        }
-      }).then((res) => {
-        this.form = res.data.data;
-      });
+    handleClickDetail(row:any) {
+      this.formData = row;
+      this.drawer.header = row.appName;
+      this.drawer.operation = 'detail';
+      this.drawer.size = '40%'
+      this.drawer.visible = true;
     },
     // 创建应用
     handleSetupContract() {
-      this.formConfig = {
-        header: '新增',
-        visible: true,
-        operate: "add",
-        size: '50%',
-      };
+      this.formData = {}
+      this.drawer.header = '新增';
+      this.drawer.size = '50%';
+      this.drawer.operation = 'add';
+      this.drawer.visible = true;
     },
     // 编辑
-    handleClickEdit(row) {
-      this.formConfig = {
-        header: '管理',
-        visible: true,
-        operate: "edit",
-        size: '80%',
-      };
+    handleClickEdit(row:any) {
+      this.formData = row;
+      this.drawer.header = row.appName;
+      this.drawer.operation = 'edit';
+      this.drawer.size = '40%'
+      this.drawer.visible = true;
     },
     handleClickDelete(row: { rowIndex: any }) {
       this.deleteIdx = row.rowIndex;
@@ -458,30 +427,15 @@ export default Vue.extend({
     },
     onReset(data) {
       console.log(data);
-      this.getList();
+      this.page();
     },
     onSubmit(data) {
-      console.log(this.formData);
+      this.page();
     },
     // 基本操作
     handleSubmit() {
       console.log(this.operation);
       switch (this.operation) {
-        case "search":
-          this.dataLoading = true;
-          this.$request.get('/mineApp/page', {
-            params: this.formData
-          }).then((res) => {
-            if (res.data.code === 200) {
-              this.data = res.data.rows;
-              this.pagination.total = res.data.total;
-            }
-          }).catch((e: Error) => {
-            console.log(e);
-          }).finally(() => {
-            this.dataLoading = false;
-          });
-          break;
         case 'add':
           this.confirm.operation = "add";
           break;
@@ -492,7 +446,7 @@ export default Vue.extend({
         case 'update':
           break;
         case 'delete':
-          this.$request.delete('/mineApp/delete', {
+          this.$request.delete('/app/mine/delete', {
             params: this.formData
           }).then((res) => {
             if (res.data.code === 200) {
@@ -508,6 +462,23 @@ export default Vue.extend({
           });
           break;
       }
+    },
+    page() {
+      this.dataLoading = true;
+      this.$request.get('/app/mine/page', {
+        params: this.searchForm
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.data = res.data.rows;
+          this.pagination.total = res.data.total;
+        }else {
+          this.$message.error(res.data.msg);
+        }
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
     }
   },
 });
