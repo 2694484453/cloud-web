@@ -113,7 +113,9 @@
             <t-input v-model="formData.nameSpace" :maxlength="64" with="200" clearable></t-input>
           </t-form-item>
           <t-form-item label="集群" name="kubeContext">
-            <t-input v-model="formData.kubeContext" placeholder="example.kube.com" :maxlength="32" with="200" clearable></t-input>
+            <t-select v-model="formData.kubeContext" placeholder="请选择" clearable>
+              <t-option v-for="(item,index) in clusters" :key="index" :label="item.contextName" :value="item.contextName" >{{item.contextName}})</t-option>
+            </t-select>
           </t-form-item>
           <t-form-item label="安装包地址" name="chartUrl">
             <t-input v-model="formData.chartUrl" placeholder="https://example.com/helm-charts/example-app-1.0.0.tgz" :maxlength="32" with="200" clearable></t-input>
@@ -274,6 +276,7 @@ export default Vue.extend({
         pageNum: 1,
         pageSize: 10
       },
+      clusters: []
     };
   },
   computed: {
@@ -311,13 +314,12 @@ export default Vue.extend({
     onPageSizeChange(size, pageInfo) {
       console.log('Page Size:', this.pageSize, size, pageInfo);
       // 刷新
-      this.formData.pageSize = size
+      this.searchForm.pageSize = size
     },
     onCurrentChange(current, pageInfo) {
       console.log('Current Page', this.current, current, pageInfo);
       // 刷新
-      this.formData.pageNum = current
-      this.getList()
+      this.searchForm.pageNum = current
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
@@ -379,6 +381,7 @@ export default Vue.extend({
       this.drawer.size = '50%';
       this.drawer.operation = 'add';
       this.drawer.visible = true;
+      this.clusterList();
     },
     // 编辑
     handleClickEdit(row:any) {
@@ -479,6 +482,17 @@ export default Vue.extend({
       }).finally(() => {
         this.dataLoading = false;
       });
+    },
+    clusterList() {
+      this.$request.get('/kubernetes/cluster/list', {
+        params: {
+          isPublic: true
+        }
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.clusters = res.data.data;
+        }
+      })
     }
   },
 });

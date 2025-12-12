@@ -15,11 +15,12 @@ const paddingTBXxl = computedStyle.getPropertyValue('--td-comp-paddingTB-xxl');
 
 export default {
   name: 'DetailAdvanced',
+  props: ["frameSrc","loading"],
   data() {
     return {
       prefix,
       loading: true,
-      frameSrc: 'https://grafana.gpg123.vip/d/k8s_views_global/kubernetes-views-global?orgId=1&from=now-1h&to=now&timezone=browser&var-datasource=bcbe8c6b-5b42-48e1-8e9d-e6e30f72084a&var-cluster=&var-resolution=30s&var-job=node-exporter&var-job=ecs-node-exporter&refresh=30s',
+      frameSrc: '',
       settingStore: { ...STYLE_CONFIG },
       getWrapStyle: `height: ${window.innerHeight}px`,
     };
@@ -29,6 +30,10 @@ export default {
     this.$nextTick(() => {
       this.calcHeight();
     });
+
+  },
+  created() {
+    // 取参数
   },
   methods: {
     hideLoading() {
@@ -70,7 +75,6 @@ export default {
 </script>
 <style lang="less" scoped>
 @import '@/style/variables';
-
 .@{starter-prefix}-iframe-page {
   &__main {
     width: 100%;

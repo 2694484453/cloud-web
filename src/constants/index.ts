@@ -44,3 +44,9 @@ export const NOTIFICATION_TYPES = {
   middle: 'warning',
   high: 'danger',
 };
+
+// grafana地址
+export const grafanaDomain = "https://grafana.gpg123.vip";
+
+//数据源
+export const datasource = "prometheus.gpg123.vip";

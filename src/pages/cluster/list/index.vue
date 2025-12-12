@@ -43,10 +43,8 @@
             <t-tag v-if="row.status === '' || row.status === null" theme="warning" variant="light">未知</t-tag>
             <t-tag v-if="row.status === 'ok'" theme="success" variant="light">健康</t-tag>
           </template>
-          <template #contractType="{row}">
-            <p v-if="row.contractType === CONTRACT_TYPES.MAIN">审核失败</p>
-            <p v-if="row.contractType === CONTRACT_TYPES.SUB">待审核</p>
-            <p v-if="row.contractType === CONTRACT_TYPES.SUPPLEMENT">待履行</p>
+          <template #masterUrl="{row}">
+            <a :href="row.masterUrl" target="_blank">{{row.masterUrl}}</a>
           </template>
           <template #paymentType="{row}">
             <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.PAYMENT" class="payment-col">
@@ -60,6 +58,7 @@
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
+            <a class="t-button-link" @click="handleClickMonitor(slotProps.row)">监控</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
@@ -162,15 +161,15 @@ export default Vue.extend({
         {
           title: '集群名称',
           align: 'left',
-          width: 120,
+          width: 150,
           ellipsis: true,
           colKey: 'clusterName',
           fixed: 'left',
         },
         {
-          title: 'context',
+          title: 'context名称',
           colKey: 'contextName',
-          width: 120
+          width: 150
         },
         {
           title: '状态',
@@ -180,15 +179,15 @@ export default Vue.extend({
           ellipsis: true
         },
         {
-          title: '地址',
+          title: 'master地址',
           width: 180,
           ellipsis: true,
-          colKey: 'cluster.server',
+          colKey: 'masterUrl',
         },
         {
           title: "描述",
           colKey: "description",
-          width: 200,
+          width: 160,
           cell: {col: "status"}
         },
         {
@@ -204,9 +203,9 @@ export default Vue.extend({
           cell: {col: "status"}
         },
         {
-          align: 'left',
+          align: 'center',
           fixed: 'right',
-          width: 120,
+          width: 150,
           colKey: 'op',
           title: '操作',
         },
@@ -307,12 +306,16 @@ export default Vue.extend({
       console.log('Page Info: ', pageInfo);
     },
     // 查看详情
-    handleClickDetail(row) {
+    handleClickDetail(row:any) {
       this.formData = row;
       this.drawer.header = "详情";
       this.drawer.operation = 'info';
       this.drawer.size="80%"
       this.drawer.visible = true;
+    },
+    handleClickMonitor(row:any) {
+      this.formData = row;
+
     },
     // 添加
     handleSetupContract() {
