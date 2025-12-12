@@ -315,7 +315,7 @@ export default Vue.extend({
     },
     handleClickMonitor(row:any) {
       this.formData = row;
-
+      this.$router.push({ path: '/cluster/dashboard', query: {clusterName: row.clusterName,jobName: row.clusterName} });
     },
     // 添加
     handleSetupContract() {

@@ -22,8 +22,6 @@ export default {
     };
   },
   mounted() {
-  },
-  created() {
     // 取参数
     if (this.$route.query.jobName != null) {
       this.grafana.jobName = this.$route.query.jobName;

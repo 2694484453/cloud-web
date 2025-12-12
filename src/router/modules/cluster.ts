@@ -16,7 +16,7 @@ export default [
       {
         path: 'dashboard',
         name: 'DashboardBase',
-        component: () => import('@/pages/cluster/dashboard.vue'),
+        component: () => import('@/pages/cluster/frame/index.vue'),
         meta: {title: '监控面板'},
       },
       // {
