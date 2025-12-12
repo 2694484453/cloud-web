@@ -21,18 +21,18 @@ export default [
         component: () => import('@/pages/docker/image/index.vue'),
         meta: {title: '本地镜像'},
       },
-      // {
-      //   path: 'container',
-      //   name: 'containerBase',
-      //   component: () => import('@/pages/docker/container/list/index.vue'),
-      //   meta: {title: '本地容器'},
-      // },
-      // {
-      //   path: 'accessManager',
-      //   name: 'accessManager',
-      //   component: () => import('@/pages/docker/access/list/index.vue'),
-      //   meta: {title: '认证管理'},
-      // },
+      {
+        path: 'host',
+        name: 'host',
+        component: () => import('@/pages/docker/host/index.vue'),
+        meta: {title: '服务主机'},
+      },
+      {
+        path: 'hubAuth',
+        name: 'hubAuth',
+        component: () => import('@/pages/docker/access/list/index.vue'),
+        meta: {title: '仓库认证'},
+      },
       // {
       //   path: 'image',
       //   name: 'ImageBase',

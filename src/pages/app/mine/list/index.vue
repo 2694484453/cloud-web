@@ -114,13 +114,22 @@
           </t-form-item>
           <t-form-item label="集群" name="kubeContext">
             <t-select v-model="formData.kubeContext" placeholder="请选择" clearable>
-              <t-option v-for="(item,index) in clusters" :key="index" :label="item.contextName" :value="item.contextName" >{{item.contextName}})</t-option>
+              <t-option v-for="(item,index) in clusters" :key="index" :label="item.contextName" :value="item.contextName" >{{item.contextName}}</t-option>
             </t-select>
           </t-form-item>
           <t-form-item label="安装包地址" name="chartUrl">
-<!--            <t-input v-model="formData.chartUrl" placeholder="https://example.com/helm-charts/example-app-1.0.0.tgz" :maxlength="32" with="200" clearable></t-input>-->
-            <t-select v-model="formData.chartUrl" placeholder="支持输入和选择" clearable allow-input>
-              <t-option v-for="(item,index) in packages" :key="index" :label="item.name" :value="item.url" >{{item.name}}</t-option>
+            <t-select
+              v-model="formData.chartUrl"
+              placeholder="支持输入和选择"
+              clearable
+              :options="packages"
+              @input-change="packageList"
+              allow-input
+              allow-create
+              default-first-option
+              filterable
+              @blur="onBlur"
+              :keys="{ label: 'name', value: 'url' }" >
             </t-select>
           </t-form-item>
           <t-form-item label="参数" name="description">
@@ -263,7 +272,7 @@ export default Vue.extend({
         header: "",
         visible: false,
         operation: "add",
-        size: '50%',
+        size: '40%',
       },
       // 对话框
       confirm: {
@@ -512,9 +521,12 @@ export default Vue.extend({
         }
       })
     },
-    onOptionClick(item) {
-      this.selectValue = item;
-      this.popupVisible = false;
+    onBlur(value, context) {
+      console.log(context.inputValue);
+      this.formData.chartUrl = context.inputValue
+    },
+    onSChange(val) {
+      this.formData.chartUrl = val
     },
   },
 });

@@ -62,6 +62,9 @@
           :hover="hover"
           :selected-row-keys="selectedRowKeys"
           :loading="dataLoading"
+          @page-change="rehandlePageChange"
+          @change="rehandleChange"
+          @select-change="rehandleSelectChange"
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
