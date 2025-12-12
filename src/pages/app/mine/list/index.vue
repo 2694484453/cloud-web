@@ -119,17 +119,9 @@
           </t-form-item>
           <t-form-item label="安装包地址" name="chartUrl">
 <!--            <t-input v-model="formData.chartUrl" placeholder="https://example.com/helm-charts/example-app-1.0.0.tgz" :maxlength="32" with="200" clearable></t-input>-->
-            <t-select-input v-model="formData.chartUrl" placeholder="支持输入和选择" clearable  @input-change="packageList" allow-input>
+            <t-select v-model="formData.chartUrl" placeholder="支持输入和选择" clearable allow-input>
               <t-option v-for="(item,index) in packages" :key="index" :label="item.name" :value="item.url" >{{item.name}}</t-option>
-              <template #panel>
-                <ul class="tdesign-demo__select-input-ul-autocomplete">
-                  <li v-for="item in packages" :key="item" @click="() => onOptionClick(item)">
-                    {{ item }}
-                  </li>
-                </ul>
-              </template>
-              <template #suffixIcon><search-icon /></template>
-            </t-select-input>
+            </t-select>
           </t-form-item>
           <t-form-item label="参数" name="description">
             <t-textarea v-model="formData.chartValues" placeholder="请输入备注内容" :maxlength="9999" with="200" :autosize="{minRows:5}"></t-textarea>
