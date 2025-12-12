@@ -53,7 +53,7 @@ import proxy from '@/config/host';
 // 开发模式
 const devRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...discoveryRouters, ...prometheusRouters, ...tracingRouters, ...appRouters, ...dockerRouters, ...traefikRouters, ...clusterRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...backupRouters, ...scheduleRouters, ...toolsRouters, ...othersRouters]
 // 生产模式
-const prodRouterList = [...gitRouters, ...devopsRouters, ...appRouters, ...prometheusRouters, ...tracingRouters, ...traefikRouters, ...clusterRouters, ...dockerRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, ...backupRouters]
+const prodRouterList = [...gitRouters, ...devopsRouters, ...appRouters, ...prometheusRouters, ...tracingRouters, ...traefikRouters, ...clusterRouters, ...dockerRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, scheduleRouters, ...backupRouters]
 // 独立nas-frp
 const nasRouterList = [...nasRouters]
 // 独立

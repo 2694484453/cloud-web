@@ -37,7 +37,7 @@ export default {
   },
   nasProd: {
     // nas生产环境接口请求
-    NAME: "nas",
+    NAME: "nasProd",
     API: 'https://cloud-server.gpg123.vip',
     PATH: "", //"/prod-api/",
     // 开发环境 cdn 路径
