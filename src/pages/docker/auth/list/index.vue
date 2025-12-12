@@ -106,6 +106,7 @@
         <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
           <t-descriptions-item label="仓库地址" >{{formData.registryDomain}}</t-descriptions-item>
           <t-descriptions-item label="命名空间">{{formData.namespace}}</t-descriptions-item>
+          <t-descriptions-item label="用户名">{{formData.username}}</t-descriptions-item>
           <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
           <t-descriptions-item label="创建者">{{formData.createByUserName}}</t-descriptions-item>
           <t-descriptions-item label="更新者">{{formData.updateByUserName}}</t-descriptions-item>
