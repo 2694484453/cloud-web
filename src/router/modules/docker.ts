@@ -30,7 +30,7 @@ export default [
       {
         path: 'hubAuth',
         name: 'hubAuth',
-        component: () => import('@/pages/docker/access/list/index.vue'),
+        component: () => import('@/pages/docker/auth/list/index.vue'),
         meta: {title: '仓库认证'},
       },
       // {
