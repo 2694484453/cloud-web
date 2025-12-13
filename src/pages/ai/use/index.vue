@@ -1,65 +1,23 @@
 <template>
-  <div>
-    <t-card>
-      <t-list :split="true">
-        <t-list-item v-for="(item, index) in formData.messages" :key="index">
-          <template #content>
-            <span v-if="item.role ==='user'" style="float: right">
-              <t-comment avatar="https://tdesign.gtimg.com/site/avatar.jpg" :content="item.content">
-              <template #actions>
-                <t-space key="thumbUp" :size="6">
-                  <t-icon name="thumb-up" />
-                  <span>6</span>
-                </t-space>
-                <t-space key="chat" :size="6">
-                  <t-icon name="chat" />
-                  <span>回复</span>
-                </t-space>
-              </template>
-            </t-comment>
-            </span>
-            <span v-if="item.role === 'assistant'" style="float: left">
-              <t-comment avatar="" :content="item.content">
-              <template #actions>
-                <t-space key="thumbUp" :size="6">
-                  <t-icon name="thumb-up" />
-                  <span>6</span>
-                </t-space>
-                <t-space key="chat" :size="6">
-                  <t-icon name="chat" />
-                  <span>回复</span>
-                </t-space>
-              </template>
-            </t-comment>
-            </span>
-          </template>
-        </t-list-item>
-      </t-list>
-    </t-card>
-    <t-affix class="fixed-input">
-      <t-comment avatar="">
-        <template #content>
-          <div class="form-container">
-            <t-textarea v-model="formData.input" placeholder="请输入内容" />
-            <t-button class="form-submit" @click="send">发送</t-button>
-          </div>
-        </template>
-      </t-comment>
-    </t-affix>
-  </div>
-
+    <Dashboard :frame-src="frameSrc" :loading="true"/>
 </template>
 <script lang="ts">
 import Vue from "vue";
+import Dashboard from "@/components/dashboard/index.vue";
 
 export default Vue.extend({
+  name: "ai",
+  components: {
+    Dashboard
+  },
   data() {
     return {
       loading: false,
       formData: {
         input: "",
         messages: []
-      }
+      },
+      frameSrc: "https://ai.gpg123.vip"
     }
   },
   methods:{

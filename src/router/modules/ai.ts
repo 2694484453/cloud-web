@@ -11,7 +11,7 @@ export default [
         path: 'dashboard',
         name: 'DashboardBase',
         component: () => import('@/pages/ai/index.vue'),
-        meta: {title: '监控面板'},
+        meta: {title: '概览'},
       },
       {
         path: "list",
