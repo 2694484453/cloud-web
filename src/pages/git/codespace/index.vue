@@ -392,6 +392,9 @@ export default Vue.extend({
     handleClickDelete(row) {
       this.formData = row;
       this.confirm.visible = true;
+      this.confirm.operation = 'delete';
+      this.confirm.header = '删除' + row.name;
+      this.confirm.body = '此操作会删除'+row.name+'且无法回复，是否继续？';
     },
     handleClickEdit(row) {
       this.drawer.operation = 'edit'
@@ -411,7 +414,7 @@ export default Vue.extend({
             if (res.data.code === 200) {
               this.$message.success(res.data.msg)
               this.confirm.visible = false;
-              this.getList();
+              this.page();
             }else {
               this.$message.error(res.data.msg)
             }
