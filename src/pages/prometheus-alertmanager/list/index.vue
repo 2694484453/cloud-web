@@ -12,35 +12,17 @@
       >
         <t-row justify="space-between">
           <div class="left-operation-container">
-            <t-button @click="handleSetupContract"> 新建端点</t-button>
+            <t-button @click="handleSetupContract"> 添加规则</t-button>
             <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出配置</t-button>
-            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>
+            <!--            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>-->
           </div>
           <t-col :span="3">
-            <t-form-item label="名称" name="name">
-              <t-input v-model="formData.name" :style="{ width: '200px' }" placeholder="请输入内容"/>
-            </t-form-item>
+            <t-input v-model="formData.alertName" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
+              <template #suffix-icon>
+                <search-icon size="20px"/>
+              </template>
+            </t-input>
           </t-col>
-          <t-col :span="3">
-            <t-form-item label="类型" name="type">
-              <t-select
-                v-model="formData.type"
-                :style="{ width: '200px' }"
-                placeholder="请选择类型"
-                class="demo-select-base"
-                clearable
-              >
-                <t-option v-for="(item, index) in typeList" :key="index" :value="item" :label="item">
-                  {{ item }}
-                </t-option>
-              </t-select>
-            </t-form-item>
-          </t-col>
-          <!--        <t-input v-model="searchValue" class="search-input" placeholder="请输入你需要搜索的内容" clearable>-->
-          <!--          <template #suffix-icon>-->
-          <!--            <search-icon size="20px"/>-->
-          <!--          </template>-->
-          <!--        </t-input>-->
           <t-col :span="2" class="operation-container">
             <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
@@ -54,12 +36,8 @@
           :rowKey="rowKey"
           :verticalAlign="verticalAlign"
           :hover="hover"
-          :pagination="pagination"
           :selected-row-keys="selectedRowKeys"
           :loading="dataLoading"
-          @page-change="rehandlePageChange"
-          @change="rehandleChange"
-          @select-change="rehandleSelectChange"
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
@@ -92,14 +70,88 @@
         </t-table>
       </div>
     </t-card>
+    <t-pagination
+      style="margin-top: 15px"
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"
+    />
     <t-dialog
-      header="确认删除当前所选合同？"
-      :body="confirmBody"
-      :visible.sync="confirmVisible"
-      @confirm="onConfirmDelete"
-      :onCancel="onCancel"
-    >
+      :header="confirm.header"
+      :body="confirm.body"
+      :visible.sync="confirm.visible"
+      @confirm="handleSubmit"
+      :onCancel="onCancel">
     </t-dialog>
+    <t-drawer
+      :visible.sync="drawer.visible"
+      :header="drawer.header"
+      :on-overlay-click="() => (drawer.visible = false)"
+      placement="right"
+      destroyOnClose
+      showOverlay
+      :sizeDraggable="true"
+      :on-size-drag-end="handleSizeDrag"
+      :size="drawer.size"
+      @close="onCancelDrawer"
+      :onConfirm="handleDrawerOk"
+      @cancel="onCancelDrawer">
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'"  direction="vertical" style="width: 100%">
+        <t-form
+          ref="formValidatorStatus"
+          :data="formData"
+          :label-width="120"
+          @reset="onReset"
+        >
+          <t-form-item label="应用名称" name="branch">
+            <t-input v-model="formData.appName" placeholder="请输入英文字母和数字的组合名称" :maxlength="64" with="200" clearable></t-input>
+          </t-form-item>
+          <t-form-item label="命名空间" name="localIp">
+            <t-input v-model="formData.nameSpace" :maxlength="64" with="200" clearable></t-input>
+          </t-form-item>
+          <t-form-item label="集群" name="kubeContext">
+            <t-select v-model="formData.kubeContext" placeholder="请选择" clearable>
+              <t-option v-for="(item,index) in clusters" :key="index" :label="item.contextName" :value="item.contextName" >{{item.contextName}}</t-option>
+            </t-select>
+          </t-form-item>
+          <t-form-item label="安装包地址" name="chartUrl">
+            <t-select
+              v-model="formData.chartUrl"
+              placeholder="支持输入和选择"
+              clearable
+              :options="packages"
+              @input-change="packageList"
+              allow-input
+              allow-create
+              default-first-option
+              filterable
+              @blur="onBlur"
+              :keys="{ label: 'name', value: 'url' }" >
+            </t-select>
+          </t-form-item>
+          <t-form-item label="参数" name="description">
+            <t-textarea v-model="formData.chartValues" placeholder="请输入备注内容" :maxlength="9999" with="200" :autosize="{minRows:5}"></t-textarea>
+          </t-form-item>
+          <t-form-item label="描述" name="description">
+            <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="200" with="200" :autosize="{minRows:2}"></t-textarea>
+          </t-form-item>
+        </t-form>
+      </t-space>
+      <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%" >
+        <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="3">
+          <t-descriptions-item label="应用名称" >{{formData.appName}}</t-descriptions-item>
+          <t-descriptions-item label="命名空间">{{formData.nameSpace}}</t-descriptions-item>
+          <t-descriptions-item label="版本">{{formData.version}}</t-descriptions-item>
+          <t-descriptions-item label="状态">{{formData.status}}</t-descriptions-item>
+          <t-descriptions-item label="创建时间">{{formData.createTime}}</t-descriptions-item>
+          <t-descriptions-item label="创建者">{{formData.createBy}}</t-descriptions-item>
+          <t-descriptions-item label="描述">{{formData.description}}</t-descriptions-item>
+        </t-descriptions>
+      </t-space>
+    </t-drawer>
   </div>
 </template>
 <script lang="ts">
@@ -129,16 +181,16 @@ export default Vue.extend({
       value: 'first',
       columns: [
         {
-          title: '名称',
+          title: '规则名称',
           align: 'left',
-          width: 200,
+          width: 150,
           ellipsis: true,
-          colKey: 'name',
+          colKey: 'alertName',
           fixed: 'left',
         },
         {
           title: '类型',
-          width: 200,
+          width: 150,
           ellipsis: true,
           fixed: 'left',
           colKey: 'type',
@@ -146,25 +198,45 @@ export default Vue.extend({
         {
           title: '状态',
           colKey: 'status',
-          width: 100, cell:
+          width: 80, cell:
             {col: 'status'}
         },
         {
+          title: 'group名称',
+          align: 'left',
+          width: 140,
+          ellipsis: true,
+          colKey: 'groupName',
+          fixed: 'left',
+        },
+        {
           title: '标签',
-          width: 200,
+          width: 160,
           ellipsis: true,
           colKey: 'labels',
         },
         {
-          title: '端点',
-          width: 200,
+          title: '描述',
+          width: 160,
           ellipsis: true,
-          colKey: "targets"
+          colKey: "description"
+        },
+        {
+          title: '创建时间',
+          width: 160,
+          ellipsis: true,
+          colKey: "createTime"
+        },
+        {
+          title: '更新时间',
+          width: 160,
+          ellipsis: true,
+          colKey: "updateTime"
         },
         {
           align: 'left',
           fixed: 'right',
-          width: 150,
+          width: 120,
           colKey: 'op',
           title: '操作',
         },
@@ -185,8 +257,43 @@ export default Vue.extend({
       deleteIdx: -1,
       deleteType: -1,
       formData: {
-        name: "",
-        type: ""
+        id: "",
+        alertName: "",
+        groupName: "",
+        description: "",
+        createTime: "",
+        updateTime: "",
+        createdBy: "",
+        updateBy: "",
+        createByUserName: "",
+        updateByUserName: "",
+        type: "",
+        expr: "",
+        forTime: "",
+        labels: "",
+        annotations: "",
+        status: ""
+      },
+      // 搜索框
+      searchForm:{
+        alertName: "",
+        groupName: "",
+        pageNum: 1,
+        pageSize: 10
+      },
+      // 抽屉
+      drawer: {
+        header: "",
+        visible: false,
+        operation: "add",
+        size: '40%',
+      },
+      // 对话框
+      confirm: {
+        header: "",
+        body: "",
+        operation: "update",
+        visible: false
       },
       typeList: []
     };
@@ -207,20 +314,75 @@ export default Vue.extend({
   },
   created() {
     this.getTypeList()
-    this.getList()
+    this.page();
+  },
+  watch:{
+    "searchForm.name"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page();
+      }
+    },
+    "searchForm.pageSize"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page();
+      }
+    },
+    "searchForm.pageNum"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page();
+      }
+    }
   },
   methods: {
+    // drawer大小
+    handleSizeDrag({size}) {
+      console.log('size drag size: ', size);
+    },
+    onPageSizeChange(size, pageInfo) {
+      console.log('Page Size:', this.pageSize, size, pageInfo);
+      // 刷新
+      this.searchForm.pageSize = size
+    },
+    onCurrentChange(current, pageInfo) {
+      console.log('Current Page', this.current, current, pageInfo);
+      // 刷新
+      this.searchForm.pageNum = current
+    },
+    onChange(pageInfo) {
+      console.log('Page Info: ', pageInfo);
+    },
+    // 确认抽屉
+    handleDrawerOk() {
+      console.log('执行:',this.operation);
+      switch (this.operation) {
+        case 'add':
+          break;
+        // 执行安装
+        case 'install':
+          this.$request.post('/app/market/install', {
+            params: this.formData
+          }).then((res) => {
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg);
+              this.handleSubmit("search")
+            } else  {
+              this.$message.error(res.data.msg);
+            }
+          }).catch((e: Error) => {
+            console.log(e);
+          }).finally(() => {
+            this.dataLoading = false;
+          });
+          break;
+      }
+    },
+    // 取消抽屉
+    onCancelDrawer() {
+      this.drawer.visible = false;
+      this.dataLoading = false;
+    },
     getContainer() {
       return document.querySelector('.tdesign-starter-layout');
-    },
-    rehandlePageChange(curr, pageInfo) {
-      console.log('分页变化', curr, pageInfo);
-    },
-    rehandleSelectChange(selectedRowKeys: number[]) {
-      this.selectedRowKeys = selectedRowKeys;
-    },
-    rehandleChange(changeParams, triggerAndData) {
-      console.log('统一Change', changeParams, triggerAndData);
     },
     handleClickDetail() {
       this.$router.push('/detail/base');
@@ -228,11 +390,11 @@ export default Vue.extend({
     handleSetupContract() {
       this.$router.push('/prometheus/add');
     },
-    handleClickDelete(row: { rowIndex: any,type: any }) {
+    handleClickDelete(row: { rowIndex: any, type: any }) {
       this.deleteIdx = row.rowIndex;
       this.deleteType = row.type;
       this.confirmVisible = true;
-      console.log("this",this.deleteType)
+      console.log("this", this.deleteType)
     },
     onConfirmDelete() {
       // 真实业务请发起请求
@@ -244,14 +406,14 @@ export default Vue.extend({
       }
       this.confirmVisible = false;
       // 请求删除
-      this.$request.delete("/monitor/delete",{
+      this.$request.delete("/monitor/delete", {
         params: {
           index: this.deleteIdx,
           type: this.deleteType
         }
-      }).then(res=>{
+      }).then(res => {
         this.$message.success(res.data.msg);
-      }).catch(err=>{
+      }).catch(err => {
 
       })
 
@@ -263,12 +425,11 @@ export default Vue.extend({
     resetIdx() {
       this.deleteIdx = -1;
     },
-    onReset(data) {
-      console.log(data);
+    onReset() {
+      this.page();
     },
-    onSubmit(data) {
-      console.log(this.formData);
-      this.getList(this.formData);
+    onSubmit() {
+      this.page();
     },
     getTypeList() {
       this.$request.get("/monitor/typeList").then(res => {
@@ -277,28 +438,23 @@ export default Vue.extend({
 
       })
     },
-    getList() {
+    page() {
       this.dataLoading = true;
-      this.$request
-        .get('/monitor/list',{
-          params: this.formData
+      this.$request.get('/prometheus/rule/page', {
+          params: this.searchForm
         }).then((res) => {
         if (res.data.code === 200) {
-          //console.log(res.data.data)
-          this.data = res.data.data;
-          //console.log(this.data)
+          this.data = res.data.rows;
           this.pagination = {
             ...this.pagination,
             total: res.data.data.length,
           };
         }
-      })
-        .catch((e: Error) => {
-          console.log(e);
-        })
-        .finally(() => {
-          this.dataLoading = false;
-        });
+      }).catch((e: Error) => {
+        console.log(e);
+      }).finally(() => {
+        this.dataLoading = false;
+      });
     }
   },
 });
