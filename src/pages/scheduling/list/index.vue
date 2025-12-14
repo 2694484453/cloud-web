@@ -419,7 +419,7 @@ export default Vue.extend({
     handleClickDetail(row) {
       this.formData = row;
       this.drawer.visible = true;
-      this.drawer.size = '30%';
+      this.drawer.size = '50%';
       this.drawer.operation = 'detail';
       this.drawer.header = '详情-' + row.jobName;
     },
