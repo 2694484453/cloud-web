@@ -16,6 +16,12 @@ export default [
         meta: {title: '概览'},
       },
       {
+         path: 'dashboard',
+         name: 'DashboardBase',
+         component: () => import('@/pages/prometheus/frame/index.vue'),
+         meta: {title: '控制面板'},
+      },
+      {
         path: 'exporter',
         name: 'exporter',
         component: () => import('@/pages/prometheus/exporter/index.vue'),

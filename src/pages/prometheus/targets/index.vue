@@ -18,7 +18,11 @@
           </div>
           <t-col :span="3">
             <t-form-item label="名称" name="name">
-              <t-input v-model="searchForm.job" :style="{ width: '200px' }" placeholder="请输入内容"/>
+              <t-input v-model="searchForm.job" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
+                <template #suffix-icon>
+                  <search-icon size="20px"/>
+                </template>
+              </t-input>
             </t-form-item>
           </t-col>
 <!--          <t-col :span="3">-->
