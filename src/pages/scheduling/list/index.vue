@@ -208,17 +208,24 @@ export default Vue.extend({
           colKey: 'createTime',
         },
         {
-          title: '执行时间',
+          title: '最近执行时间',
           width: 150,
           align: 'left',
           ellipsis: true,
           colKey: 'runTime',
         },
         {
-          title: '执行状态',
+          title: '最近执行状态',
           colKey: 'runStatus',
           align: 'center',
-          width: 80,
+          width: 120,
+        },
+        {
+          title: '最近执行结果',
+          width: 120,
+          align: 'left',
+          ellipsis: true,
+          colKey: 'runResult',
         },
         {
           title: '描述',
@@ -226,13 +233,6 @@ export default Vue.extend({
           align: 'left',
           ellipsis: true,
           colKey: 'description',
-        },
-        {
-          title: '执行结果',
-          width: 120,
-          align: 'left',
-          ellipsis: true,
-          colKey: 'runResult',
         },
         {
           align: 'left',
