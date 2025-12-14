@@ -70,21 +70,27 @@ export default [
     children: [
       {
         path: 'overView',
-        name: 'OverViewBase',
+        name: 'OverView',
         component: () => import('@/pages/prometheus-alertmanager/index.vue'),
         meta: {title: '概览'},
       },
       {
         path: 'dashboard',
-        name: 'DashboardBase',
-        component: () => import('@/pages/prometheus-alertmanager/index.vue'),
-        meta: {title: '监控视图'},
+        name: 'dashboard',
+        component: () => import('@/pages/prometheus-alertmanager/frame/index.vue'),
+        meta: {title: '控制面板'},
       },
       {
-        path: "list",
-        name: 'listBase',
+        path: "rules",
+        name: 'rules',
         component: () => import("@/pages/prometheus-alertmanager/list/index.vue"),
-        meta: {title: '告警列表'},
+        meta: {title: '告警规则'},
+      },
+      {
+        path: "alerts",
+        name: 'alerts',
+        component: () => import("@/pages/prometheus-alertmanager/list/index.vue"),
+        meta: {title: '告警查询'},
       }
     ],
   },
