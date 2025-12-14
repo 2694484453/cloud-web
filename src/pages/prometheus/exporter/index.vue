@@ -352,6 +352,7 @@ export default Vue.extend({
     },
     // 新增
     handleSetupContract() {
+      this.formData = {}
       this.drawer.visible = true;
       this.drawer.header = "新增";
       this.drawer.operation = 'add';
