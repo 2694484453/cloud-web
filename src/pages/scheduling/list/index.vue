@@ -103,7 +103,7 @@
               <t-input v-model="formData.jobName" placeholder="请输入英文字母和数字的组合名称" :maxlength="32" with="200"></t-input>
             </t-form-item>
             <t-form-item label="类型" name="type" >
-              <t-select v-model="formData.jobType" placeholder="请选择">
+              <t-select v-model="formData.jobType" placeholder="请选择" @change="getTemplateList">
                 <t-option v-for="(item,index) in typeList" :key="index" :label="item.label" :value="item.value" >{{item.value}}({{item.label}})</t-option>
               </t-select>
             </t-form-item>
@@ -287,7 +287,7 @@ export default Vue.extend({
         runStatus: '',
         runResult: '',
       },
-      serviceList: [],
+      templateList: [],
       typeList: [],
       searchValue: '',
       confirmVisible: false,
@@ -361,10 +361,10 @@ export default Vue.extend({
         })
     },
     // 服务列表
-    getServiceList() {
-      this.$request.get('/nas/frps/list').then((res) => {
+    getTemplateList() {
+      this.$request.get('/scheduling/template/list').then((res) => {
           if (res.data.code === 200) {
-            this.serviceList = res.data.data;
+            this.templateList = res.data.data;
           }
         }).catch((e: Error) => {
           console.log(e);
