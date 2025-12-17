@@ -35,7 +35,12 @@ export default ({mode}) => {
       createSvgPlugin(),
       //MonacoWebpackPlugin()
     ],
-
+    optimizeDeps: {
+      include: [
+        '@opentelemetry/resources',
+        '@opentelemetry/semantic-conventions'
+      ]
+    },
     build: {
       cssCodeSplit: false,
     },
