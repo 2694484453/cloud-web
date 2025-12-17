@@ -76,6 +76,8 @@ import {changeChartsTheme} from '@/utils/color';
 import {PANE_LIST} from '@/service/service-base';
 
 echarts.use([LineChart, BarChart, CanvasRenderer]);
+// 定义偏移函数（单位：天）
+const getStartAt = (days) => (Date.now() - days * 24 * 60 * 60 * 1000);
 
 export default {
   name: 'TopPanel',
@@ -161,13 +163,9 @@ export default {
     },
     clickHandler(val) {
       this.searchForm.startAt = val;
-      this.searchForm.endAt = Math.floor(Date.now() / 1000);
+      this.searchForm.endAt = getStartAt(0);
     },
     setTimeRange() {
-      // 获取当前时间（毫秒）
-      const now = Date.now();
-      // 定义偏移函数（单位：天）
-      const getStartAt = (days) => Math.floor((now - days * 24 * 60 * 60 * 1000) / 1000);
       this.timeRange = [
         {
           name: '最近24小时',
