@@ -10,6 +10,8 @@
     </t-back-top>
     <!-- 顶部 card  -->
     <top-panel class="row-container" :data="cardData" @updateTimeRange="updateTimeRange"/>
+    <!-- 地图   -->
+    <WorldMap :data="globalData" title="全球用户分布"/>
     <!-- 通知 -->
     <NoticeCard class="row-container" :data="noticeData"/>
     <!-- 中部图表  -->
@@ -26,10 +28,14 @@ import MiddleChart from './components/MiddleChart.vue';
 import RankList from './components/RankList.vue';
 import OutputOverview from './components/OutputOverview.vue';
 import NoticeCard from "@/components/notice-card/NoticeCard.vue";
+import WorldMap from "@/components/map/WordMap.vue";
+// 定义偏移函数（单位：天）
+const getStartAt = (days) => (Date.now() - days * 24 * 60 * 60 * 1000);
 
 export default {
   name: 'DashboardBase',
   components: {
+    WorldMap,
     NoticeCard,
     TopPanel,
     MiddleChart,
@@ -41,9 +47,14 @@ export default {
       cardData: [],
       noticeData: [],
       searchForm: {
-        startAt: null,
-        endAt: null,
+        startAt: getStartAt(7),
+        endAt: getStartAt(0),
       },
+      globalData: [
+        {name: '中国', value: 5000},         // ✅ 支持中文
+        {name: '美国', value: 3000},
+        {name: 'Germany', value: 1200},     // ✅ 也支持英文全称
+      ]
     }
   },
   computed: {},
@@ -57,6 +68,7 @@ export default {
   mounted() {
     this.getCardData();
     this.getNotice();
+    this.getMapData();
   },
   methods: {
     getCardData() {
@@ -68,8 +80,17 @@ export default {
         .finally()
     },
     getNotice() {
-      this.$request.get("/dashboard/notice", {}).then(res => {
+      this.$request.get("/dashboard/notice", {})
+        .then(res => {
         this.noticeData = res.data.rows;
+      }).catch()
+        .finally()
+    },
+    getMapData() {
+      this.$request.get("/dashboard/map", {
+        params: this.searchForm
+      }).then(res => {
+        this.globalData = res.data;
       }).catch()
         .finally()
     },

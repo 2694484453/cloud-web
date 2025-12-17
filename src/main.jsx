@@ -11,7 +11,6 @@ import zhConfig from 'tdesign-vue/es/locale/zh_CN';
 import VueCookies from 'vue-cookies';
 import 'tdesign-vue/es/style/index.css';
 import '@/style/index.less';
-
 import './permission';
 import store from './store';
 // op
@@ -19,13 +18,11 @@ import { WebTracerProvider } from '@opentelemetry/sdk-trace-web';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-base';
 
-
 Vue.use(VueRouter);
 Vue.use(TDesign);
 Vue.use(VueClipboard);
 Vue.use(VueCookies);
 Vue.component('t-page-header');
-
 Vue.prototype.$request = axiosInstance;
 
 const originPush = VueRouter.prototype.push;

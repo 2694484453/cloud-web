@@ -12,11 +12,11 @@
       </t-select>
     </t-space>
     <t-row :gutter="[16, 16]">
-      <t-col :xs="3" :xl="3" v-for="(item, index) in data" :key="item.title">
+      <t-col :xs="3" :xl="2" v-for="(item, index) in data" :key="item.title">
         <t-card
           :bordered="true"
           :title="item.title"
-          :style="{ height: '168px' }"
+          :style="{ height: '138px' }"
           :class="{ 'dashboard-item': true, 'dashboard-item--main-color': false } "
         >
           <div class="dashboard-item-top">
@@ -203,7 +203,7 @@ export default {
   }
 
   /deep/ .t-card__title {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 500;
   }
 
@@ -228,7 +228,7 @@ export default {
       display: inline-block;
       color: var(--td-text-color-primary);
       font-size: 36px;
-      line-height: 44px;
+      line-height: 24px;
     }
   }
 
@@ -264,8 +264,8 @@ export default {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 56px;
-      height: 56px;
+      width: 36px;
+      height: 36px;
       background: var(--td-brand-color-1);
       border-radius: 50%;
 
