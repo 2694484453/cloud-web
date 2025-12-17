@@ -1,12 +1,24 @@
 <template>
-  <t-row :gutter="[16, 16]">
-    <t-col :xs="6" :xl="3" v-for="(item, index) in data" :key="item.title">
-      <t-card
-        :bordered="false"
-        :title="item.title"
-        :style="{ height: '168px' }"
-        :class="{ 'dashboard-item': true, 'dashboard-item--main-color': false } "
-      >
+  <div>
+    <t-space align="baseline" direction="vertical">
+      <t-select
+        v-model="selected"
+        @change="clickHandler"
+        placeholder="请选择范围"
+        clearable>
+        <t-option v-for="(item,index) in timeRange" :key="index" :label="item.name" :value="item.start">
+          {{ item.name }}
+        </t-option>
+      </t-select>
+    </t-space>
+    <t-row :gutter="[16, 16]">
+      <t-col :xs="3" :xl="3" v-for="(item, index) in data" :key="item.title">
+        <t-card
+          :bordered="true"
+          :title="item.title"
+          :style="{ height: '168px' }"
+          :class="{ 'dashboard-item': true, 'dashboard-item--main-color': false } "
+        >
           <div class="dashboard-item-top">
             <span :style="{ fontSize: `${resizeTime * 36}px` }">{{ item.count }}</span>
           </div>
@@ -33,20 +45,22 @@
           <template #footer>
             <div class="dashboard-item-bottom">
               <div class="dashboard-item-block">
-                自从上周以来
+                环比
                 <trend
                   class="dashboard-item-trend"
                   :type="item.upTrend ? 'up' : 'down'"
                   :is-reverse-color="index === 0"
                   :describe="item.upTrend || item.downTrend"
                 />
+                {{ item.comparison }}
               </div>
               <chevron-right-icon/>
             </div>
           </template>
-      </t-card>
-    </t-col>
-  </t-row>
+        </t-card>
+      </t-col>
+    </t-row>
+  </div>
 </template>
 <script>
 import {LineChart, BarChart} from 'echarts/charts';
@@ -77,6 +91,12 @@ export default {
       resizeTime: 1,
       panelList: PANE_LIST,
       data: [],
+      timeRange: [],
+      selected: "",
+      searchForm: {
+        startAt: null,
+        endAt: null,
+      },
     };
   },
   computed: {
@@ -92,8 +112,14 @@ export default {
       });
       this.renderCharts();
     },
+    "searchForm.startAt"(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.$emit('updateTimeRange', this.searchForm);
+      }
+    },
   },
   mounted() {
+    this.setTimeRange();
     this.$nextTick(() => {
       this.updateContainer();
     });
@@ -133,6 +159,37 @@ export default {
       this.refundChart = echarts.init(this.refundContainer);
       this.refundChart.setOption(constructInitDashboardDataset('bar', chartColors));
     },
+    clickHandler(val) {
+      this.searchForm.startAt = val;
+      this.searchForm.endAt = Math.floor(Date.now() / 1000);
+    },
+    setTimeRange() {
+      // 获取当前时间（毫秒）
+      const now = Date.now();
+      // 定义偏移函数（单位：天）
+      const getStartAt = (days) => Math.floor((now - days * 24 * 60 * 60 * 1000) / 1000);
+      this.timeRange = [
+        {
+          name: '最近24小时',
+          start: getStartAt(1)
+        },
+        {
+          name: '最近7天',
+          start: getStartAt(7)
+        },
+        {
+          name: '最近15天',
+          start: getStartAt(15)
+        },
+        {
+          name: '最近30天',
+          start: getStartAt(30)
+        },
+        {
+          name: '最近60天',
+          start: getStartAt(60)
+        }]
+    }
   },
 };
 </script>

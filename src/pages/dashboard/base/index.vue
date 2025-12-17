@@ -9,7 +9,7 @@
       <t-icon name="backtop" size="20px"/>
     </t-back-top>
     <!-- 顶部 card  -->
-    <top-panel class="row-container" :data="cardData"/>
+    <top-panel class="row-container" :data="cardData" @updateTimeRange="updateTimeRange"/>
     <!-- 通知 -->
     <NoticeCard class="row-container" :data="noticeData"/>
     <!-- 中部图表  -->
@@ -39,30 +39,44 @@ export default {
   data() {
     return {
       cardData: [],
-      noticeData: []
+      noticeData: [],
+      searchForm: {
+        startAt: null,
+        endAt: null,
+      },
     }
   },
   computed: {},
-  watch: {},
-  created() {
+  watch: {
+    "searchForm.startAt"(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.getCardData();
+      }
+    },
+  },
+  mounted() {
     this.getCardData();
     this.getNotice();
   },
   methods: {
     getCardData() {
-      this.$request.get("/system/overView/card", {
-        params: {}
+      this.$request.get("/dashboard/card", {
+        params: this.searchForm
       }).then(res => {
         this.cardData = res.data.data;
       }).catch()
         .finally()
     },
     getNotice() {
-      this.$request.get("/sysNotice/page", {})
-        .then(res => {
-          this.noticeData = res.data.rows;
-        }).catch()
+      this.$request.get("/dashboard/notice", {}).then(res => {
+        this.noticeData = res.data.rows;
+      }).catch()
         .finally()
+    },
+    updateTimeRange(data) {
+      console.log("updateTimeRange", data);
+      this.searchForm = data;
+      this.getCardData();
     }
   }
 };
