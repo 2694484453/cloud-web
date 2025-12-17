@@ -28,8 +28,7 @@ export default {
     if (this.$route.query.jobName != null) {
       this.grafana.jobName = this.$route.query.jobName;
     }
-    let str = '&var-datasource=' + datasource + '&var-cluster=' + this.grafana.clusterName + '&var-resolution=30s&var-job=' + this.grafana.jobName + '&refresh=5s'
-    this.frameSrc = this.grafana.domain + '/d/k8s_views_global/kubernetes-views-global?orgId=1&from=now-1h&to=now&timezone=browser' + str;
+    this.frameSrc = this.grafana.domain + "/d/af7a0l6fiwr9ca/k8s-dashboard?orgId=1&from=now-15m&to=now&timezone=browser&var-origin_prometheus=" + this.grafana.jobName + "&var-Node=$__all&var-NameSpace=$__all&var-Container=cloud-server&var-Pod=$__all&refresh=auto"
   },
   methods: {},
 };
