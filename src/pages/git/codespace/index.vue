@@ -410,7 +410,7 @@ export default Vue.extend({
       switch (this.confirm.operation) {
         case "delete":
           // 真实业务请发起请求
-          this.$request.delete("/git/codespace/delete?id=" + this.formData.id).then(res => {
+          this.$request.delete("/git/codeSpace/delete?id=" + this.formData.id).then(res => {
             if (res.data.code === 200) {
               this.$message.success(res.data.msg)
               this.confirm.visible = false;
@@ -434,7 +434,7 @@ export default Vue.extend({
     handleDrawerOk() {
       switch (this.drawer.operation) {
         case 'add':
-          this.$request.post('/git/codespace/add', this.formData).then((res) => {
+          this.$request.post('/git/codeSpace/add', this.formData).then((res) => {
             if (res.data.code === 200) {
               console.log(res.data.data);
               this.$message.success(res.data.msg);
@@ -450,7 +450,7 @@ export default Vue.extend({
           })
           break;
         case 'edit':
-          this.$request.put('/git/codespace/edit', this.formData).then((res) => {
+          this.$request.put('/git/codeSpace/edit', this.formData).then((res) => {
             if (res.data.code === 200) {
               console.log(res.data.data);
               this.$message.success(res.data.msg);
