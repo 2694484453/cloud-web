@@ -28,7 +28,7 @@ export default {
     if (this.$route.query.jobName != null) {
       this.grafana.jobName = this.$route.query.jobName;
     }
-    this.frameSrc = this.grafana.domain + "/d/af7a0l6fiwr9ca/k8s-dashboard?orgId=1&from=now-15m&to=now&timezone=browser&var-origin_prometheus=" + this.grafana.jobName + "&var-Node=$__all&var-NameSpace=$__all&var-Container=cloud-server&var-Pod=$__all&refresh=auto"
+    this.frameSrc = this.grafana.domain + "/d/af7a0l6fiwr9ca/k8s-dashboard?orgId=1&from=now-15m&to=now&timezone=browser&var-origin_prometheus=" + this.grafana.jobName + "&var-Node=$__all&var-NameSpace=$__all&var-Container=$__all&var-Pod=$__all&refresh=auto"
   },
   methods: {},
 };
