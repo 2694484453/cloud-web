@@ -74,9 +74,9 @@
     </t-card>
     <t-pagination
       style="margin-top: 15px"
-      v-model="formData.pageNum"
+      v-model="searchForm.pageNum"
       :total="pagination.total"
-      :page-size.sync="formData.pageSize"
+      :page-size.sync="searchForm.pageSize"
       @current-change="onCurrentChange"
       @page-size-change="onPageSizeChange"
       @change="onChange"/>
@@ -89,44 +89,44 @@
     />
     <!--抽屉-->
     <t-drawer
-      :visible.sync="form.visible"
-      :header="form.header"
-      :on-overlay-click="() => (form.visible = false)"
+      :visible.sync="drawer.visible"
+      :header="drawer.header"
+      :on-overlay-click="() => (drawer.visible = false)"
       :on-size-drag-end="handleSizeDrag"
       showOverlay
       :sizeDraggable="true"
       placement="right"
       destroyOnClose
       size="30%"
-      @close="form.visible = false"
+      @close="drawer.visible = false"
       :onConfirm="handleConfirm"
-      @cancel="form.visible = false"
+      @cancel="drawer.visible = false"
     >
       <t-form>
         <t-form-item label="名称" name="name" initial-data="">
-          <t-input v-model="form.name" placeholder="请输入内容"/>
+          <t-input v-model="formData.name" placeholder="请输入内容"/>
         </t-form-item>
         <t-form-item label="类型" name="type">
-          <t-select v-model="form.type" class="demo-select-base" clearable>
+          <t-select v-model="formData.type" class="demo-select-base" clearable>
             <t-option v-for="(item, index) in typeOptions" :key="index" :value="item.value" :label="item.label">
               {{ item.label }}
             </t-option>
           </t-select>
         </t-form-item>
         <t-form-item label="token" name="accessToken">
-          <t-textarea v-model="form.accessToken" placeholder="请填写accessToken" clearable />
+          <t-textarea v-model="formData.accessToken" placeholder="请填写accessToken" clearable />
         </t-form-item>
         <t-form-item label="主页地址" name="homeUrl" initial-data="">
-          <t-input v-model="form.homeUrl" placeholder="请输入内容"/>
+          <t-input v-model="formData.homeUrl" placeholder="请输入内容"/>
         </t-form-item>
         <t-form-item label="描述" name="description">
-          <t-textarea v-model="form.description" placeholder="简单描述" clearable />
+          <t-textarea v-model="formData.description" placeholder="简单描述" clearable />
         </t-form-item>
       </t-form>
-      <span v-show="form.action==='add'">
+      <span v-show="drawer.operation ==='add'">
 
       </span>
-      <span v-show="form.action==='detail'">
+      <span v-show="drawer.operation ==='detail'">
 
       </span>
     </t-drawer>
@@ -246,16 +246,25 @@ export default Vue.extend({
         updateTime: '',
         updateByUserName: '',
       },
-      form: {
-        header: "",
-        visible: false,
+      searchForm: {
         name: "",
         type: "",
-        homeUrl: "",
-        accessToken: "",
-        description: "",
-        action: "add",
-        row: {}
+        pageNum: 1,
+        pageSize: 10
+      },
+      // 对话框
+      confirm: {
+        header: "",
+        body: "",
+        operation: "update",
+        visible: false
+      },
+      // 抽屉
+      drawer: {
+        header: "",
+        visible: false,
+        operation: "add",
+        size: '40%',
       },
       typeOptions: [
         {
@@ -393,6 +402,9 @@ export default Vue.extend({
       console.log(this.formData);
       this.getList(this.formData);
     },
+    onConfirmOk() {
+
+    }
   },
 });
 </script>

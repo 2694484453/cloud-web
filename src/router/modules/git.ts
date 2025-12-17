@@ -31,9 +31,9 @@ export default [
         meta: {title: '代码空间'},
       },
       {
-        path: 'gitToken',
-        name: 'gitToken',
-        component: () => import('@/pages/git/token/list/index.vue'),
+        path: 'token',
+        name: 'token',
+        component: () => import('@/pages/git/token/index.vue'),
         meta: {title: 'Token管理'},
       },
     ],
