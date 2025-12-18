@@ -75,7 +75,7 @@
       :header="confirm.header"
       :body="confirm.body"
       :visible.sync="confirm.visible"
-      @confirm="handleSubmit(operation)"
+      @confirm="handleConfirmOk"
       :onCancel="onCancel">
     </t-dialog>
     <!--抽屉-->
@@ -103,14 +103,30 @@
           <t-form-item label="id" name="id" v-show="false">
             <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>
           </t-form-item>
-          <t-form-item label="名称" name="name">
-            <t-input v-model="formData.name" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
+          <t-form-item label="集群" name="kubeContext">
+            <t-select v-model="formData.kubeContext" placeholder="请选择" clearable>
+              <t-option v-for="(item,index) in clusters" :key="index" :label="item.contextName" :value="item.contextName" >{{item.contextName}}</t-option>
+            </t-select>
           </t-form-item>
-          <t-form-item label="类型" name="type">
-            <t-input v-model="formData.type" placeholder="请输入仓库名称" :maxlength="64" with="120"></t-input>
+          <t-form-item label="命名空间" name="nameSpace">
+            <t-input v-model="formData.nameSpace" placeholder="请输入命名空间" :maxlength="64" with="120"></t-input>
           </t-form-item>
-          <t-form-item label="地址" name="url">
-            <t-input v-model="formData.url" placeholder="请输入仓库地址" :maxlength="64" with="120"></t-input>
+          <t-form-item label="release名称" name="releaseName">
+            <t-input v-model="formData.releaseName" placeholder="请输入release名称" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="参数" name="values">
+            <t-form
+              ref="formValidatorStatus"
+              :data="formData.chartValues"
+              :label-width="100"
+              @reset="onReset"
+            >
+              <div v-for="(v,k) in drawer.dynamicForm">
+                <t-form-item :label="k" :name="k">
+                  <t-input v-model="drawer.dynamicForm[k]" :type="typeof drawer.dynamicForm[k]" placeholder="请输入" :maxlength="64" with="120" ></t-input>
+                </t-form-item>
+              </div>
+            </t-form>
           </t-form-item>
         </t-form>
       </t-space>
@@ -131,20 +147,6 @@
           <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
           <t-descriptions-item label="更新人">{{formData.updateBy}}</t-descriptions-item>
         </t-descriptions>
-      </t-space>
-      <t-space v-show="drawer.operation === 'install'" direction="vertical" style="width: 100%">
-        <t-form
-          ref="formValidatorStatus"
-          :data="drawer.dynamicForm"
-          :label-width="100"
-          @reset="onReset"
-        >
-        <div v-for="(v,k) in drawer.dynamicForm">
-          <t-form-item :label="k" :name="k">
-            <t-input v-model="drawer.dynamicForm[k]" :type="typeof drawer.dynamicForm[k]" placeholder="请输入仓库名称" :maxlength="64" with="120" ></t-input>
-          </t-form-item>
-        </div>
-        </t-form>
       </t-space>
     </t-drawer>
   </div>
@@ -275,18 +277,22 @@ export default Vue.extend({
         icon: "",
         type: "",
         home: "",
+        kubeContext: "",
+        nameSpace: "",
+        releaseName: "",
         description: "",
         createTime: "",
         updateTime: "",
         createBy: "",
         updateBy: "",
         status: "",
-        values: ""
+        chartValues: ""
       },
       operation: "",
       typeList: [],
       repoList: [],
-      namespaceList: []
+      namespaceList: [],
+      clusters: [],
     };
   },
   computed: {
@@ -340,11 +346,12 @@ export default Vue.extend({
       this.drawer.operation = 'detail';
       this.drawer.visible = true;
     },
-    handleClickInstall(row) {
+    handleClickInstall(row:any) {
       this.formData = row;
-      console.log(this.formData);
+      this.clusterList();
       this.drawer.visible = true;
-      this.drawer.operation = 'install';
+      this.drawer.header = '安装'+ row.name;
+      this.drawer.operation = 'add';
       this.$request.post('/app/market/values', this.formData).then((res) => {
         if (res.data.code === 200) {
           console.log(res.data.data);
@@ -364,7 +371,7 @@ export default Vue.extend({
       this.$router.push('/prometheus/add');
     },
     // 对话框信息自定义
-    handleClickConfirm(row) {
+    handleConfirmOk() {
       switch(this.confirm.operation) {
         case 'add':
           break;
@@ -376,7 +383,6 @@ export default Vue.extend({
           this.confirm.body = "确认删除吗？一旦删除数据无法恢复";
           break;
       }
-      this.formData = row
     },
     // 取消删除
     onCancel() {
@@ -390,21 +396,21 @@ export default Vue.extend({
       switch (this.drawer.operation) {
         case 'add':
           this.drawer.visible = false;
-          break;
-        case 'detail':
-          this.drawer.visible = false;
-          break;
-        // 执行安装
-        case 'install':
-          console.log(this.formData);
-          this.formData.values = this.drawer.dynamicForm;
+          this.formData.chartValues = this.drawer.dynamicForm;
           this.$request.post('/app/market/install', this.formData).then((res) => {
-              console.log(res.data.data);
+            if (res.data.code === 200) {
+              this.$message.success(res.data.msg);
+            }  else {
+              this.$message.error(res.data.msg);
+            }
           }).catch((e: Error) => {
             console.log(e);
           }).finally(() => {
 
           })
+          break;
+        case 'detail':
+          this.drawer.visible = false;
           break;
       }
     },
@@ -446,10 +452,8 @@ export default Vue.extend({
       });
     },
     // 基本操作
-    handleSubmit(operation) {
-      this.operation = operation;
-      //this.dataLoading = true;
-      switch (operation) {
+    handleSubmit() {
+      switch (this.drawer.operation) {
         case 'add':
           this.confirm.operation = "add";
           break;
@@ -483,6 +487,17 @@ export default Vue.extend({
           this.drawer.header = "安装" + this.formData.name;
           this.drawer.visible = true;
       }
+    },
+    clusterList() {
+      this.$request.get('/kubernetes/cluster/list', {
+        params: {
+          isPublic: true
+        }
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.clusters = res.data.data;
+        }
+      })
     },
   },
 });
