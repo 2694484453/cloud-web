@@ -11,15 +11,15 @@
     <!-- 顶部 card  -->
     <top-panel class="row-container" :data="cardData" @updateTimeRange="updateTimeRange"/>
     <!-- 地图   -->
-    <WorldMap :data="globalData" title="全球访客分布"/>
-    <!-- 通知 -->
-    <NoticeCard class="row-container" :data="noticeData"/>
+    <Map :word-map-data="worldMapData" :china-map-data="chinaMapData"/>
     <!-- 中部图表  -->
     <middle-chart class="row-container"/>
     <!-- 列表排名 -->
     <rank-list class="row-container"/>
     <!-- 出入库概览 -->
     <output-overview class="row-container"/>
+    <!-- 通知 -->
+    <NoticeCard class="row-container" :data="noticeData"/>
   </div>
 </template>
 <script>
@@ -28,14 +28,14 @@ import MiddleChart from './components/MiddleChart.vue';
 import RankList from './components/RankList.vue';
 import OutputOverview from './components/OutputOverview.vue';
 import NoticeCard from "@/components/notice-card/NoticeCard.vue";
-import WorldMap from "@/components/map/WordMap.vue";
+import Map from "@/components/map/TwoMap.vue";
 // 定义偏移函数（单位：天）
 const getStartAt = (days) => (Date.now() - days * 24 * 60 * 60 * 1000);
 
 export default {
   name: 'DashboardBase',
   components: {
-    WorldMap,
+    Map,
     NoticeCard,
     TopPanel,
     MiddleChart,
@@ -50,10 +50,13 @@ export default {
         startAt: getStartAt(7),
         endAt: getStartAt(0),
       },
-      globalData: [
+      worldMapData: [
         {name: '中国', value: 5000},         // ✅ 支持中文
         {name: '美国', value: 3000},
         {name: 'Germany', value: 1200},     // ✅ 也支持英文全称
+      ],
+      chinaMapData: [
+        {name: '<UNK>', value: 5000},
       ]
     }
   },
@@ -69,6 +72,7 @@ export default {
     this.getCardData();
     this.getNotice();
     this.getMapData();
+    this.getChinaMapData();
   },
   methods: {
     getCardData() {
@@ -87,10 +91,18 @@ export default {
         .finally()
     },
     getMapData() {
-      this.$request.get("/dashboard/map", {
+      this.$request.get("/dashboard/worldMapData", {
         params: this.searchForm
       }).then(res => {
-        this.globalData = res.data;
+        this.worldMapData = res.data;
+      }).catch()
+        .finally()
+    },
+    getChinaMapData() {
+      this.$request.get("/dashboard/chinaMapData", {
+        params: this.searchForm
+      }).then(res => {
+        this.worldMapData = res.data;
       }).catch()
         .finally()
     },

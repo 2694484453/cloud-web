@@ -5,8 +5,8 @@
 
 <script>
 import * as echarts from 'echarts/core';
-import { MapChart } from 'echarts/charts';
-import { CanvasRenderer } from 'echarts/renderers';
+import {MapChart} from 'echarts/charts';
+import {CanvasRenderer} from 'echarts/renderers';
 import {
   TitleComponent,
   TooltipComponent,
@@ -25,6 +25,42 @@ echarts.use([
 // 引入本地中国地图 GeoJSON（需提前下载）
 import chinaGeoJson from '@/assets/maps/china.json';
 
+export const ISO_TO_ECHARTS_NAME = {
+  "CN-BJ": "北京市",
+  "CN-TJ": "天津市",
+  "CN-HE": "河北省",
+  "CN-SX": "山西省",
+  "CN-NM": "内蒙古自治区",
+  "CN-LN": "辽宁省",
+  "CN-JL": "吉林省",
+  "CN-HL": "黑龙江省",
+  "CN-SH": "上海市",
+  "CN-JS": "江苏省",
+  "CN-ZJ": "浙江省",
+  "CN-AH": "安徽省",
+  "CN-FJ": "福建省",
+  "CN-JX": "江西省",
+  "CN-SD": "山东省",
+  "CN-HA": "河南",
+  "CN-HB": "湖北省",
+  "CN-HN": "湖南省",
+  "CN-GD": "广东省",
+  "CN-GX": "广西壮族自治区",
+  "CN-HI": "海南省",
+  "CN-CQ": "重庆市",
+  "CN-SC": "四川省",
+  "CN-GZ": "贵州省",
+  "CN-YN": "云南省",
+  "CN-XZ": "西藏自治区",
+  "CN-SN": "陕西省",
+  "CN-GS": "甘肃省",
+  "CN-QH": "青海省",
+  "CN-NX": "宁夏回族自治区",
+  "CN-XJ": "新疆维吾尔自治区",
+  "CN-TW": "台湾省",
+  "CN-HK": "香港特别行政区",
+  "CN-MO": "澳门特别行政区"
+};
 // 省份简称 → 全称映射（解决常见数据简写问题）
 const PROVINCE_MAP = {
   北京: '北京市',
@@ -108,31 +144,28 @@ export default {
       this.updateChart();
     },
     updateChart() {
-      // 自动转换简称 → 全称
+      // 将 Umami 格式 [{ x: 'HK', y: 2 }] 转为 ECharts 格式 [{ name, value }]
       const normalizedData = this.data.map(item => {
-        let name = item.name;
-        if (PROVINCE_MAP[name]) {
-          name = PROVINCE_MAP[name];
-        }
+        const isoCode = item.x;
+        const echartsName = ISO_TO_ECHARTS_NAME[isoCode] || isoCode; // 未匹配则保留原值（可能不显示）
         return {
-          name,
-          value: item.value || 0
+          name: echartsName,
+          value: item.y || 0
         };
       });
-
       const maxValue = Math.max(1, ...normalizedData.map(d => d.value));
 
       const option = {
         title: {
           text: this.title,
           left: 'center',
-          textStyle: { fontSize: 16 }
+          textStyle: {fontSize: 16}
         },
         tooltip: {
           trigger: 'item',
           formatter(params) {
             if (params.value > 0) {
-              return `${params.name}<br/>数值: ${params.value}`;
+              return `${params.name}<br/>访问量: ${params.value}`;
             }
             return `${params.name}<br/>暂无数据`;
           }
@@ -145,25 +178,28 @@ export default {
           calculable: true,
           text: ['高', '低'],
           inRange: {
-            color: ['#e0ffff', '#006edd']
+            color: ['#f0f8ff', '#0047ab']
           }
         },
         series: [
           {
             type: 'map',
             map: 'china',
-            roam: false,
+            roam: true,
+            scaleLimit: {
+              min: 1,
+              max: 5
+            },
             label: {
               show: false
             },
             emphasis: {
-              label: { show: true }
+              label: {show: true}
             },
             data: normalizedData
           }
         ]
       };
-
       this.chart.setOption(option, true);
     },
     handleResize() {

@@ -1,8 +1,6 @@
 <!-- src/components/WorldMap.vue -->
 <template>
-  <t-card style="margin-top: 5px">
     <div ref="chart" class="world-map-chart"></div>
-  </t-card>
 </template>
 
 <script>

@@ -1,5 +1,5 @@
 <template>
-  <t-row :gutter="[16, 16]">
+  <t-row :gutter="[16, 16]" style="margin-top: 5px">
     <t-col :xs="12" :xl="9">
       <t-card title="统计数据" subtitle="xxx" class="dashboard-chart-card" :bordered="false">
         <template #actions>
