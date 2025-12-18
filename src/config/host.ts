@@ -39,7 +39,7 @@ export default {
     // nas生产环境接口请求
     NAME: "nasProd",
     API: 'https://cloud-server.gpg123.vip',
-    PATH: "", //"/prod-api/",
+    PATH: "/api", //"/prod-api/",
     // 开发环境 cdn 路径
     CDN: '',
     changeOrigin: true
@@ -57,7 +57,7 @@ export default {
     // wallpaper生产环境接口请求
     NAME: "wallpaper",
     API: 'https://cloud-server.gpg123.vip',//'https://cloud-server-k8s.gpg123.vip',
-    PATH: "", //"/prod-api/",
+    PATH: "/api", //"/prod-api/",
     // 开发环境 cdn 路径
     CDN: '',
     changeOrigin: true
