@@ -11,7 +11,7 @@
     <!-- 顶部 card  -->
     <top-panel class="row-container" :data="cardData" @updateTimeRange="updateTimeRange"/>
     <!-- 地图   -->
-    <WorldMap :data="globalData" title="全球用户分布"/>
+    <WorldMap :data="globalData" title="全球访客分布"/>
     <!-- 通知 -->
     <NoticeCard class="row-container" :data="noticeData"/>
     <!-- 中部图表  -->
