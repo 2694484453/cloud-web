@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <t-card>
     <t-space align="baseline" direction="vertical">
       <t-select
         v-model="selected"
@@ -60,7 +60,7 @@
         </t-card>
       </t-col>
     </t-row>
-  </div>
+  </t-card>
 </template>
 <script>
 import {LineChart, BarChart} from 'echarts/charts';

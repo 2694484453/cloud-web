@@ -1,5 +1,5 @@
 <template>
-  <div class="dashboard-detail">
+  <div class="dashboard-detail" style="margin-top: 5px">
     <t-card :class="{ 'dashboard-detail-card': true }" class="row-margin" :bordered="false" :title="title">
       <t-timeline mode="same" :reverse="reverse" theme="default">
         <t-space v-for="(item) in data">
