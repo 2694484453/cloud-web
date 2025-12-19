@@ -50,14 +50,9 @@ export default {
         startAt: getStartAt(7),
         endAt: getStartAt(0),
       },
-      worldMapData: [
-        {name: '中国', value: 5000},         // ✅ 支持中文
-        {name: '美国', value: 3000},
-        {name: 'Germany', value: 1200},     // ✅ 也支持英文全称
-      ],
-      chinaMapData: [
-        {name: '<UNK>', value: 5000},
-      ]
+      worldMapData: [],
+      chinaMapData: [],
+      todayViewsData: []
     }
   },
   computed: {},
@@ -73,6 +68,7 @@ export default {
     this.getNotice();
     this.getMapData();
     this.getChinaMapData();
+    this.todayViews();
   },
   methods: {
     getCardData() {
@@ -86,8 +82,8 @@ export default {
     getNotice() {
       this.$request.get("/dashboard/notice", {})
         .then(res => {
-        this.noticeData = res.data.rows;
-      }).catch()
+          this.noticeData = res.data.rows;
+        }).catch()
         .finally()
     },
     getMapData() {
@@ -102,7 +98,7 @@ export default {
       this.$request.get("/dashboard/chinaMapData", {
         params: this.searchForm
       }).then(res => {
-        this.worldMapData = res.data;
+        this.chinaMapData = res.data;
       }).catch()
         .finally()
     },
@@ -110,6 +106,13 @@ export default {
       console.log("updateTimeRange", data);
       this.searchForm = data;
       this.getCardData();
+    },
+    todayViews() {
+      this.$request.get("/dashboard/todayVisitView", {params: this.searchForm}).then(res => {
+        this.todayViewsData = res.data;
+      }).catch(e => {
+
+      })
     }
   }
 };
