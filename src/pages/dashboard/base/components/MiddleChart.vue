@@ -1,158 +1,114 @@
-<template>
-  <t-row :gutter="[16, 16]" style="margin-top: 5px">
-    <t-col :xs="12" :xl="9">
-      <t-card title="统计数据" subtitle="xxx" class="dashboard-chart-card" :bordered="false">
-        <template #actions>
-          <div class="dashboard-chart-title-container">
-            <t-date-range-picker
-              class="card-date-picker-container"
-              theme="primary"
-              mode="date"
-              :default-value="LAST_7_DAYS"
-              @change="onCurrencyChange"
-            />
-          </div>
-        </template>
-        <div
-          id="monitorContainer"
-          ref="monitorContainer"
-          :style="{ width: '100%', height: `${resizeTime * 326}px` }"
-        ></div>
-      </t-card>
-    </t-col>
-    <t-col :xs="12" :xl="3">
-      <t-card title="xxx" :subtitle="currentMonth" class="dashboard-chart-card" :bordered="false">
-        <div
-          id="countContainer"
-          ref="countContainer"
-          :style="{ width: `${resizeTime * 326}px`, height: `${resizeTime * 326}px`, margin: '0 auto' }"
-        ></div>
-      </t-card>
-    </t-col>
-  </t-row>
-</template>
 <script>
-import { TooltipComponent, LegendComponent, GridComponent } from 'echarts/components';
-import { PieChart, LineChart } from 'echarts/charts';
-import { CanvasRenderer } from 'echarts/renderers';
+// 1. 按需引入核心 + 所需模块
 import * as echarts from 'echarts/core';
-import { mapState } from 'vuex';
+import { LineChart } from 'echarts/charts'; // 折线图
+import {
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+  // 如果以后加标题、图例等，再加 TitleComponent, LegendComponent
+} from 'echarts/components';
+import { CanvasRenderer } from 'echarts/renderers';
 
-import { LAST_7_DAYS } from '@/utils/date';
-
-import { getPieChartDataSet, getLineChartDataSet } from '../index';
-import { changeChartsTheme } from '@/utils/color';
-
-echarts.use([TooltipComponent, LegendComponent, PieChart, GridComponent, LineChart, CanvasRenderer]);
+// 2. 注册模块（全局一次即可，可在 main.js 或此处）
+echarts.use([
+  CanvasRenderer,
+  LineChart,
+  GridComponent,
+  TooltipComponent,
+  TitleComponent,
+]);
 
 export default {
   name: 'MiddleChart',
+  props: {
+    title: {
+      type: String,
+      default: '统计数据'
+    },
+    data: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
     return {
-      LAST_7_DAYS,
+      chart: null, // 👈 显式声明 chart 实例
       resizeTime: 1,
-      currentMonth: this.getThisMonth(),
     };
   },
-  computed: {
-    ...mapState('setting', ['brandTheme', 'mode']), // 这里需要用到主题色和主题模式的全局配置
-  },
   watch: {
-    brandTheme() {
-      changeChartsTheme([this.countChart, this.monitorChart]);
-    },
-    mode() {
-      [this.countChart, this.monitorChart].forEach((item) => {
-        item.dispose();
-      });
-      this.renderCharts();
-    },
+    data: {
+      handler(newVal) {
+        if (newVal && newVal.length > 0) {
+          this.updateChart();
+        }
+      },
+      deep: true,
+      immediate: true // 👈 立即执行一次，避免 mounted 里判断
+    }
   },
   mounted() {
-    this.$nextTick(() => {
-      this.updateContainer();
-    });
-
-    window.addEventListener('resize', this.updateContainer, false);
-    this.renderCharts();
+    this.initChart();
+    window.addEventListener('resize', this.handleResize, false);
   },
-
+  beforeDestroy() {
+    // 👇 安全销毁，防止内存泄漏和 resize 报错
+    if (this.chart) {
+      this.chart.dispose();
+      this.chart = null;
+    }
+    window.removeEventListener('resize', this.handleResize);
+  },
   methods: {
-    /** 获取当前选中时间的短时间表达法 */
-    getThisMonth(checkedValues = '') {
-      let date;
-      if (!checkedValues || checkedValues.length === 0) {
-        date = new Date();
-        return `${date.getFullYear()}-${date.getMonth() + 1}`;
-      }
-      date = new Date(checkedValues[0]);
-      const date2 = new Date(checkedValues[1]);
-      const startMonth = date.getMonth() + 1 > 9 ? date.getMonth() + 1 : `0${date.getMonth() + 1}`;
-      const endMonth = date2.getMonth() + 1 > 9 ? date2.getMonth() + 1 : `0${date2.getMonth() + 1}`;
+    initChart() {
+      // 防御性编程：确保 DOM 存在
+      if (!this.$refs.chart) return;
 
-      return `${date.getFullYear()}-${startMonth}  至  ${date2.getFullYear()}-${endMonth}`;
+      this.chart = echarts.init(this.$refs.chart);
+      this.updateChart();
     },
-    /** 资金走趋选择 */
-    onCurrencyChange(checkedValues) {
-      const { chartColors } = this.$store.state.setting;
+    updateChart() {
+      if (!this.chart || !this.data || this.data.length === 0) return;
 
-      this.currentMonth = this.getThisMonth(checkedValues);
-      this.monitorChart.setOption(getLineChartDataSet({ dateTime: checkedValues, ...chartColors }));
+      const option = {
+        tooltip: { // 👈 添加 tooltip 更友好
+          trigger: 'axis'
+        },
+        xAxis: {
+          type: 'category',
+          data: this.data.map(item => item.name),
+          boundaryGap: false // 折线图建议关闭边界间隙
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [
+          {
+            name: '数值',
+            type: 'line',
+            smooth: true,
+            showSymbol: false, // 数据点多时隐藏 symbol
+            lineStyle: {
+              width: 2
+            },
+            itemStyle: {
+              color: '#5470C6'
+            },
+            data: this.data.map(item => item.value)
+          }
+        ]
+      };
+
+      this.chart.setOption(option, true); // true 表示 merge 而非 replace
     },
-    updateContainer() {
-      if (document.documentElement.clientWidth >= 1400 && document.documentElement.clientWidth < 1920) {
-        this.resizeTime = (document.documentElement.clientWidth / 2080).toFixed(2);
-      } else if (document.documentElement.clientWidth < 1080) {
-        this.resizeTime = (document.documentElement.clientWidth / 1080).toFixed(2);
-      } else {
-        this.resizeTime = 1;
-      }
-
-      this.countChart.resize({
-        // 根据父容器的大小设置大小
-        width: `${this.resizeTime * 326}px`,
-        height: `${this.resizeTime * 326}px`,
+    handleResize() {
+      this.$nextTick(() => {
+        if (this.chart) {
+          this.chart.resize();
+        }
       });
-
-      this.monitorChart.resize({
-        // 根据父容器的大小设置大小
-        width: this.monitorContainer.clientWidth,
-        height: `${this.resizeTime * 326}px`,
-      });
-    },
-    renderCharts() {
-      const { chartColors } = this.$store.state.setting;
-
-      // 资金走势
-      if (!this.monitorContainer) {
-        this.monitorContainer = document.getElementById('monitorContainer');
-      }
-      this.monitorChart = echarts.init(this.monitorContainer);
-      this.monitorChart.setOption(getLineChartDataSet({ ...chartColors }));
-
-      // 销售合同占比
-      if (!this.countContainer) {
-        this.countContainer = document.getElementById('countContainer');
-      }
-      this.countChart = echarts.init(this.countContainer);
-
-      const option = getPieChartDataSet(chartColors);
-      this.countChart.setOption(option);
-    },
-  },
+    }
+  }
 };
 </script>
-<style lang="less" scoped>
-.dashboard-chart-card {
-  padding: 8px;
-
-  /deep/ .t-card__header {
-    padding-bottom: 24px;
-  }
-
-  /deep/ .t-card__title {
-    font-size: 20px;
-    font-weight: 500;
-  }
-}
-</style>
