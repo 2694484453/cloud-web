@@ -13,7 +13,7 @@
     <!-- 地图   -->
     <Map :word-map-data="worldMapData" :china-map-data="chinaMapData"/>
     <!-- 中部图表  -->
-    <middle-chart :title="'今日访客'" :date="todayViewsData" class="row-container"/>
+    <middle-chart :chart-title="'今日访客分布'" :chart-data="todayViewsData" class="row-container"/>
     <!-- 列表排名 -->
     <rank-list class="row-container"/>
     <!-- 出入库概览 -->
