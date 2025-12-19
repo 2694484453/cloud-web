@@ -35,41 +35,21 @@
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
           <template #updated="{row}">
-            <p>{{new Date(row.updated).toLocaleString()}}</p>
+            <p>{{ new Date(row.updated).toLocaleString() }}</p>
           </template>
           <template #status="{row}">
             <t-tag v-show="row.status==='deployed'" theme="success" variant="light">已部署</t-tag>
             <t-tag v-show="row.status==='uninstalled'" theme="warning" variant="light">未安装</t-tag>
             <t-tag v-show="row.status==='pending'" theme="warning" variant="light">部署中</t-tag>
             <t-tag v-show="row.status==='deleting'" theme="warning" variant="light">卸载中</t-tag>
-            <t-tag  v-show="row.status==='failed'" theme="danger" variant="light">部署失败</t-tag>
+            <t-tag v-show="row.status==='failed'" theme="danger" variant="light">部署失败</t-tag>
           </template>
           <template #op="slotProps">
-<!--            <a class="t-button-link" @click="drawer.visible=true;handleClickInstall()">升级</a>-->
-            <a class="t-button-link" @click="drawer.visible=true;handleClickDetail()">详情</a>
-            <a class="t-button-link" @click="handleClickDelete(slotProps)">卸载</a>
+            <!--            <a class="t-button-link" @click="drawer.visible=true;handleClickInstall()">升级</a>-->
+            <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
+            <a class="t-button-link" @click="handleClickDelete(slotProps.row)">卸载</a>
           </template>
         </t-table>
-        <div>
-          <t-pagination
-            v-model="formData.pageNum"
-            :total="pagination.total"
-            :page-size.sync="formData.pageSize"
-            @current-change="onCurrentChange"
-            @page-size-change="onPageSizeChange"
-            @change="onChange"
-          />
-          <!--抽屉-->
-          <t-drawer
-            v-model:visible="drawer.visible"
-            :header="drawer.header"
-            :on-overlay-click="() => (drawer.visible = false)"
-            :size-draggable="true"
-            @cancel="drawer.visible = false"
-          >
-            <p>抽屉的内容</p>
-          </t-drawer>
-        </div>
       </div>
     </t-card>
     <t-dialog
@@ -79,6 +59,24 @@
       @confirm="onConfirmDelete"
       :onCancel="onCancel">
     </t-dialog>
+    <t-pagination
+      v-model="formData.pageNum"
+      :total="pagination.total"
+      :page-size.sync="formData.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"
+    />
+    <!--抽屉-->
+    <t-drawer
+      v-model:visible="drawer.visible"
+      :header="drawer.header"
+      :on-overlay-click="() => (drawer.visible = false)"
+      :size-draggable="true"
+      @cancel="drawer.visible = false"
+    >
+      <p>抽屉的内容</p>
+    </t-drawer>
   </div>
 </template>
 <script lang="ts">
@@ -110,15 +108,22 @@ export default Vue.extend({
         {
           title: '名称',
           align: 'left',
-          width: 180,
+          width: 120,
           ellipsis: true,
           colKey: 'name',
           fixed: 'left',
         },
         {
+          title: '所在集群',
+          align: 'left',
+          width: 120,
+          ellipsis: true,
+          colKey: 'kubeContext',
+        },
+        {
           title: 'chart名称',
           align: 'left',
-          width: 180,
+          width: 120,
           ellipsis: true,
           colKey: 'chart',
           fixed: 'left',
@@ -132,34 +137,34 @@ export default Vue.extend({
         },
         {
           title: 'app版本',
-          width: 120,
+          width: 80,
           ellipsis: true,
           colKey: "app_version"
         },
         {
           title: '状态',
-          width: 120,
+          width: 80,
           ellipsis: true,
           fixed: 'left',
           colKey: 'status',
         },
         {
           title: '命名空间',
-          width: 180,
+          width: 120,
           ellipsis: true,
           colKey: "namespace"
         },
         {
           title: '更新时间',
-          width: 180,
+          width: 140,
           ellipsis: true,
           fixed: 'left',
           colKey: 'updated',
         },
         {
-          align: 'left',
+          align: 'center',
           fixed: 'right',
-          width: 150,
+          width: 120,
           colKey: 'op',
           title: '操作',
         },
@@ -236,18 +241,21 @@ export default Vue.extend({
 
     },
     // 点击详情
-    handleClickDetail() {
-      this.$router.push('/detail/base');
+    handleClickDetail(row: any) {
+      this.formData = row;
+      this.drawer.visible = true;
+      this.drawer.header = row.name + '详情';
+      this.drawer.operation = 'detail';
     },
     handleSetupContract() {
       this.$router.push('/prometheus/add');
     },
     // 点击卸载
-    handleClickDelete(row: { rowIndex: any,type: any }) {
+    handleClickDelete(row: { rowIndex: any, type: any }) {
       this.deleteIdx = row.rowIndex;
       this.deleteType = row.type;
       this.confirmVisible = true;
-      console.log("this",this.deleteType)
+      console.log("this", this.deleteType)
     },
     onConfirmDelete() {
       // 真实业务请发起请求
@@ -259,14 +267,14 @@ export default Vue.extend({
       }
       this.confirmVisible = false;
       // 请求删除
-      this.$request.delete("/monitor/delete",{
+      this.$request.delete("/monitor/delete", {
         params: {
           index: this.deleteIdx,
           type: this.deleteType
         }
-      }).then(res=>{
+      }).then(res => {
         this.$message.success(res.data.msg);
-      }).catch(err=>{
+      }).catch(err => {
 
       })
       this.resetIdx();
@@ -294,9 +302,9 @@ export default Vue.extend({
     },
     getList() {
       this.dataLoading = true;
-      this.$request.get('/app/manager/page',{
-          params: this.formData
-        }).then((res) => {
+      this.$request.get('/app/manager/page', {
+        params: this.formData
+      }).then((res) => {
         if (res.data.code === 200) {
           console.log(res.data)
           this.data = res.data.rows;
