@@ -182,14 +182,19 @@ export default Vue.extend({
       columns: [
         {colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left'},
         {
-          title: '应用名称',
+          title: '发布名称',
           align: 'left',
           width: 120,
           ellipsis: true,
-          colKey: 'appName',
+          colKey: 'releaseName',
           fixed: 'left',
         },
-        {title: '状态', colKey: 'status', width: 80, cell: {col: 'status'}},
+        {
+          title: '状态',
+          colKey: 'status',
+          width: 80,
+          cell: {col: 'status'}
+        },
         {
           title: 'chart名称',
           width: 120,
@@ -204,32 +209,38 @@ export default Vue.extend({
         },
         {
           title: '命名空间',
-          width: 180,
+          width: 120,
           ellipsis: true,
           colKey: 'nameSpace',
         },
         {
           title: '集群',
-          width: 180,
+          width: 140,
           ellipsis: true,
           colKey: 'kubeContext',
         },
         {
           title: '描述',
-          width: 180,
+          width: 160,
           ellipsis: true,
           colKey: 'description',
         },
         {
           title: '创建时间',
-          width: 200,
+          width: 160,
           ellipsis: true,
           colKey: 'createTime',
         },
         {
-          align: 'left',
+          title: '更新时间',
+          width: 160,
+          ellipsis: true,
+          colKey: 'updateTime',
+        },
+        {
+          align: 'center',
           fixed: 'right',
-          width: 200,
+          width: 180,
           colKey: 'op',
           title: '操作',
         },
