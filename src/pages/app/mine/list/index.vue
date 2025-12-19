@@ -63,7 +63,7 @@
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
-            <a class="t-button-link" @click="handleClickEdit(slotProps.row)">管理</a>
+            <a class="t-button-link" @click="handleClickEdit(slotProps.row)">更新</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">卸载</a>
           </template>
         </t-table>

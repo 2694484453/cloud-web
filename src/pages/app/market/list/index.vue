@@ -12,13 +12,13 @@
       >
         <t-row justify="space-between">
           <t-col :span="3">
-<!--            <t-form-item label="仓库源" name="repoName">-->
-<!--              <t-select v-model="searchForm.repoName">-->
-<!--                <t-option v-for="(item,index) in repoList" :key="index" :label="item" :value="item">{{ item }}-->
-<!--                </t-option>-->
-<!--              </t-select>-->
-<!--              <t-input v-model="searchForm.repoName" :style="{ width: '200px' }" placeholder="请输入内容"/>-->
-<!--            </t-form-item>-->
+            <!--            <t-form-item label="仓库源" name="repoName">-->
+            <!--              <t-select v-model="searchForm.repoName">-->
+            <!--                <t-option v-for="(item,index) in repoList" :key="index" :label="item" :value="item">{{ item }}-->
+            <!--                </t-option>-->
+            <!--              </t-select>-->
+            <!--              <t-input v-model="searchForm.repoName" :style="{ width: '200px' }" placeholder="请输入内容"/>-->
+            <!--            </t-form-item>-->
             <t-form-item label="名称" name="name">
               <t-input v-model="searchForm.name" :style="{ width: '200px' }" placeholder="请输入内容"/>
             </t-form-item>
@@ -42,7 +42,7 @@
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
           <template #icon="{row}">
-            <t-image :src="row.icon" fit="cover"  :style="{ width: '36px', height: '36px' }"/>
+            <t-image :src="row.icon" fit="cover" :style="{ width: '36px', height: '36px' }"/>
           </template>
           <template #name="{row}">
             <p>{{ row.name }}</p>
@@ -53,9 +53,10 @@
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <t-space>
-              <a v-show="slotProps.row.status === null" class="t-button-link" @click="handleClickInstall(slotProps.row)">安装</a>
+              <a v-show="slotProps.row.status === null" class="t-button-link"
+                 @click="handleClickInstall(slotProps.row)">安装</a>
             </t-space>
-<!--            <a class="t-button-link" @click="handleClickConfirm(slotProps.row)">删除</a>-->
+            <!--            <a class="t-button-link" @click="handleClickConfirm(slotProps.row)">删除</a>-->
           </template>
         </t-table>
       </div>
@@ -93,59 +94,65 @@
       :onConfirm="handleDrawerOk"
       @cancel="onCancelDrawer"
     >
-      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical" style="width: 100%">
+      <t-space v-show="drawer.operation === 'add'|| drawer.operation ==='edit'" direction="vertical"
+               style="width: 100%">
         <t-form
           ref="formValidatorStatus"
-          :data="formData"
+          :data="drawer.dynamicForm"
           :label-width="100"
           @reset="onReset"
         >
-          <t-form-item label="id" name="id" v-show="false">
-            <t-input v-model="formData.id" :maxlength="32" with="120"></t-input>
-          </t-form-item>
           <t-form-item label="集群" name="kubeContext">
-            <t-select v-model="formData.kubeContext" placeholder="请选择" clearable>
-              <t-option v-for="(item,index) in clusters" :key="index" :label="item.contextName" :value="item.contextName" >{{item.contextName}}</t-option>
+            <t-select v-model="drawer.dynamicForm.kubeContext" placeholder="请选择" clearable>
+              <t-option v-for="(item,index) in clusters" :key="index" :label="item.contextName"
+                        :value="item.contextName">{{ item.contextName }}
+              </t-option>
             </t-select>
           </t-form-item>
           <t-form-item label="命名空间" name="nameSpace">
-            <t-input v-model="formData.nameSpace" placeholder="请输入命名空间" :maxlength="64" with="120"></t-input>
+            <t-input v-model="drawer.dynamicForm.nameSpace" placeholder="请输入命名空间" :maxlength="64"
+                     with="120"></t-input>
           </t-form-item>
           <t-form-item label="release名称" name="releaseName">
-            <t-input v-model="formData.releaseName" placeholder="请输入release名称" :maxlength="64" with="120"></t-input>
+            <t-input v-model="drawer.dynamicForm.releaseName" placeholder="请输入release名称" :maxlength="64"
+                     with="120"></t-input>
           </t-form-item>
           <t-form-item label="参数" name="values">
-            <t-form
-              ref="formValidatorStatus"
-              :data="formData.chartValues"
-              :label-width="100"
-              @reset="onReset"
-            >
-              <div v-for="(v,k) in drawer.dynamicForm">
-                <t-form-item :label="k" :name="k">
-                  <t-input v-model="drawer.dynamicForm[k]" :type="typeof drawer.dynamicForm[k]" placeholder="请输入" :maxlength="64" with="120" ></t-input>
-                </t-form-item>
-              </div>
-            </t-form>
+            <t-textarea v-model="drawer.dynamicForm.chartValues" :autosize="{minRows:5}"></t-textarea>
+            <!--            <t-form-->
+            <!--              ref="formValidatorStatus"-->
+            <!--              :data="formData.chartValues"-->
+            <!--              :label-width="100"-->
+            <!--              @reset="onReset"-->
+            <!--            >-->
+            <!--              <div v-for="(v,k) in drawer.dynamicForm">-->
+            <!--                <t-form-item :label="k" :name="k">-->
+            <!--                  <t-input v-model="drawer.dynamicForm[k]" :type="typeof drawer.dynamicForm[k]" placeholder="请输入" :maxlength="64" with="120" ></t-input>-->
+            <!--                </t-form-item>-->
+            <!--              </div>-->
+            <!--            </t-form>-->
+          </t-form-item>
+          <t-form-item label="描述" name="description">
+            <t-textarea v-model="drawer.dynamicForm.description" :autosize="{minRows:3}"></t-textarea>
           </t-form-item>
         </t-form>
       </t-space>
       <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
-        <t-descriptions  bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
+        <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
           <t-descriptions-item label="名称">
             <t-space>
               <t-image fit="cover" :style="{width:'32px',height:'32px'}" :src="formData.icon"/>
             </t-space>
-              {{formData.name}}
+            {{ formData.name }}
           </t-descriptions-item>
-          <t-descriptions-item label="类型">{{formData.type}}</t-descriptions-item>
-          <t-descriptions-item label="主页"><a :href="formData.home">{{formData.home}}</a></t-descriptions-item>
-          <t-descriptions-item label="描述">{{formData.description}}</t-descriptions-item>
-          <t-descriptions-item label="地址"><a :href="formData.url">{{formData.url}}</a></t-descriptions-item>
-          <t-descriptions-item label="上架时间">{{formData.createTime}}</t-descriptions-item>
-          <t-descriptions-item label="上架人">{{formData.createBy}}</t-descriptions-item>
-          <t-descriptions-item label="更新时间">{{formData.updateTime}}</t-descriptions-item>
-          <t-descriptions-item label="更新人">{{formData.updateBy}}</t-descriptions-item>
+          <t-descriptions-item label="类型">{{ formData.type }}</t-descriptions-item>
+          <t-descriptions-item label="主页"><a :href="formData.home">{{ formData.home }}</a></t-descriptions-item>
+          <t-descriptions-item label="描述">{{ formData.description }}</t-descriptions-item>
+          <t-descriptions-item label="地址"><a :href="formData.url">{{ formData.url }}</a></t-descriptions-item>
+          <t-descriptions-item label="上架时间">{{ formData.createTime }}</t-descriptions-item>
+          <t-descriptions-item label="上架人">{{ formData.createBy }}</t-descriptions-item>
+          <t-descriptions-item label="更新时间">{{ formData.updateTime }}</t-descriptions-item>
+          <t-descriptions-item label="更新人">{{ formData.updateBy }}</t-descriptions-item>
         </t-descriptions>
       </t-space>
     </t-drawer>
@@ -250,8 +257,16 @@ export default Vue.extend({
         visible: false,
         type: "",
         operation: "add",
-        row: {},
-        dynamicForm: {}
+        dynamicForm: {
+          kubeContext: "",
+          nameSpace: "",
+          releaseName: "",
+          chartValues: "",
+          chartUrl: "",
+          chartName: "",
+          icon: "",
+          description: "",
+        }
       },
       // 对话框
       confirm: {
@@ -277,16 +292,13 @@ export default Vue.extend({
         icon: "",
         type: "",
         home: "",
-        kubeContext: "",
-        nameSpace: "",
-        releaseName: "",
         description: "",
         createTime: "",
         updateTime: "",
         createBy: "",
         updateBy: "",
         status: "",
-        chartValues: ""
+
       },
       operation: "",
       typeList: [],
@@ -306,12 +318,12 @@ export default Vue.extend({
     // 初始化加载查询请求
     this.page();
   },
-  watch:{
+  watch: {
     "searchForm.name"(newVal, oldVal) {
-       if (newVal != oldVal) {
-         this.page()
-        }
-      },
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
     "searchForm.pageSize"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.page()
@@ -346,25 +358,20 @@ export default Vue.extend({
       this.drawer.operation = 'detail';
       this.drawer.visible = true;
     },
-    handleClickInstall(row:any) {
+    handleClickInstall(row: any) {
       this.formData = row;
       this.clusterList();
       this.drawer.visible = true;
-      this.drawer.header = '安装'+ row.name;
+      this.drawer.header = '安装' + row.name;
       this.drawer.operation = 'add';
-      this.$request.post('/app/market/values', this.formData).then((res) => {
-        if (res.data.code === 200) {
-          console.log(res.data.data);
-          this.drawer.dynamicForm = res.data.data;
-          //this.$message.success(res.data.msg);
-        } else  {
-          //this.$message.error(res.data.msg);
-        }
+      this.drawer.dynamicForm.chartUrl = row.url;
+      this.drawer.dynamicForm.chartName = row.name;
+      this.drawer.dynamicForm.icon = row.icon;
+      this.$request.post('/helm/api/values', this.drawer.dynamicForm).then((res) => {
+        this.drawer.dynamicForm.chartValues = res.data;
       }).catch((e: Error) => {
         console.log(e);
       }).finally(() => {
-        //this.dataLoading = false;
-        //this.drawer.visible = false;
       });
     },
     handleSetupContract() {
@@ -372,7 +379,7 @@ export default Vue.extend({
     },
     // 对话框信息自定义
     handleConfirmOk() {
-      switch(this.confirm.operation) {
+      switch (this.confirm.operation) {
         case 'add':
           break;
         case 'update':
@@ -392,15 +399,13 @@ export default Vue.extend({
     },
     // 确认抽屉
     handleDrawerOk() {
-      console.log('执行:',this.drawer.operation);
       switch (this.drawer.operation) {
         case 'add':
-          this.drawer.visible = false;
-          this.formData.chartValues = this.drawer.dynamicForm;
-          this.$request.post('/app/market/install', this.formData).then((res) => {
+          this.$request.post('/app/market/install', this.drawer.dynamicForm).then((res) => {
             if (res.data.code === 200) {
               this.$message.success(res.data.msg);
-            }  else {
+              this.drawer.visible = false;
+            } else {
               this.$message.error(res.data.msg);
             }
           }).catch((e: Error) => {
@@ -470,7 +475,7 @@ export default Vue.extend({
             if (res.data.code === 200) {
               this.$message.success(res.data.msg);
               this.handleSubmit("search")
-            } else  {
+            } else {
               this.$message.error(res.data.msg);
             }
           }).catch((e: Error) => {
