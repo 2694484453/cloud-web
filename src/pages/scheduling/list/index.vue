@@ -40,14 +40,12 @@
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
           <template #status="{row}">
-            <t-tag v-if="row.status === ''|| row.status == null" theme="default" variant="light">未运行</t-tag>
-            <t-tag v-if="row.status === 'pause'" theme="warning" variant="light">暂停</t-tag>
-            <t-tag v-if="row.status === 'running'" theme="primary" variant="light">执行中</t-tag>
+            <t-tag v-if="row.status === '1'" theme="primary" variant="light">已启用</t-tag>
+            <t-tag v-if="row.status === '0'" theme="warning" variant="light">已禁用</t-tag>
           </template>
           <template #runStatus="{row}">
-            <t-tag v-if="row.runStatus === 'done'" theme="success" variant="light">成功</t-tag>
-            <t-tag v-if="row.runStatus === 'error'" theme="danger" variant="light">失败</t-tag>
-            <t-tag v-if="row.runStatus === ''" theme="success" variant="light">未知</t-tag>
+            <t-tag v-if="row.runStatus === 'running'" theme="primary" variant="light">运行中</t-tag>
+            <t-tag v-if="row.runStatus === '' || row.runStatus === null"  variant="light">未运行</t-tag>
           </template>
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
@@ -190,6 +188,12 @@ export default Vue.extend({
           }
         },
         {
+          title: '运行状态',
+          colKey: 'runStatus',
+          align: 'center',
+          width: 120,
+        },
+        {
           title: '类型',
           width: 80,
           ellipsis: true,
@@ -213,12 +217,6 @@ export default Vue.extend({
           align: 'left',
           ellipsis: true,
           colKey: 'runTime',
-        },
-        {
-          title: '最近执行状态',
-          colKey: 'runStatus',
-          align: 'center',
-          width: 120,
         },
         {
           title: '最近执行结果',
