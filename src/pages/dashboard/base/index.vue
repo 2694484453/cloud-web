@@ -17,7 +17,7 @@
     <!-- 列表排名 -->
     <rank-list class="row-container"/>
     <!-- 出入库概览 -->
-    <output-overview class="row-container"/>
+<!--    <output-overview class="row-container"/>-->
     <!-- 通知 -->
     <NoticeCard class="row-container" :data="noticeData"/>
   </div>
