@@ -53,7 +53,7 @@ export default {
     // 高度
     height: {
       type: String,
-      default: '300px'
+      default: '305px'
     },
     // 是否显示 loading
     loading: {
@@ -72,9 +72,9 @@ export default {
     }
   },
   watch: {
-    options: {
+    data: {
       handler(newVal) {
-        this.setOptions()
+        this.updateChart();
       },
       deep: true
     },
@@ -108,7 +108,7 @@ export default {
       if (!this.chart || !this.data || this.data.length === 0) return;
 
       const option = {
-        tooltip: { // 👈 添加 tooltip 更友好
+        tooltip: {
           trigger: 'axis'
         },
         xAxis: {
