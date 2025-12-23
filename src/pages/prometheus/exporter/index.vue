@@ -33,6 +33,7 @@
         <t-table
           :columns="columns"
           :data="data"
+          @sort-change="sortChange"
           :rowKey="rowKey"
           :verticalAlign="verticalAlign"
           :hover="hover"
@@ -199,6 +200,7 @@ export default Vue.extend({
           width: 250,
           colKey: 'jobName',
           fixed: 'left',
+          sorter: true,
         },
         {
           align: 'center',
@@ -232,13 +234,15 @@ export default Vue.extend({
           title: '创建时间',
           width: 150,
           ellipsis: true,
-          colKey: "createTime"
+          colKey: "createTime",
+          sorter: true,
         },
         {
           title: '更新时间',
           width: 150,
           ellipsis: true,
-          colKey: "updateTime"
+          colKey: "updateTime",
+          sorter: true,
         },
         {
           align: 'center',
@@ -294,7 +298,9 @@ export default Vue.extend({
         jobName: "",
         exporterType: "",
         pageNum: 1,
-        pageSize: 10
+        pageSize: 10,
+        isAsc: "desc",
+        orderByColumn: "createTime",
       },
       searchValue: '',
       confirmVisible: false,
@@ -348,6 +354,16 @@ export default Vue.extend({
       if (newVal != oldVal) {
         this.page()
       }
+    },
+    "searchForm.isAsc"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.orderByColumn"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
     }
   },
   methods: {
@@ -365,14 +381,11 @@ export default Vue.extend({
     getContainer() {
       return document.querySelector('.tdesign-starter-layout');
     },
-    rehandlePageChange(curr, pageInfo) {
-      console.log('分页变化', curr, pageInfo);
-    },
-    rehandleSelectChange(selectedRowKeys: number[]) {
-      this.selectedRowKeys = selectedRowKeys;
-    },
-    rehandleChange(changeParams, triggerAndData) {
-      console.log('统一Change', changeParams, triggerAndData);
+    sortChange(sort:any) {
+      // 对于受控属性而言，这里的赋值很重要，不可缺少
+      console.log('sort-change',sort);
+      this.searchForm.isAsc = sort.descending ? 'desc' : 'asc';
+      this.searchForm.orderByColumn = sort.sortBy
     },
     // 点击详情
     handleClickDetail(row: any) {

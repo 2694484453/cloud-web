@@ -7,7 +7,7 @@ export default [
     name: 'prometheus',
     component: Layout,
     //redirect: '/prometheus/base',
-    meta: {title: '监控中心', icon: PreciseMonitorIcon},
+    meta: {title: '监控告警中心', icon: PreciseMonitorIcon},
     children: [
       {
         path: 'overView',
@@ -28,10 +28,16 @@ export default [
         meta: {title: '端点接入'},
       },
       {
-        path: 'target',
-        name: 'target',
-        component: () => import('@/pages/prometheus/targets/index.vue'),
-        meta: {title: '端点查询'},
+        path: "rules",
+        name: 'rules',
+        component: () => import("@/pages/prometheus-alertmanager/list/index.vue"),
+        meta: {title: '告警规则'},
+      },
+      {
+        path: "alerts",
+        name: 'alerts',
+        component: () => import("@/pages/prometheus-alertmanager/list/index.vue"),
+        meta: {title: '告警信息'},
       }
     ],
   },
@@ -62,38 +68,26 @@ export default [
   //     },
   //   ],
   // },
-  {
-    path: '/alert',
-    name: 'alert',
-    component: Layout,
-    meta: {title: '告警中心', icon: NotificationIcon},
-    children: [
-      {
-        path: 'overView',
-        name: 'OverView',
-        component: () => import('@/pages/prometheus-alertmanager/index.vue'),
-        meta: {title: '概览'},
-      },
-      {
-        path: 'dashboard',
-        name: 'dashboard',
-        component: () => import('@/pages/prometheus-alertmanager/frame/index.vue'),
-        meta: {title: '控制面板'},
-      },
-      {
-        path: "rules",
-        name: 'rules',
-        component: () => import("@/pages/prometheus-alertmanager/list/index.vue"),
-        meta: {title: '告警规则'},
-      },
-      {
-        path: "alerts",
-        name: 'alerts',
-        component: () => import("@/pages/prometheus-alertmanager/list/index.vue"),
-        meta: {title: '告警查询'},
-      }
-    ],
-  },
+  // {
+  //   path: '/alert',
+  //   name: 'alert',
+  //   component: Layout,
+  //   meta: {title: '告警中心', icon: NotificationIcon},
+  //   children: [
+  //     {
+  //       path: 'overView',
+  //       name: 'OverView',
+  //       component: () => import('@/pages/prometheus-alertmanager/index.vue'),
+  //       meta: {title: '概览'},
+  //     },
+  //     {
+  //       path: 'dashboard',
+  //       name: 'dashboard',
+  //       component: () => import('@/pages/prometheus-alertmanager/frame/index.vue'),
+  //       meta: {title: '控制面板'},
+  //     },
+  //   ],
+  // },
   // {
   //   path: '/alert-cloud',
   //   name: 'alert-cloud',

@@ -33,6 +33,7 @@
         <t-table
           :columns="columns"
           :data="data"
+          @sort-change="sortChange"
           :rowKey="rowKey"
           :verticalAlign="verticalAlign"
           :hover="hover"
@@ -41,19 +42,15 @@
           :headerAffixedTop="true"
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
-          <template #status="{ row }">
-            <t-tag v-if="row.status === CONTRACT_STATUS.FAIL" theme="danger" variant="light">审核失败</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.AUDIT_PENDING" theme="warning" variant="light">待审核</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.EXEC_PENDING" theme="warning" variant="light">待履行</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.EXECUTING" theme="success" variant="light">履行中</t-tag>
-            <t-tag v-if="row.status === CONTRACT_STATUS.FINISH" theme="success" variant="light">已完成</t-tag>
+          <template #status="{row}">
+            <t-tag v-if="row.status === ''" theme="danger" variant="light">异常</t-tag>
+            <t-tag v-if="row.status === 'ok'" theme="success" variant="light">健康</t-tag>
           </template>
-          <template #contractType="{ row }">
-            <p v-if="row.contractType === CONTRACT_TYPES.MAIN">审核失败</p>
-            <p v-if="row.contractType === CONTRACT_TYPES.SUB">待审核</p>
-            <p v-if="row.contractType === CONTRACT_TYPES.SUPPLEMENT">待履行</p>
+          <template #alertStatus="{row}">
+            <t-tag v-if="row.alertStatus === 'active'" theme="danger">已激活</t-tag>
+            <t-tag v-if="row.alertStatus === 'inactive'" theme="default">未激活</t-tag>
           </template>
-          <template #paymentType="{ row }">
+          <template #paymentType="{row}">
             <p v-if="row.paymentType === CONTRACT_PAYMENT_TYPES.PAYMENT" class="payment-col">
               付款
               <trend class="dashboard-item-trend" type="up"/>
@@ -180,6 +177,7 @@ export default Vue.extend({
           ellipsis: true,
           colKey: 'alertName',
           fixed: 'left',
+          sorter: true,
         },
         {
           title: '类型',
@@ -189,8 +187,14 @@ export default Vue.extend({
           colKey: 'type',
         },
         {
-          title: '状态',
+          title: '健康状态',
           colKey: 'status',
+          width: 80, cell:
+            {col: 'status'}
+        },
+        {
+          title: '告警状态',
+          colKey: 'alertStatus',
           width: 80, cell:
             {col: 'status'}
         },
@@ -218,13 +222,15 @@ export default Vue.extend({
           title: '创建时间',
           width: 160,
           ellipsis: true,
-          colKey: "createTime"
+          colKey: "createTime",
+          sorter: true,
         },
         {
           title: '更新时间',
           width: 160,
           ellipsis: true,
-          colKey: "updateTime"
+          colKey: "updateTime",
+          sorter: true,
         },
         {
           align: 'center',
@@ -271,6 +277,8 @@ export default Vue.extend({
       searchForm:{
         alertName: "",
         groupName: "",
+        isAsc: "desc",
+        orderByColumn: "createTime",
         pageNum: 1,
         pageSize: 10
       },
@@ -324,6 +332,16 @@ export default Vue.extend({
       if (newVal != oldVal) {
         this.page();
       }
+    },
+    "searchForm.isAsc"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.orderByColumn"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
     }
   },
   methods: {
@@ -343,6 +361,12 @@ export default Vue.extend({
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
+    },
+    sortChange(sort:any) {
+      // 对于受控属性而言，这里的赋值很重要，不可缺少
+      console.log('sort-change',sort);
+      this.searchForm.isAsc = sort.descending ? 'desc' : 'asc';
+      this.searchForm.orderByColumn = sort.sortBy
     },
     // 确认抽屉
     handleDrawerOk() {

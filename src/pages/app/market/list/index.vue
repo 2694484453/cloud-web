@@ -33,6 +33,7 @@
         <t-table
           :columns="columns"
           :data="data"
+          @sort-change="sortChange"
           :rowKey="rowKey"
           :verticalAlign="verticalAlign"
           :hover="hover"
@@ -199,6 +200,7 @@ export default Vue.extend({
           ellipsis: true,
           colKey: 'name',
           fixed: 'left',
+          sorter: true,
         },
         {
           title: '版本',
@@ -224,13 +226,15 @@ export default Vue.extend({
           title: '创建时间',
           width: 120,
           ellipsis: true,
-          colKey: "createTime"
+          colKey: "createTime",
+          sorter: true,
         },
         {
           title: '更新时间',
           width: 120,
           ellipsis: true,
-          colKey: "updateTime"
+          colKey: "updateTime",
+          sorter: true,
         },
         {
           align: 'left',
@@ -282,7 +286,9 @@ export default Vue.extend({
         name: "",
         type: "",
         pageNum: 1,
-        pageSize: 10
+        pageSize: 10,
+        isAsc: "desc",
+        orderByColumn: "createTime",
       },
       // 当前数据
       formData: {
@@ -298,7 +304,6 @@ export default Vue.extend({
         createBy: "",
         updateBy: "",
         status: "",
-
       },
       operation: "",
       typeList: [],
@@ -333,6 +338,16 @@ export default Vue.extend({
       if (newVal != oldVal) {
         this.page()
       }
+    },
+    "searchForm.isAsc"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.orderByColumn"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
     }
   },
   methods: {
@@ -352,7 +367,13 @@ export default Vue.extend({
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
     },
-    handleClickDetail(row) {
+    sortChange(sort:any) {
+      // 对于受控属性而言，这里的赋值很重要，不可缺少
+      console.log('sort-change',sort);
+      this.searchForm.isAsc = sort.descending ? 'desc' : 'asc';
+      this.searchForm.orderByColumn = sort.sortBy
+    },
+    handleClickDetail(row:any) {
       console.log(row);
       this.formData = row;
       this.drawer.operation = 'detail';
