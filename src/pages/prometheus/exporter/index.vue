@@ -12,7 +12,7 @@
         <t-row justify="space-between">
           <div class="left-operation-container">
             <t-button @click="handleSetupContract">添加</t-button>
-            <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出配置</t-button>
+            <t-button @click="handleExport" variant="base" theme="default" :disabled="!selectedRowKeys.length">导出配置</t-button>
           </div>
           <t-col :span="3">
             <t-form-item label="名称" name="name">
@@ -42,8 +42,12 @@
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
           <template #targets="{row}">
-            <span v-for="item in row.targets.split(',')">
+            <span v-if="typeof row.targets === 'string' && row.targets?.includes(',')"
+                  v-for="item in row.targets.split(',')">
                 <t-tag theme="primary" variant="light">{{ item }}</t-tag>
+            </span>
+            <span v-if="typeof row.targets === 'string' && !row.targets?.includes(',')">
+              <t-tag theme="primary" variant="light">{{ row.targets }}</t-tag>
             </span>
           </template>
           <template #status="{row}">
@@ -54,6 +58,7 @@
           <template #op="slotProps">
             <a class="t-button-link" @click="handleClickDetail(slotProps.row)">详情</a>
             <a class="t-button-link" @click="handleClickEdit(slotProps.row)">编辑</a>
+            <a class="t-button-link" @click="handleClickGrafana(slotProps.row)">可视化</a>
             <a class="t-button-link" @click="handleClickDelete(slotProps.row)">删除</a>
           </template>
         </t-table>
@@ -97,10 +102,10 @@
           :label-width="100"
           @reset="onReset"
         >
-          <t-form-item label="名称" name="jobName">
+          <t-form-item label="端点名称" name="jobName">
             <t-input v-model="formData.jobName" placeholder="请输入名称" :maxlength="64" with="120"></t-input>
           </t-form-item>
-          <t-form-item label="类型" name="exporterType">
+          <t-form-item label="exporter类型" name="exporterType">
             <t-select v-model="formData.exporterType" class="demo-select-base" clearable filterable
                       placeholder="请选择类型">
               <t-option v-for="(item, index) in typeList" :value="item" :label="item" :key="index">
@@ -110,6 +115,24 @@
           </t-form-item>
           <t-form-item label="地址" name="url">
             <t-input v-model="formData.targets" placeholder="请输入地址" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="metrics路径" name="metricsPath">
+            <t-input v-model="formData.metricsPath" placeholder="请输入路径" :maxlength="64" with="120"></t-input>
+          </t-form-item>
+          <t-form-item label="地址类型" name="schemaType">
+            <t-select v-model="formData.schemeType">
+              <t-option label="http" value="http">http</t-option>
+              <t-option label="https" value="https">https</t-option>
+            </t-select>
+          </t-form-item>
+          <t-form-item label="抓取间隔(s)">
+            <t-input v-model="formData.scrapeInterval" type="number" :maxlength="5"></t-input>
+          </t-form-item>
+          <t-form-item label="抓取超时(s)">
+            <t-input v-model="formData.scrapeTimeout" type="number" :maxlength="5"></t-input>
+          </t-form-item>
+          <t-form-item label="labels" name="labels">
+            <t-textarea v-model="formData.labels" placeholder="请输入Json格式" :autosize="{minRows:3}"></t-textarea>
           </t-form-item>
           <t-form-item label="描述" name="description">
             <t-textarea v-model="formData.description" placeholder="请输入描述" :maxlength="200"></t-textarea>
@@ -121,9 +144,16 @@
           <t-descriptions-item label="名称">{{ formData.jobName }}</t-descriptions-item>
           <t-descriptions-item label="类型">{{ formData.exporterType }}</t-descriptions-item>
           <t-descriptions-item label="端点">
-            <t-space v-for="item in formData.targets.split(',')">
-              <t-tag theme="primary">{{ item }}</t-tag>
-            </t-space>
+            <span
+              v-if="formData.targets != null && typeof formData.targets === 'string' && formData.targets?.includes(',')">
+              <t-space v-for="item in formData.targets.split(',')">
+                <t-tag theme="primary">{{ item }}</t-tag>
+              </t-space>
+            </span>
+            <span
+              v-if="formData.targets != null && typeof formData.targets === 'string' && !formData.targets?.includes(',')">
+              <t-tag theme="primary">{{ formData.targets }}</t-tag>
+            </span>
           </t-descriptions-item>
           <t-descriptions-item label="地址"><a :href="formData.globalUrl">{{ formData.globalUrl }}</a>
           </t-descriptions-item>
@@ -212,8 +242,8 @@ export default Vue.extend({
         },
         {
           align: 'center',
-          fixed: 'right',
-          width: 150,
+          fixed: 'left',
+          width: 220,
           colKey: 'op',
           title: '操作',
         },
@@ -236,7 +266,12 @@ export default Vue.extend({
         id: 0,
         jobName: "",
         exporterType: "",
+        metricsPath: "/metrics",
         targets: "",
+        labels: {},
+        schemeType: "http",
+        scrapeInterval: 15,
+        scrapeTimeout: 10,
         description: "",
         createTime: "",
         updateTime: "",
@@ -245,7 +280,7 @@ export default Vue.extend({
         status: "",
         globalUrl: "",
         createByUserName: "",
-        updateByUserName: "",
+        updateByUserName: ""
       },
       // 对话框
       confirm: {
@@ -340,27 +375,54 @@ export default Vue.extend({
       console.log('统一Change', changeParams, triggerAndData);
     },
     // 点击详情
-    handleClickDetail(row) {
+    handleClickDetail(row: any) {
       this.formData = row;
       this.drawer.visible = true;
       this.drawer.header = row.jobName;
       this.drawer.operation = 'detail';
     },
     // 编辑
-    handleClickEdit(row) {
-      this.formData = row;
+    handleClickEdit(row: any) {
+      this.formData = {
+        ...row,
+        labels: JSON.stringify(row.labels)
+      };
       this.drawer.visible = true;
       this.drawer.header = row.jobName;
       this.drawer.operation = 'edit';
       this.types();
     },
+    handleClickGrafana(row: any) {
+
+    },
     // 新增
     handleSetupContract() {
-      this.formData = {}
+      this.formData = {
+        ...Object,
+        scrapeInterval: 10,
+        scrapeTimeout: 15,
+        schemeType: 'http',
+        metricsPath: "/metrics",
+        labels: JSON.stringify(JSON)
+      }
       this.drawer.visible = true;
       this.drawer.header = "新增";
       this.drawer.operation = 'add';
       this.types();
+    },
+    handleExport() {
+      this.$request.post('/prometheus/exporter/export', this.formData,{responseType: 'blob'}).then(res => {
+        const blob = new Blob([res.data]);
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'prometheus-exporter.json';
+        link.click();
+        URL.revokeObjectURL(link.href); // 释放内存
+      }).catch(e => {
+
+      }).finally(() => {
+
+      })
     },
     // 删除
     handleClickDelete(row) {
@@ -384,7 +446,7 @@ export default Vue.extend({
             if (res.data.code == 200) {
               this.$message.success(res.data.msg);
               this.confirm.visible = false;
-            }else {
+            } else {
               this.$message.error(res.data.msg);
             }
           }).catch(err => {
@@ -422,6 +484,21 @@ export default Vue.extend({
           }).finally(() => {
             this.page();
           })
+          break;
+        case 'edit':
+          this.$request.put("/prometheus/exporter/edit", this.formData).then(res => {
+            if (res.data.code == 200) {
+              this.$message.success(res.data.msg);
+              this.drawer.visible = false;
+            } else {
+              this.$message.error(res.data.msg);
+            }
+          }).catch(err => {
+
+          }).finally(() => {
+            this.page();
+          })
+          break;
       }
     },
     onCancel() {
