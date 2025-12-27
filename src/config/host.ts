@@ -48,7 +48,7 @@ export default {
     // wallpaper生产环境接口请求
     NAME: "wallpaper",
     API: 'http://localhost:9099',//'https://cloud-server-k8s.gpg123.vip',
-    PATH: "", //"/prod-api/",
+    PATH: "/api", //"/prod-api/",
     // 开发环境 cdn 路径
     CDN: '',
     changeOrigin: true

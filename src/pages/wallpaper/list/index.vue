@@ -116,10 +116,12 @@ import Trend from '@/components/trend/index.vue';
 import {prefix} from '@/config/global';
 
 import {CONTRACT_STATUS, CONTRACT_STATUS_OPTIONS, CONTRACT_TYPES, CONTRACT_PAYMENT_TYPES} from '@/constants';
+import WallpaperGrid from "@/components/wallpaper/WallpaperGrid.vue";
 
 export default Vue.extend({
   name: 'ListBase',
   components: {
+    WallpaperGrid,
     SearchIcon,
     Trend,
     BrowseIcon,
