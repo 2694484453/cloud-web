@@ -19,6 +19,12 @@ export default [
         meta: {title: '概览'},
       },
       {
+        path: "https://hub-proxy.gpg123.vip",
+        name: 'hubProxy',
+        component: () => import('@/pages/tools/frame/index.vue'),
+        meta: {title: '加速服务'},
+      },
+      {
         path: 'pages',
         name: 'pages',
         component: () => import('@/pages/tools/card/index.vue'),
