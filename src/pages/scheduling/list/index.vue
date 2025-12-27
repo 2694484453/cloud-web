@@ -40,8 +40,9 @@
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
           <template #status="{row}">
-            <t-tag v-if="row.status === '1'" theme="primary" variant="light">已启用</t-tag>
+            <t-tag v-if="row.status === '1'" theme="success" variant="light">已启用</t-tag>
             <t-tag v-if="row.status === '0'" theme="warning" variant="light">已禁用</t-tag>
+            <t-tag v-if="row.status === '' || row.status === null" variant="light" theme="danger">未知</t-tag>
           </template>
           <template #runStatus="{row}">
             <t-tag v-if="row.runStatus === 'running'" theme="primary" variant="light">运行中</t-tag>
