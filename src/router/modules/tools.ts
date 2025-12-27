@@ -21,7 +21,6 @@ export default [
       {
         path: "https://hub-proxy.gpg123.vip",
         name: 'hubProxy',
-        component: () => import('@/pages/tools/frame/index.vue'),
         meta: {title: '加速服务'},
       },
       {
