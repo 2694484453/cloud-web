@@ -1,4 +1,4 @@
-import { resetRouter, asyncRouterList } from '@/router';
+import { resetRouter, routerList } from '@/router';
 
 function filterPermissionsRouters(routes, roles) {
   const res = [];
@@ -40,9 +40,9 @@ const actions = {
 
     // special token
     if (roles.includes('ALL_ROUTERS')) {
-      accessedRouters = asyncRouterList;
+      accessedRouters = routerList;
     } else {
-      accessedRouters = filterPermissionsRouters(asyncRouterList, roles);
+      accessedRouters = filterPermissionsRouters(routerList, roles);
     }
 
     commit('setRouters', accessedRouters);

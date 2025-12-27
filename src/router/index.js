@@ -4,7 +4,6 @@ import baseRouters from './modules/base';
 import componentsRouters from './modules/components';
 // 其他
 import othersRouters from './modules/others';
-// 构建
 // 域名
 import domainRouters from './modules/domain';
 // 监控
@@ -31,10 +30,6 @@ import gitRouters from "@/router/modules/git";
 import devopsRouters from "@/router/modules/devops";
 // ai
 import AiRouters from "@/router/modules/ai";
-// test
-import testRouters from "@/router/modules/test";
-// userInfo
-import userInfoRouters from "@/router/modules/userinfo";
 // discovery
 import discoveryRouters from "@/router/modules/discovery";
 // nas
@@ -47,44 +42,31 @@ import scheduleRouters from "@/router/modules/scheduling";
 import toolsRouters from "@/router/modules/tools";
 // 壁纸
 import wallpaperRouters from "@/router/modules/wallpaper";
-
-const env = import.meta.env.MODE || 'development';
 import proxy from '@/config/host';
 // 开发模式
 const devRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...prometheusRouters, ...tracingRouters, ...appRouters, ...dockerRouters, ...traefikRouters, ...clusterRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, ...backupRouters, ...scheduleRouters, ...toolsRouters, ...othersRouters]
 // 生产模式
 const prodRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...appRouters, ...prometheusRouters, ...tracingRouters, ...traefikRouters, ...clusterRouters, ...dockerRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, ...scheduleRouters, ...noticeRouters, ...toolsRouters, ...backupRouters]
-// 独立nas-frp
-const nasRouterList = [...nasRouters]
-// 独立
-const wallpaperRouterList = [...wallpaperRouters]
 // 基础路由
-export const asyncRouterList = [...baseRouters]
+export const routerList = [...baseRouters]
+const env = import.meta.env.MODE || 'development';
 const envName = proxy[env].NAME
 // 存放动态路由
 switch (envName) {
   case "development":
-    asyncRouterList.push(...devRouterList)
-    asyncRouterList.push(...noticeRouters)
-    break;
-  case "k8s":
-    asyncRouterList.push(...devRouterList)
+    routerList.push(...devRouterList)
+    routerList.push(...noticeRouters)
     break;
   case "prod":
-    asyncRouterList.push(...prodRouterList)
+    routerList.push(...prodRouterList)
     break;
   case "nas":
-    asyncRouterList.push(...nasRouterList)
+    routerList.push(...nasRouters)
     break;
   case "wallpaper":
-    asyncRouterList.push(...wallpaperRouterList)
-    break;
-  default:
+    routerList.push(...wallpaperRouters)
     break;
 }
-
-//export const asyncRouterList = (proxy[env].NAME === "development" ? devRouterList : prodRouterList)
-//[...baseRouters, ...componentsRouters, ...othersRouters];
 
 // 存放固定的路由
 const defaultRouterList = [
@@ -98,7 +80,8 @@ const defaultRouterList = [
     path: '*',
     redirect: '/dashboard/base',
   },
-  ...asyncRouterList,
+    ...wallpaperRouters,
+  ...routerList,
 ];
 
 const createRouter = () =>
