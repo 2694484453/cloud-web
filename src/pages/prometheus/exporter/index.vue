@@ -12,7 +12,9 @@
         <t-row justify="space-between">
           <div class="left-operation-container">
             <t-button @click="handleSetupContract">添加</t-button>
-            <t-button @click="handleExport" variant="base" theme="default" :disabled="!selectedRowKeys.length">导出配置</t-button>
+            <t-button @click="handleExport" variant="base" theme="default" :disabled="!selectedRowKeys.length">
+              导出配置
+            </t-button>
           </div>
           <t-col :span="3">
             <t-form-item label="名称" name="name">
@@ -53,7 +55,7 @@
           </template>
           <template #status="{row}">
             <t-tag v-if="row.status === 'down'" theme="danger" variant="light">异常</t-tag>
-            <t-tag v-if="row.status === '' || row.status === null" theme="warning" variant="light">未知</t-tag>
+            <t-tag v-if="row.status === '' || row.status === null || row.status === 'unknown'" theme="warning" variant="light">未知</t-tag>
             <t-tag v-if="row.status === 'up'" theme="success" variant="light">正常</t-tag>
           </template>
           <template #op="slotProps">
@@ -144,6 +146,7 @@
         <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
           <t-descriptions-item label="名称">{{ formData.jobName }}</t-descriptions-item>
           <t-descriptions-item label="类型">{{ formData.exporterType }}</t-descriptions-item>
+          <t-descriptions-item label="状态">{{ formData.status }}</t-descriptions-item>
           <t-descriptions-item label="端点">
             <span
               v-if="formData.targets != null && typeof formData.targets === 'string' && formData.targets?.includes(',')">
@@ -163,6 +166,7 @@
           <t-descriptions-item label="创建人">{{ formData.createByUserName }}</t-descriptions-item>
           <t-descriptions-item label="更新时间">{{ formData.updateTime }}</t-descriptions-item>
           <t-descriptions-item label="更新人">{{ formData.updateByUserName }}</t-descriptions-item>
+          <t-descriptions-item v-show="formData.status === 'down'|| formData.status === 'unknown'" label="异常原因">{{formData.errorReason}}</t-descriptions-item>
         </t-descriptions>
       </t-space>
     </t-drawer>
@@ -284,7 +288,8 @@ export default Vue.extend({
         status: "",
         globalUrl: "",
         createByUserName: "",
-        updateByUserName: ""
+        updateByUserName: "",
+        errorReason: "",
       },
       // 对话框
       confirm: {
@@ -381,9 +386,9 @@ export default Vue.extend({
     getContainer() {
       return document.querySelector('.tdesign-starter-layout');
     },
-    sortChange(sort:any) {
+    sortChange(sort: any) {
       // 对于受控属性而言，这里的赋值很重要，不可缺少
-      console.log('sort-change',sort);
+      console.log('sort-change', sort);
       this.searchForm.isAsc = sort.descending ? 'desc' : 'asc';
       this.searchForm.orderByColumn = sort.sortBy
     },
@@ -424,7 +429,7 @@ export default Vue.extend({
       this.types();
     },
     handleExport() {
-      this.$request.post('/prometheus/exporter/export', this.formData,{responseType: 'blob'}).then(res => {
+      this.$request.post('/prometheus/exporter/export', this.formData, {responseType: 'blob'}).then(res => {
         const blob = new Blob([res.data]);
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
