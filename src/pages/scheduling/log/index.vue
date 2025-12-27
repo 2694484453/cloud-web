@@ -29,7 +29,7 @@
           :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
         >
           <template #status="{ row }">
-            <t-tag v-if="row.status === '0'|| row.status === 'fail'" theme="danger" variant="light">失败</t-tag>
+            <t-tag v-if="row.status === '0'|| row.status === 'fail' || row.status === 'error'" theme="danger" variant="light">失败</t-tag>
             <t-tag v-if="row.status === '1'|| row.status ==='success'|| row.status ==='done'" theme="success" variant="light">成功</t-tag>
             <t-tag v-if="row.status === 'finished'" theme="primary" variant="light">已完成</t-tag>
             <t-tag v-if="row.status === null || row.status === ''" theme="warning" variant="light">unknown</t-tag>
