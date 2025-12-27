@@ -98,7 +98,7 @@
       showOverlay
       :sizeDraggable="true"
       :on-size-drag-end="handleSizeDrag"
-      size="40%"
+      :size="drawer.size"
       @cancel="drawer.visible = false"
       @close="drawer.visible = false"
       :onConfirm="handleDrawerOk">
@@ -254,6 +254,7 @@ export default Vue.extend({
       drawer: {
         header: "",
         visible: false,
+        size: "30%",
         type: "",
         operation: "add",
         row: {},
@@ -468,6 +469,7 @@ export default Vue.extend({
     handleClickDetail(row) {
       console.log(row);
       this.formData = row;
+      this.drawer.size = '30%'
       this.drawer.header = "详情";
       this.drawer.operation = 'detail';
       this.drawer.visible = true;

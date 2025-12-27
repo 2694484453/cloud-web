@@ -23,7 +23,7 @@
         </t-input>
         <t-col :span="2" class="operation-container">
           <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
-          <t-button type="reset" variant="base" theme="default"> 重置</t-button>
+          <t-button type="reset" variant="base" theme="default" > 重置</t-button>
         </t-col>
       </t-row>
       </t-form>
@@ -107,7 +107,8 @@
               </t-select>
             </t-form-item>
             <t-form-item label="表达式" name="cronExpression">
-              <t-input v-model="formData.cronExpression"  placeholder="请输入"></t-input>
+<!--              <t-input v-model="formData.cronExpression"  placeholder="请输入"></t-input>-->
+              <CronExpressionGenerator v-model="formData.cronExpression"/>
             </t-form-item>
             <t-form-item label="备注" name="remotePort" >
               <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="120" with="200"></t-textarea>
@@ -145,10 +146,12 @@ import { prefix } from '@/config/global';
 
 import { CONTRACT_STATUS, CONTRACT_STATUS_OPTIONS, CONTRACT_TYPES, CONTRACT_PAYMENT_TYPES } from '@/constants';
 import MonacoEditor from "@/components/editor/MonacoEditor.vue";
+import CronExpressionGenerator from "@/components/cron/cron.vue";
 
 export default Vue.extend({
   name: 'ListBase',
   components: {
+    CronExpressionGenerator,
     MonacoEditor,
     SearchIcon,
     Trend,
@@ -461,19 +464,24 @@ export default Vue.extend({
     },
     // 点击删除
     handleClickDelete(row: any) {
-      this.searchForm = row;
+      this.formData= row;
       this.confirm.visible = true;
+      this.confirm.operation = 'delete';
+      this.confirm.header = '删除' + row.jobName;
+      this.confirm.body = '此操作会删除'+row.jobName+"所有数据，是否继续？";
     },
     // 确认操作
     onConfirm() {
       switch (this.confirm.operation) {
         // 执行删除
         case 'delete':
-          this.$request.delete('/nas/frpc/delete?id=' + this.form.id).then(res => {
+          this.$request.delete('/scheduling/job/delete?id=' + this.formData.jobId).then(res => {
             if (res.data.code === 200) {
               this.$message.success(res.data.msg);
-              this.getList();
+              this.page();
               this.confirm.visible = false;
+            } else {
+              this.$message.error(res.data.msg);
             }
           })
           break;
@@ -495,8 +503,8 @@ export default Vue.extend({
           break;
       }
     },
-    onReset(data) {
-      console.log(data);
+    onReset(data:any) {
+      this.searchForm = {}
     },
     onCancel() {
       this.resetIdx();

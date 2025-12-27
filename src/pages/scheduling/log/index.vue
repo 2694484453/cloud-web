@@ -31,7 +31,8 @@
           <template #status="{ row }">
             <t-tag v-if="row.status === '0'|| row.status === 'fail'" theme="danger" variant="light">失败</t-tag>
             <t-tag v-if="row.status === '1'|| row.status ==='success'|| row.status ==='done'" theme="success" variant="light">成功</t-tag>
-            <t-tag v-if="row.status === null" theme="warning" variant="light">unknown</t-tag>
+            <t-tag v-if="row.status === 'finished'" theme="primary" variant="light">已完成</t-tag>
+            <t-tag v-if="row.status === null || row.status === ''" theme="warning" variant="light">unknown</t-tag>
           </template>
           <template #contractType="{ row }">
             <p v-if="row.contractType === CONTRACT_TYPES.MAIN">审核失败</p>
