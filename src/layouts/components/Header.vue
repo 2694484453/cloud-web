@@ -173,6 +173,7 @@ export default Vue.extend({
     },
     handleLogout() {
       this.$router.push(`/login?redirect=${this.$router.history.current.fullPath}`);
+      this.localStorage.removeItem('username');
     },
     changeCollapsed() {
       this.$store.commit('setting/toggleSidebarCompact');

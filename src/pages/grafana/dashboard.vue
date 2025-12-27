@@ -6,12 +6,13 @@
   </div>
 </template>
 <script lang="ts">
-import { prefix } from '@/config/global';
+import {prefix} from '@/config/global';
 import STYLE_CONFIG from '@/config/style';
 
 const computedStyle = getComputedStyle(document.documentElement);
 const sizeXxxl = computedStyle.getPropertyValue('--td-comp-size-xxxl');
 const paddingTBXxl = computedStyle.getPropertyValue('--td-comp-paddingTB-xxl');
+import {datasource, grafanaDomain} from "@/config/global";
 
 export default {
   name: 'DetailAdvanced',
@@ -19,8 +20,8 @@ export default {
     return {
       prefix,
       loading: true,
-      frameSrc: 'https://grafana.gpg123.vip/dashboards',
-      settingStore: { ...STYLE_CONFIG },
+      frameSrc: grafanaDomain + '/dashboards',
+      settingStore: {...STYLE_CONFIG},
       getWrapStyle: `height: ${window.innerHeight}px`,
     };
   },
@@ -52,7 +53,7 @@ export default {
         return;
       }
       let clientHeight = 0;
-      const { showFooter, isUseTabsRouter, showBreadcrumb } = this.settingStore;
+      const {showFooter, isUseTabsRouter, showBreadcrumb} = this.settingStore;
       const headerHeight = parseFloat(sizeXxxl);
       const navDom = document.querySelector('.t-tabs__nav');
       const navHeight = isUseTabsRouter ? this.getOuterHeight(navDom) : 0;

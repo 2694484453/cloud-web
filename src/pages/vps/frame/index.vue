@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import Dashboard from '@/components/dashboard/index.vue';
-import {grafanaDomain, datasource} from "@/constants";
+import {grafanaDomain, datasource} from "@/config/global";
 export default {
   name: 'vpsDashboard',
   components: {

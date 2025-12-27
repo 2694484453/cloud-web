@@ -1,3 +1,5 @@
+import * as process from "node:process";
+
 interface IOption {
   value: number | string;
   label: string;
@@ -44,15 +46,3 @@ export const NOTIFICATION_TYPES = {
   middle: 'warning',
   high: 'danger',
 };
-
-// grafana地址
-export const grafanaDomain = "https://grafana.gpg123.vip";
-
-// prometheus
-export const prometheusDomain = "https://prometheus.gpg123.vip";
-
-// alertManager
-export const alertManagerDomain = "https://alertmanager.gpg123.vip";
-
-//数据源
-export const datasource = "prometheus.gpg123.vip";

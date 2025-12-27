@@ -3,7 +3,7 @@
 </template>
 <script lang="ts">
 import Dashboard from "@/components/dashboard/index.vue";
-import {datasource, grafanaDomain} from "@/constants";
+import {datasource, grafanaDomain} from "@/config/global";
 
 export default {
   name: 'kubernetesDashboard',

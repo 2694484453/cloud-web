@@ -14,7 +14,7 @@ import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch';
 // ✅ 直接使用 plain object 作为 resource（完全合法！）
 const resource = {
   attributes: {
-    'service.name': 'cloud-web',
+    'service.name': import.meta.env.VITE_SERVICE_NAME,
     // 可选：添加其他属性
     // 'telemetry.sdk.name': 'opentelemetry',
     // 'telemetry.sdk.language': 'webjs'
@@ -47,6 +47,6 @@ registerInstrumentations({
   ],
 });
 
-export const tracer = provider.getTracer('cloud-web');
+export const tracer = provider.getTracer(import.meta.env.VITE_SERVICE_NAME);
 
 console.log('✅ OpenTelemetry initialized (without Resource constructor)');

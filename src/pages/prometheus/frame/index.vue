@@ -4,7 +4,7 @@
 <script lang="ts">
 import { prefix } from '@/config/global';
 import Dashboard from '@/components/dashboard/index.vue';
-import {prometheusDomain} from "@/constants";
+import {prometheusDomain} from "@/config/global";
 
 export default {
   name: 'DetailAdvanced',
