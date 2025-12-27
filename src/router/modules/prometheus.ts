@@ -30,13 +30,13 @@ export default [
       {
         path: "rules",
         name: 'rules',
-        component: () => import("@/pages/prometheus-alertmanager/list/index.vue"),
+        component: () => import("@/pages/prometheus/rule/index.vue"),
         meta: {title: '告警规则'},
       },
       {
         path: "alerts",
         name: 'alerts',
-        component: () => import("@/pages/prometheus-alertmanager/list/index.vue"),
+        component: () => import("@/pages/prometheus/alert/index.vue"),
         meta: {title: '告警信息'},
       }
     ],
