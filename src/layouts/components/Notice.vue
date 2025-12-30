@@ -88,7 +88,7 @@ export default Vue.extend({
       this.isNoticeVisible = visible;
     },
     goDetail() {
-      this.$router.push('/detail/secondary');
+      this.$router.push('/notice/list');
       this.isNoticeVisible = false;
     },
     // 设置为已读

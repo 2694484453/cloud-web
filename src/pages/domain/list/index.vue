@@ -339,9 +339,12 @@ export default Vue.extend({
     handleClickDownload(row) {
 
     },
-    handleClickDelete(row: { rowIndex: any }) {
-      this.deleteIdx = row.rowIndex;
-      this.confirmVisible = true;
+    handleClickDelete(row: any) {
+      this.confirm.visible = true;
+      this.confirm.operation = 'delete';
+      this.confirm.header = '删除' + row.domain;
+      this.confirm.body = '确定要删除吗，是否继续？';
+      this.formData = row
     },
     onConfirmDelete() {
       // 真实业务请发起请求
@@ -396,30 +399,14 @@ export default Vue.extend({
     // 确认对话框
     onConfirmOk() {
       switch (this.confirm.operation) {
-        case 'codeSpaceAdd':
-          this.$request.post('/git/codeSpace/add', {
-            spaceName: this.formData.name,
-            repoId: this.formData.id
-          }).then((res) => {
-            if (res.data.code === 200) {
-              this.$message.success("地址已分配完成，正在初始化数据中...")
-              setTimeout(() => {
-                this.$router.push('/git/codeSpace')
-              },10000)
-            }
-          }).catch((e: Error) => {
-            console.log(e)
-          }).finally(() => {
-
-          })
-          break;
         case 'delete':
-          this.$request.delete("/git/repo/delete?id=" + this.formData.params.id).then(res => {
+          this.$request.delete("/domain/delete?id=" + this.formData.id).then(res => {
             if (res.data.code === 200) {
               this.$message.success(res.data.msg)
-              this.confirmVisible = false;
-              this.resetIdx();
-              this.getList();
+              this.confirm.visible = false;
+              this.page();
+            } else {
+              this.$message.error(res.data.msg);
             }
           })
           break;
