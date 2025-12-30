@@ -61,7 +61,6 @@ export default Vue.extend({
   },
   data() {
     return {
-
       dataLoading: false,
       // 响应数据
       data: [],
