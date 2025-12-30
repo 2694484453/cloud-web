@@ -2,6 +2,8 @@ import VueRouter from 'vue-router';
 import baseRouters from './modules/base';
 // 个人
 import componentsRouters from './modules/components';
+// userinfo
+import userInfoRouters from "@/router/modules/userinfo";
 // 其他
 import othersRouters from './modules/others';
 // 域名
@@ -56,9 +58,12 @@ switch (envName) {
   case "development":
     routerList.push(...devRouterList)
     routerList.push(...noticeRouters)
+    routerList.push(...userInfoRouters)
     break;
   case "prod":
     routerList.push(...prodRouterList)
+    routerList.push(...noticeRouters)
+    routerList.push(...userInfoRouters)
     break;
   case "nas":
     routerList.push(...nasRouters)
