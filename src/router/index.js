@@ -68,9 +68,6 @@ switch (envName) {
   case "nas":
     routerList.push(...nasRouters)
     break;
-  case "wallpaper":
-    routerList.push(...wallpaperRouters)
-    break;
 }
 
 // 存放固定的路由
