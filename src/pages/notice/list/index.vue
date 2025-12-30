@@ -309,67 +309,14 @@ export default Vue.extend({
             total: res.data.total,
           };
         }
-      })
-        .catch((e: Error) => {
+      }).catch((e: Error) => {
           console.log(e);
-        })
-        .finally(() => {
+        }).finally(() => {
           this.dataLoading = false;
         });
     },
-    getRepoList() {
-      this.dataLoading = true;
-      this.$request.get('/git/accessRepo/page', {
-        params: {
-          type: this.dialog.type,
-          name: this.dialog.name
-        }
-      }).then((res) => {
-        if (res.data.code === 200) {
-          console.log("repos", res.data.rows)
-          this.dialog.gitRepoList = res.data.rows;
-          this.dialog.total = res.data.total;
-        }
-      }).catch((e: Error) => {
-        console.log(e);
-      }).finally(() => {
-        this.dataLoading = false;
-      });
-    },
-    getRepoTypeList() {
-      this.dataLoading = true;
-      this.$request.get('/git/common/types').then((res) => {
-        if (res.data.code === 200) {
-          console.log("types", res.data.data)
-          this.dialog.gitRepoTypeList = res.data.data;
-        }
-      })
-    },
     getContainer() {
       return document.querySelector('.tdesign-starter-layout');
-    },
-    // 导入仓库
-    importRepo(row) {
-      this.$request.post('/git/repo/import?type=' + this.dialog.type,
-        {
-          id: row.id,
-          name: row.name,
-          type: this.dialog.type,
-          gitUrl: row.hasOwnProperty("git_url") ? row.git_url : row.html_url,
-          language: row.language,
-          description: row.description,
-          status: row.status,
-          htmlUrl: row.html_url,
-          sshUrl: row.ssh_url,
-          fullName: row.full_name,
-          humanName: row.human_name,
-        }
-      ).then((res) => {
-        if (res.data.code === 200) {
-          this.$message.success(res.data.msg)
-          this.getList()
-        }
-      })
     },
     onPageSizeChange(size, pageInfo) {
       console.log('Page Size:', this.pageSize, size, pageInfo);
