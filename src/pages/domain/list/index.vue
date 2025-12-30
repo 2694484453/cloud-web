@@ -16,7 +16,7 @@
             <t-button variant="base" theme="default" :disabled="!selectedRowKeys.length"> 导出</t-button>
             <!--            <p v-if="!!selectedRowKeys.length" class="selected-count">已选{{ selectedRowKeys.length }}项</p>-->
           </div>
-          <t-input v-model="formData.domainName" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
+          <t-input v-model="searchForm.domain" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
             <template #suffix-icon>
               <search-icon size="20px"/>
             </template>
@@ -112,7 +112,7 @@
           @reset="onReset"
         >
           <t-form-item label="域名" name="url">
-            <t-input v-model="formData.domainName" class="search-input" placeholder="" clearable></t-input>
+            <t-input v-model="formData.domain" class="search-input" placeholder="" clearable></t-input>
           </t-form-item>
           <t-form-item label="描述" name="name">
             <t-textarea v-model="formData.description" class="search-input" placeholder="" clearable
@@ -122,7 +122,7 @@
       </t-space>
       <t-space v-show="drawer.operation === 'detail'" direction="vertical" style="width: 100%">
         <t-descriptions bordered :layout="'vertical'" :item-layout="'horizontal'" :column="2">
-          <t-descriptions-item label="名称">{{ formData.domainName }}</t-descriptions-item>
+          <t-descriptions-item label="名称">{{ formData.domain }}</t-descriptions-item>
           <t-descriptions-item label="类型">{{ formData.type }}</t-descriptions-item>
           <t-descriptions-item label="状态">{{ formData.status }}</t-descriptions-item>
           <t-descriptions-item label="创建者">{{ formData.createByUserName }}</t-descriptions-item>
@@ -167,20 +167,25 @@ export default Vue.extend({
           align: 'left',
           width: 150,
           ellipsis: true,
-          colKey: 'domainName',
+          colKey: 'domain',
           fixed: 'left',
         },
         {
           title: '状态',
-          colKey: 'Status',
+          colKey: 'status',
           width: 80,
-          cell: {col: 'Status'}
         },
         {
           title: '类型',
-          width: 160,
+          width: 80,
           ellipsis: true,
           colKey: 'type',
+        },
+        {
+          title: '地址',
+          width: 120,
+          ellipsis: true,
+          colKey: 'analysisUrl',
         },
         {
           title: '描述',
@@ -224,13 +229,14 @@ export default Vue.extend({
       deleteIdx: -1,
       // 搜索框
       searchForm: {
-        name: "",
+        domain: "",
         type: "",
         pageNum: 1,
         pageSize: 10
       },
       formData: {
-        domainName: "",
+        id: "",
+        domain: "",
         type: "",
         status: "",
         createByUserName: '',
@@ -279,7 +285,7 @@ export default Vue.extend({
     page() {
       this.dataLoading = true;
       this.$request.get('/domain/page', {
-        params: this.formData
+        params: this.searchForm
       }).then((res) => {
         if (res.data.code === 200) {
           this.data = res.data.rows;
@@ -355,7 +361,7 @@ export default Vue.extend({
     onReset(data) {
       console.log(data);
     },
-    onSubmit(data) {
+    onSubmit() {
       this.page();
     },
     // drawer大小
