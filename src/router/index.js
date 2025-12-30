@@ -65,9 +65,6 @@ switch (envName) {
     routerList.push(...noticeRouters)
     routerList.push(...userInfoRouters)
     break;
-  case "nas":
-    routerList.push(...nasRouters)
-    break;
 }
 
 // 存放固定的路由
