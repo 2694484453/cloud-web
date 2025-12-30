@@ -13,8 +13,6 @@ import 'tdesign-vue/es/style/index.css';
 import '@/style/index.less';
 import './permission';
 import store from './store';
-// 初始化 OpenTelemetry（必须在 Vue 实例创建前）
-import '@/plugins/otel';
 
 Vue.use(VueRouter);
 Vue.use(TDesign);

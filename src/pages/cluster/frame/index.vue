@@ -10,25 +10,20 @@ export default {
   components: {Dashboard},
   data() {
     return {
-      loading: true,
       grafana: {
         domain: grafanaDomain,
         datasource: datasource,
-        clusterName: "",
-        jobName: "",
+        clusterName: this.$route.query.clusterName ?? '',
+        jobName: this.$route.query.jobName ?? '',
       },
       frameSrc: '',
     };
   },
   mounted() {
-    // 取参数
-    if (this.$route.query.clusterName != null) {
-      this.grafana.clusterName = this.$route.query.clusterName;
-    }
-    if (this.$route.query.jobName != null) {
-      this.grafana.jobName = this.$route.query.jobName;
-    }
-    this.frameSrc = this.grafana.domain + "/d/af7a0l6fiwr9ca/k8s-dashboard?orgId=1&from=now-15m&to=now&timezone=browser&var-origin_prometheus=" + this.grafana.jobName + "&var-Node=$__all&var-NameSpace=$__all&var-Container=$__all&var-Pod=$__all&refresh=auto"
+    this.frameSrc = this.grafana.domain + "/d/af7a0l6fiwr9ca/k8s-dashboard?orgId=1&from=now-15m&to=now&timezone=browser&var-origin_prometheus=" + this.grafana.jobName + "&var-Node=$__all&var-NameSpace=$__all&var-Container=$__all&var-Pod=$__all&refresh=auto";
+    console.log("xx" ,this.grafana);
+  },
+  created() {
   },
   methods: {},
 };

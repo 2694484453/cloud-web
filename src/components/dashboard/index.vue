@@ -15,12 +15,19 @@ const paddingTBXxl = computedStyle.getPropertyValue('--td-comp-paddingTB-xxl');
 
 export default {
   name: 'DetailAdvanced',
-  props: ["frameSrc","loading"],
+  props: {
+    frameSrc: {
+      type: String,
+      default: '',
+    },
+    loading: {
+      type: Boolean,
+      default: true,
+    }
+  },
   data() {
     return {
       prefix,
-      loading: true,
-      frameSrc: '',
       settingStore: { ...STYLE_CONFIG },
       getWrapStyle: `height: ${window.innerHeight}px`,
     };
