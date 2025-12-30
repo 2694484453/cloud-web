@@ -19,7 +19,7 @@
             </template>
           </t-input>
           <t-col :span="2" class="operation-container">
-            <t-button theme="primary" :style="{ marginLeft: '8px' }" @click="getList"> 查询</t-button>
+            <t-button theme="primary" :style="{ marginLeft: '8px' }"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>
           </t-col>
         </t-row>
@@ -53,15 +53,14 @@
         </t-table>
       </div>
     </t-card>
-    <div>
-      <t-pagination
-        v-model="formData.pageNum"
-        :total="pagination.total"
-        :page-size.sync="formData.pageSize"
-        @current-change="onCurrentChange"
-        @page-size-change="onPageSizeChange"
-        @change="onChange"/>
-    </div>
+    <t-pagination
+      style="margin-top: 15px"
+      v-model="searchForm.pageNum"
+      :total="pagination.total"
+      :page-size.sync="searchForm.pageSize"
+      @current-change="onCurrentChange"
+      @page-size-change="onPageSizeChange"
+      @change="onChange"/>
     <t-dialog
       header="确认删除当前所选合同？"
       :body="confirmBody"
@@ -113,26 +112,10 @@
               </t-form-item>
             </div>
             <div class="right-operation-container">
-              <t-button theme="primary" :style="{ marginLeft: '8px' }" @click="getRepoList"> 查询</t-button>
+              <t-button theme="primary" :style="{ marginLeft: '8px' }"> 查询</t-button>
               <t-button type="reset" variant="base" theme="default"> 重置</t-button>
             </div>
           </t-form>
-          <t-table
-            :columns="dialog.gitRepoColumns"
-            :data="dialog.gitRepoList"
-            :rowKey="rowKey"
-            :selected-row-keys="selectedRowKeys"
-            :loading="dataLoading"
-            :headerAffixedTop="true"
-            :headerAffixProps="{ offsetTop: offsetTop, container: getContainer }"
-          >
-            <template #html_url="{row}">
-              <a :href="row.html_url" target="_blank">{{ row.html_url }}</a>
-            </template>
-            <template #op="slotProps">
-              <a class="t-button-link" @click="importRepo(slotProps.row)">导入</a>
-            </template>
-          </t-table>
         </div>
         <t-pagination v-model="dialog.current" v-model:pageSize="dialog.pageSize" :total="dialog.total"/>
       </t-card>
@@ -162,10 +145,10 @@ export default Vue.extend({
       prefix,
       dataLoading: false,
       data: [],
-      selectedRowKeys: [1, 2],
+      selectedRowKeys: [],
       value: 'first',
       columns: [
-        {colKey: 'row-select', type: 'multiple', width: 64, fixed: 'left'},
+        {colKey: 'row-select', type: 'multiple', width: 50, fixed: 'left'},
         {
           title: '标题',
           align: 'left',
@@ -184,7 +167,7 @@ export default Vue.extend({
         {
           title: '是否已读',
           colKey: 'isConfirm',
-          width: 100
+          width: 80
         },
         {
           title: '内容',
@@ -194,13 +177,13 @@ export default Vue.extend({
         },
         {
           title: '创建时间',
-          width: 180,
+          width: 160,
           ellipsis: true,
           colKey: 'createTime',
         },
         {
           title: '更新时间',
-          width: 200,
+          width: 160,
           ellipsis: true,
           colKey: 'updateTime',
         },
@@ -226,6 +209,11 @@ export default Vue.extend({
       searchValue: '',
       confirmVisible: false,
       deleteIdx: -1,
+      searchForm: {
+        name: "",
+        pageNum: 1,
+        pageSize: 10
+      },
       formData: {
         name: "",
         type: "",
@@ -294,13 +282,30 @@ export default Vue.extend({
   mounted() {
   },
   created() {
-    this.getList()
+    this.page()
+  },
+  watch: {
+    "searchForm.name"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageSize"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
+    "searchForm.pageNum"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    }
   },
   methods: {
-    getList() {
+    page() {
       this.dataLoading = true;
       this.$request.get('/sysActionNotice/page', {
-        params: this.formData
+        params: this.searchForm
       }).then((res) => {
         if (res.data.code === 200) {
           this.data = res.data.rows;
@@ -309,11 +314,12 @@ export default Vue.extend({
             total: res.data.total,
           };
         }
+        this.dataLoading = false;
       }).catch((e: Error) => {
-          console.log(e);
-        }).finally(() => {
-          this.dataLoading = false;
-        });
+        console.log(e);
+      }).finally(() => {
+
+      });
     },
     getContainer() {
       return document.querySelector('.tdesign-starter-layout');
@@ -321,14 +327,12 @@ export default Vue.extend({
     onPageSizeChange(size, pageInfo) {
       console.log('Page Size:', this.pageSize, size, pageInfo);
       // 刷新
-      this.formData.pageSize = size
-      this.getList()
+      this.searchForm.pageSize = size
     },
     onCurrentChange(current, pageInfo) {
       console.log('Current Page', this.current, current, pageInfo);
       // 刷新
-      this.formData.pageNum = current
-      this.getList()
+      this.searchForm.pageNum = current
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);
@@ -340,8 +344,6 @@ export default Vue.extend({
     // 点击导入
     handleSetupContract() {
       this.dialog.visible = true
-      this.getRepoList()
-      this.getRepoTypeList()
     },
     // 点击删除
     handleClickDelete(row: { rowIndex: any }) {
@@ -385,9 +387,8 @@ export default Vue.extend({
     onReset(data) {
       console.log(data);
     },
-    onSubmit(data) {
-      console.log(this.formData);
-      this.getList(this.formData);
+    onSubmit() {
+      this.page();
     },
   },
 });
