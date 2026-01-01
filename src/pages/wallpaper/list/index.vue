@@ -40,10 +40,8 @@
         </div>
       </t-card>
     </div>
-
     <!-- 页脚 -->
     <Footer />
-
     <!-- 图片预览器 -->
     <t-image-viewer
       v-model:visible="overView.visible"

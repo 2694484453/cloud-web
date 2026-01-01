@@ -14,7 +14,7 @@
       <t-menu-item value="二次元">二次元</t-menu-item>
       <t-menu-item value="三次元">三次元</t-menu-item>
       <t-menu-item value="iphone">iphone</t-menu-item>
-      <t-menu-item value="zhengfeng">哲风壁纸</t-menu-item>
+      <t-menu-item value="zhefeng">哲风壁纸</t-menu-item>
       <t-menu-item value="dynamic_wallpaper">动态壁纸</t-menu-item>
       <t-menu-item value="windows">windows</t-menu-item>
       <t-menu-item value="linux">linux</t-menu-item>
