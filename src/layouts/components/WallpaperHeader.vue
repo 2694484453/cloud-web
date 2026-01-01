@@ -18,8 +18,8 @@
       <t-menu-item value="dynamic_wallpaper">动态壁纸</t-menu-item>
       <t-menu-item value="windows">windows</t-menu-item>
       <t-menu-item value="linux">linux</t-menu-item>
-      <t-menu-item value="item2">macos</t-menu-item>
-      <t-menu-item value="item2">超宽屏壁纸</t-menu-item>
+      <t-menu-item value="macos">macos</t-menu-item>
+      <t-menu-item value="widescreen">超宽屏壁纸</t-menu-item>
       <t-menu-item value="fuli" :disabled="true">
         <t-tooltip content="您还没有订阅哦～">福利</t-tooltip>
       </t-menu-item>
@@ -139,7 +139,7 @@ export default Vue.extend({
         userName: ""
       },
       searchForm: {
-        type: "",
+        type: "dongman",
       }
     };
   },
