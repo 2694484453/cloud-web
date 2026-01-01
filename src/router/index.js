@@ -59,11 +59,13 @@ switch (envName) {
     routerList.push(...devRouterList)
     routerList.push(...noticeRouters)
     routerList.push(...userInfoRouters)
+    routerList.push(...wallpaperRouters)
     break;
   case "prod":
     routerList.push(...prodRouterList)
     routerList.push(...noticeRouters)
     routerList.push(...userInfoRouters)
+    routerList.push(...wallpaperRouters)
     break;
 }
 
@@ -79,7 +81,6 @@ const defaultRouterList = [
     path: '*',
     redirect: '/dashboard/base',
   },
-    ...wallpaperRouters,
   ...routerList,
 ];
 
