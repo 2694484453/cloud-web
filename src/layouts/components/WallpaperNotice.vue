@@ -50,12 +50,12 @@
 
 <script lang="ts">
 import Vue from 'vue';
-import { mapState, mapGetters } from 'vuex';
 import { MailIcon } from 'tdesign-icons-vue';
 
 import { NotificationItem } from '@/interface';
 
 export default Vue.extend({
+  name: 'WallpaperNotice',
   components: {
     MailIcon,
   },
@@ -73,7 +73,7 @@ export default Vue.extend({
   methods: {
     // 获取通知列表
     getNoticeList() {
-      this.$request.get('/sysActionNotice/list').then((res) => {
+      this.$request.get('/wallpaper/notice').then((res) => {
         if (res.data.code === 200) {
           this.unreadMsg = res.data.data;
         }

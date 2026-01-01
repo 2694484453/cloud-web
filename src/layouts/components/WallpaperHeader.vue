@@ -2,9 +2,7 @@
   <div :class="layoutCls">
     <t-head-menu :class="menuCls" :theme="theme" expandType="popup" :value="active">
       <template #logo>
-        <span v-if="showLogo" class="header-logo-container" @click="handleNav('#')">
-           壁纸小站
-        </span>
+        <span v-if="showLogo" class="header-logo-container" @click="handleNav('')">简单壁纸</span>
         <div v-else class="header-operate-left">
           <t-button theme="default" shape="square" variant="text" @click="changeCollapsed">
             <view-list-icon class="collapsed-icon" />
@@ -17,10 +15,8 @@
         <div class="operations-container">
           <!-- 搜索框 -->
           <search v-if="layout !== 'side'" :layout="layout" />
-
           <!-- 全局通知 -->
           <notice />
-
           <t-tooltip placement="bottom" content="代码仓库">
             <t-button theme="default" shape="square" variant="text" @click="navToGitHub">
               <logo-github-icon />
@@ -82,6 +78,7 @@ import Search from './Search.vue';
 import MenuContent from './MenuContent.vue';
 
 export default Vue.extend({
+  name: 'WallpaperHeader',
   components: {
     MenuContent,
     LogoFull,

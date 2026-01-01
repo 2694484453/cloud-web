@@ -21,7 +21,7 @@
                   <t-space v-for="item in data" :key="item.id" direction="vertical">
                     <t-image
                       :key="item"
-                      :src="item.url"
+                      :src="item.url+'?x-oss-process=image/resize,w_800'"
                       :style="{ width: '280px', height: '130px' ,marginLeft: '10px',marginRight:'10px'}"
                       :lazy="true"
                       :alt="item.name"
