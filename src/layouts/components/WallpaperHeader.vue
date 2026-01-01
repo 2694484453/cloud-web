@@ -27,7 +27,7 @@
       <template #operations>
         <div class="operations-container">
           <!-- 搜索框 -->
-          <search v-if="layout !== 'side'" :layout="layout" />
+          <search @searchData="searchForm.name" v-if="layout !== 'side'" :layout="layout" />
           <!-- 全局通知 -->
           <WallpaperNotice />
           <t-tooltip placement="bottom" content="代码仓库">
@@ -139,6 +139,7 @@ export default Vue.extend({
         userName: ""
       },
       searchForm: {
+        name: "",
         type: "dongman",
       }
     };
@@ -173,6 +174,11 @@ export default Vue.extend({
     "searchForm.type"(newVal, oldVal) {
       if (newVal !== oldVal) {
         this.$emit("type",newVal);
+      }
+    },
+    "searchForm.name"(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.$emit("name",newVal);
       }
     },
   },

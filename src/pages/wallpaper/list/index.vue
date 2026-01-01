@@ -1,7 +1,7 @@
 <template>
   <div class="wallpaper-list-container">
     <!-- 页头 -->
-    <WallpaperHeader @type="changeType" />
+    <WallpaperHeader @type="changeType" @name="searchForm.name" />
     <!-- 使用一个包裹 div 来控制整体布局 -->
     <div class="list-content">
       <t-card :bordered="false" class="list-card">

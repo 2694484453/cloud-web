@@ -56,6 +56,13 @@ export default Vue.extend({
       searchData: '',
     };
   },
+  watch: {
+    searchData(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.$emit('searchData', newVal);
+      }
+    },
+  },
   methods: {
     changeSearchFocus(value: boolean) {
       if (!value) {
