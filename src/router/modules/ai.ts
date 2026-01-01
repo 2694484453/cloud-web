@@ -1,11 +1,12 @@
 import {SearchIcon} from 'tdesign-icons-vue';
 import Layout from '@/layouts/index.vue';
+import AiIcon from '@/assets/icon/ai.svg';
 export default [
   {
     path: '/ai',
     name: 'ai',
     component: Layout,
-    meta: {title: '大模型管理', icon: SearchIcon},
+    meta: {title: '大模型管理', icon: AiIcon},
     children: [
       {
         path: 'dashboard',

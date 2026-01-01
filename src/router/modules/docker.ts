@@ -1,5 +1,6 @@
 import {AppIcon} from 'tdesign-icons-vue';
 import Layout from '@/layouts/index.vue';
+import DockerIcon from '@/assets/icon/docker.svg';
 
 export default [
   {
@@ -7,7 +8,7 @@ export default [
     name: 'docker',
     component: Layout,
     //redirect: '/repo/base',
-    meta: {title: 'docker管理', icon: AppIcon},
+    meta: {title: 'docker管理', icon: DockerIcon},
     children: [
       {
         path: 'imageMarket',

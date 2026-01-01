@@ -1,4 +1,4 @@
-import {SearchIcon, ServerIcon} from 'tdesign-icons-vue';
+import {ServerIcon} from 'tdesign-icons-vue';
 import Layout from '@/layouts/index.vue';
 export default [
   {

@@ -2,7 +2,7 @@ export default {
   development: {
     // 开发环境接口请求
     NAME: "development",
-    API: 'http://localhost:9099',
+    API: 'https://cloud-server.gpg123.vip', //'http://localhost:9099',
     PATH: "/api", //"/dev-api/",
     // 开发环境 cdn 路径
     CDN: '',

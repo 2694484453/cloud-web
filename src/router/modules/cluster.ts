@@ -1,11 +1,12 @@
 import {SettingIcon, ServerIcon} from 'tdesign-icons-vue';
 import Layout from '@/layouts/index.vue';
+import KubernetesIcon from '@/assets/icon/kubernetes.svg';
 export default [
   {
     path: '/cluster',
     name: 'cluster',
     component: Layout,
-    meta: {title: '边缘云集群', icon: SettingIcon},
+    meta: {title: '边缘云集群', icon: KubernetesIcon},
     children: [
       {
         path: 'overView',

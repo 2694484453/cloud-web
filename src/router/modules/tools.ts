@@ -1,4 +1,4 @@
-import {LogoGithubIcon} from 'tdesign-icons-vue';
+import {ToolsIcon} from 'tdesign-icons-vue';
 import Layout from '@/layouts/index.vue';
 
 export default [
@@ -9,7 +9,7 @@ export default [
     name: 'tools',
     meta: {
       title: '工具管理',
-      icon: LogoGithubIcon,
+      icon: ToolsIcon,
     },
     children: [
       {

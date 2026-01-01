@@ -1,6 +1,6 @@
-import {LogoGithubIcon, RelativityIcon} from 'tdesign-icons-vue';
+import {RelativityIcon} from 'tdesign-icons-vue';
 import Layout from '@/layouts/index.vue';
-
+import DevopsIcon from '@/assets/icon/devops.svg';
 export default [
   {
     path: '/devops',
@@ -9,7 +9,7 @@ export default [
     name: 'devops',
     meta: {
       title: 'DevOps流水线',
-      icon: RelativityIcon,
+      icon: DevopsIcon,
     },
     children: [
       {

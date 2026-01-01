@@ -1,11 +1,12 @@
 import {ChartPieIcon} from 'tdesign-icons-vue';
 import Layout from '@/layouts/index.vue';
+import CaddyIcon from '@/assets/icon/caddy.svg';
 export default [
   {
     path: '/caddy',
     name: 'caddy',
     component: Layout,
-    meta: {title: 'Caddy管理', icon: ChartPieIcon},
+    meta: {title: 'Caddy管理', icon: CaddyIcon},
     children: [
       // {
       //   path: 'dashboard',
