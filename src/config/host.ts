@@ -18,6 +18,7 @@ export default {
     changeOrigin: true
   },
   test: {
+    NAME: "test",
     // 测试环境接口地址
     API: 'http://ecs.gpg123.vip:9099',
     // 测试环境 cdn 路径
@@ -25,4 +26,11 @@ export default {
     CDN: '',
     changeOrigin: true
   },
+  wallpaper: {
+    NAME: "wallpaper",
+    API: 'https://cloud-server.gpg123.vip',
+    PATH: "/api",
+    CDN: '',
+    changeOrigin: true
+  }
 };
