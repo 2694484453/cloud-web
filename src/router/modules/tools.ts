@@ -19,7 +19,7 @@ export default [
         meta: {title: '概览'},
       },
       {
-        path: "https://hub-proxy.gpg123.vip",
+        path: "https://hubproxy.gpg123.vip",
         name: 'hubProxy',
         meta: {title: '加速服务'},
       },
