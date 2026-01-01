@@ -11,18 +11,12 @@
         :style="{ marginBottom: '8px' }"
       >
         <t-row justify="space-between">
-          <t-col :span="3">
-            <!--            <t-form-item label="仓库源" name="repoName">-->
-            <!--              <t-select v-model="searchForm.repoName">-->
-            <!--                <t-option v-for="(item,index) in repoList" :key="index" :label="item" :value="item">{{ item }}-->
-            <!--                </t-option>-->
-            <!--              </t-select>-->
-            <!--              <t-input v-model="searchForm.repoName" :style="{ width: '200px' }" placeholder="请输入内容"/>-->
-            <!--            </t-form-item>-->
-            <t-form-item label="名称" name="name">
-              <t-input v-model="searchForm.name" :style="{ width: '200px' }" placeholder="请输入内容"/>
-            </t-form-item>
-          </t-col>
+          <div class="left-operation-container"></div>
+          <t-input v-model="searchForm.name" class="search-input" placeholder="请输入你需要搜索的内容" clearable>
+            <template #suffix-icon>
+              <search-icon size="20px"/>
+            </template>
+          </t-input>
           <t-col :span="2" class="operation-container">
             <t-button theme="primary" type="submit" :style="{ marginLeft: '8px' }"> 查询</t-button>
             <t-button type="reset" variant="base" theme="default"> 重置</t-button>

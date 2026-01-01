@@ -15,20 +15,24 @@
           <div style="float: right;position: relative">
             <t-button theme="default" shape="square" variant="text" style="width: 120px;float: right"
                       @click="handleClickEdit">
-              <edit-icon size="18"/>
-              编辑信息
+              <edit-icon size="18"/>编辑信息
             </t-button>
           </div>
-          <t-row class="content" justify="space-between">
-            <t-col v-for="(item, index) in USER_INFO_LIST" :key="index" class="contract" :span="item.span || 3">
-              <div class="contract-title">
-                {{ item.title }}
-              </div>
-              <div class="contract-detail">
-                {{ item.content }}
-              </div>
-            </t-col>
-          </t-row>
+          <template>
+            <t-descriptions :title="'欢迎，' + form.userName">
+              <t-descriptions-item label="用户名">{{form.userName}}</t-descriptions-item>
+              <t-descriptions-item label="昵称">{{form.nickName}}</t-descriptions-item>
+              <t-descriptions-item label="性别">{{form.sex === '1'? '男':'女'}}</t-descriptions-item>
+              <t-descriptions-item label="电话">{{form.phonenumber}}</t-descriptions-item>
+              <t-descriptions-item label="邮箱">{{form.email}}</t-descriptions-item>
+              <t-descriptions-item label="平台角色">
+                <span v-for="item in form.roles">{{item.roleName}}</span>
+              </t-descriptions-item>
+              <t-descriptions-item label="备注">{{form.remark}}</t-descriptions-item>
+              <t-descriptions-item label="登录日期">{{form.loginDate}}</t-descriptions-item>
+              <t-descriptions-item label="登录ip">{{form.loginIp}}</t-descriptions-item>
+            </t-descriptions>
+          </template>
         </t-card>
 
         <t-card class="content-container" :bordered="false">
@@ -183,7 +187,6 @@ export default {
       lineContainer: '',
       lineChart: '',
       LAST_7_DAYS,
-      USER_INFO_LIST: [],
       TEAM_MEMBERS,
       PRODUCT_LIST,
       formConfig: {
@@ -192,6 +195,7 @@ export default {
       },
       form: {
         id: '',
+        userName: '',
         nickName: '',
         phonenumber: '',
         email: '',
@@ -199,6 +203,7 @@ export default {
         createTime: '',
         updateTime: '',
         remark: '',
+        roles: []
       },
     };
   },
@@ -233,28 +238,6 @@ export default {
       this.$request.get("/getInfo").then(res => {
         if (res.data.code === 200) {
           this.form = res.data.user;
-          this.USER_INFO_LIST.push(
-            {
-              title: '昵称',
-              content: this.form.nickName,
-            },
-            {
-              title: '手机',
-              content: this.form.phonenumber,
-            },
-            {
-              title: '邮箱',
-              content: this.form.email,
-            },
-            {
-              title: '管理主体',
-              content: this.form.nickName,
-            },
-            {
-              title: '备注',
-              content: this.form.remark,
-            }
-          )
         }
       })
     },

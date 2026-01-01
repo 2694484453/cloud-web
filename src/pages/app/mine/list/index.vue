@@ -27,7 +27,6 @@
           </t-col>
         </t-row>
       </t-form>
-
       <div class="table-container">
         <t-table
           :columns="columns"
@@ -137,8 +136,8 @@
             <!--            </t-select>-->
           </t-form-item>
           <t-form-item label="参数" name="description">
-            <t-textarea v-model="formData.chartValues" placeholder="请输入备注内容" :maxlength="9999" with="200"
-                        :autosize="{minRows:7}"></t-textarea>
+            <t-textarea v-model="formData.chartValues" placeholder="请输入安装参数内容" :maxlength="9999" with="200"
+                        :autosize="{minRows:7}" tips="yaml格式内容,详细见https://helm.sh/zh/docs/"></t-textarea>
           </t-form-item>
           <t-form-item label="描述" name="description">
             <t-textarea v-model="formData.description" placeholder="请输入备注内容" :maxlength="200" with="200"
