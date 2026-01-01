@@ -48,7 +48,7 @@ import proxy from '@/config/host';
 // 开发模式
 const devRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...prometheusRouters, ...tracingRouters, ...appRouters, ...dockerRouters, ...traefikRouters, ...clusterRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, ...backupRouters, ...scheduleRouters, ...toolsRouters, ...othersRouters]
 // 生产模式
-const prodRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...appRouters, ...prometheusRouters, ...tracingRouters, ...traefikRouters, ...clusterRouters, ...dockerRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, ...scheduleRouters, ...noticeRouters, ...toolsRouters, ...backupRouters]
+const prodRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...appRouters, ...prometheusRouters, ...tracingRouters, ...traefikRouters, ...clusterRouters, ...dockerRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, ...scheduleRouters, ...toolsRouters, ...backupRouters]
 // 基础路由
 export const routerList = [...baseRouters]
 const env = import.meta.env.MODE || 'development';
