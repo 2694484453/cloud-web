@@ -1,6 +1,6 @@
 <template>
   <div>
-    <WallpaperHeader/>
+    <WallpaperHeader @type="changeType"/>
     <t-card :bordered="false">
       <t-form
         ref="form"
@@ -21,15 +21,12 @@
                   <t-space v-for="item in data" :key="item.id" direction="vertical">
                     <t-image
                       :key="item"
-                      :src="item.url+'?x-oss-process=image/resize,w_800'"
+                      :src="item.url+'?x-oss-process=image/resize,p_65'"
                       :style="{ width: '280px', height: '130px' ,marginLeft: '10px',marginRight:'10px'}"
                       :lazy="true"
                       :alt="item.name"
                       @click="clickOverView(item)"
                     />
-                    <div style="margin-left: 10px">
-                      <a :href="item.url" target="_blank">{{ item.name }}</a>
-                    </div>
                   </t-space>
                 </div>
               </template>
@@ -80,6 +77,7 @@ export default Vue.extend({
       // 查询表单数据
       searchForm: {
         name: "",
+        type: "",
         pageNum: 1,
         pageSize: 24
       },
@@ -131,6 +129,11 @@ export default Vue.extend({
         this.page()
       }
     },
+    "searchForm.type"(newVal, oldVal) {
+      if (newVal != oldVal) {
+        this.page()
+      }
+    },
     "searchForm.pageSize"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.page()
@@ -143,6 +146,9 @@ export default Vue.extend({
     }
   },
   methods: {
+    changeType(val) {
+      this.searchForm.type = val;
+    },
     getContainer() {
       return document.querySelector('.tdesign-starter-layout');
     },

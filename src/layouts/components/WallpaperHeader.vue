@@ -1,6 +1,6 @@
 <template>
   <div :class="layoutCls">
-    <t-head-menu :class="menuCls" :theme="theme" expandType="popup" :value="active">
+    <t-head-menu :class="menuCls" :theme="theme" expandType="popup" v-model:value="searchForm.type" @change="handleChange">
       <template #logo>
         <span v-if="showLogo" class="header-logo-container" @click="handleNav('')">简单壁纸</span>
         <div v-else class="header-operate-left">
@@ -10,13 +10,26 @@
           <search :layout="layout" />
         </div>
       </template>
+      <t-menu-item value="dongman">动漫</t-menu-item>
+      <t-menu-item value="二次元">二次元</t-menu-item>
+      <t-menu-item value="三次元">三次元</t-menu-item>
+      <t-menu-item value="iphone">iphone</t-menu-item>
+      <t-menu-item value="zhengfeng">哲风壁纸</t-menu-item>
+      <t-menu-item value="dynamic_wallpaper">动态壁纸</t-menu-item>
+      <t-menu-item value="windows">windows</t-menu-item>
+      <t-menu-item value="linux">linux</t-menu-item>
+      <t-menu-item value="item2">macos</t-menu-item>
+      <t-menu-item value="item2">超宽屏壁纸</t-menu-item>
+      <t-menu-item value="fuli" :disabled="true">
+        <t-tooltip content="您还没有订阅哦～">福利</t-tooltip>
+      </t-menu-item>
       <menu-content v-show="layout !== 'side'" class="header-menu" :navData="menu" />
       <template #operations>
         <div class="operations-container">
           <!-- 搜索框 -->
           <search v-if="layout !== 'side'" :layout="layout" />
           <!-- 全局通知 -->
-          <notice />
+          <WallpaperNotice />
           <t-tooltip placement="bottom" content="代码仓库">
             <t-button theme="default" shape="square" variant="text" @click="navToGitHub">
               <logo-github-icon />
@@ -72,17 +85,16 @@ import {
 } from 'tdesign-icons-vue';
 import { prefix } from '@/config/global';
 import LogoFull from '@/assets/assets-logo-full.svg';
-
-import Notice from './Notice.vue';
 import Search from './Search.vue';
 import MenuContent from './MenuContent.vue';
+import WallpaperNotice from "@/layouts/components/WallpaperNotice.vue";
 
 export default Vue.extend({
   name: 'WallpaperHeader',
   components: {
+    WallpaperNotice,
     MenuContent,
     LogoFull,
-    Notice,
     Search,
     ViewListIcon,
     LogoGithubIcon,
@@ -125,20 +137,13 @@ export default Vue.extend({
       isSearchFocus: false,
       userInfo: {
         userName: ""
+      },
+      searchForm: {
+        type: "",
       }
     };
   },
   computed: {
-    active() {
-      if (!this.$route.path) {
-        return '';
-      }
-      return this.$route.path
-        .split('/')
-        .filter((item, index) => index <= this.maxLevel && index > 0)
-        .map((item) => `/${item}`)
-        .join('');
-    },
     showMenu() {
       return !(this.layout === 'mix' && this.showLogo === 'side');
     },
@@ -164,7 +169,17 @@ export default Vue.extend({
       this.userInfo.userName = '未知';
     }
   },
+  watch: {
+    "searchForm.type"(newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.$emit("type",newVal);
+      }
+    },
+  },
   methods: {
+    handleChange(val) {
+      console.log(val);
+    },
     toggleSettingPanel() {
       this.$store.commit('setting/toggleSettingPanel', true);
     },

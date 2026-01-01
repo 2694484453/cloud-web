@@ -10,33 +10,18 @@
       <div class="header-msg">
         <div class="header-msg-top">
           <p>通知</p>
-          <t-button v-if="unreadMsg.length > 0" class="clear-btn" variant="text" theme="primary" @click="setRead('all')">一键已读</t-button>
         </div>
         <t-list v-if="unreadMsg.length > 0" class="narrow-scrollbar" :split="true">
           <t-list-item v-for="(item, index) in unreadMsg" :key="index">
             <div>
-              <p class="msg-content">{{ item.content }}</p>
-              <p class="msg-type">{{ item.type }}</p>
+              <p class="msg-content">{{ item.noticeTitle }}</p>
             </div>
             <p class="msg-time">{{ item.createTime }}</p>
-            <template #action>
-              <t-button size="small" variant="outline" @click="setRead('one', item)"> 设为已读 </t-button>
-            </template>
           </t-list-item>
         </t-list>
         <div v-else class="empty-list">
           <img src="https://tdesign.gtimg.com/pro-template/personal/nothing.png" alt="空" />
           <p>暂无通知</p>
-        </div>
-        <div class="header-msg-bottom">
-          <t-button
-            v-if="unreadMsg.length > 0"
-            class="header-msg-bottom-link"
-            variant="text"
-            theme="primary"
-            @click="goDetail"
-            >查看全部</t-button
-          >
         </div>
       </div>
     </template>
