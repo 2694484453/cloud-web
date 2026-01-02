@@ -138,7 +138,7 @@ html, body {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: 20px; /* 统一的内边距 */
+  padding: 15px; /* 统一的内边距 */
   box-sizing: border-box;
 }
 
@@ -160,7 +160,7 @@ html, body {
   flex: 1 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  gap: 15px;
   padding: 10px 0;
   overflow-y: auto; /* 如果图片很多，让网格区域内部滚动（可选） */
 }
@@ -189,14 +189,14 @@ html, body {
 }
 
 .pagination-wrap {
-  margin-top: 15px;
+  margin-top: 10px;
   text-align: left;
   flex-shrink: 0; /* 分页组件不缩小 */
 }
 
 @media (max-width: 768px) {
   .wallpaper-list-container {
-    padding: 10px;
+    padding: 15px;
   }
 
   .image-grid {
@@ -206,7 +206,7 @@ html, body {
 
   .image-name {
     font-size: 12px;
-    padding: 4px 8px;
+    padding: 4px 4px;
   }
 }
 </style>
