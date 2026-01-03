@@ -1,10 +1,10 @@
 <template>
   <div class="wallpaper-list-container">
     <!-- 页头 -->
-    <WallpaperHeader @type="changeType" @name="searchForm.name" />
+    <WallpaperHeader @type="changeType" @name="changeName" />
     <!-- 使用一个包裹 div 来控制整体布局 -->
     <div class="list-content">
-      <t-card :bordered="false" class="list-card">
+      <t-card :bordered="false" hover-shadow class="list-card">
         <!-- 图片列表网格 -->
         <div class="image-grid">
           <t-space
@@ -12,7 +12,6 @@
             :key="item.id"
             direction="vertical"
             class="image-item"
-            @click="clickOverView(item)"
           >
             <t-image
               :src="item.url + '?x-oss-process=image/resize,w_300,h_160,m_fill'"
@@ -20,6 +19,7 @@
               :lazy="true"
               :alt="item.name"
               fit="cover"
+              @click="clickOverView(item)"
             />
             <div class="image-name">{{ item.name }}</div>
           </t-space>
@@ -86,8 +86,13 @@ export default Vue.extend({
     this.getList();
   },
   methods: {
-    changeType(val) {
+    changeType(val:string) {
       this.searchForm.type = val;
+      this.searchForm.pageNum = 1;
+      this.getList();
+    },
+    changeName(val:string) {
+      this.searchForm.name = val;
       this.searchForm.pageNum = 1;
       this.getList();
     },
@@ -115,11 +120,13 @@ export default Vue.extend({
       this.searchForm.pageNum = current;
       this.getList();
     },
-    clickOverView(item) {
+    clickOverView(item:any) {
+      console.log("you click",item);
       const index = this.data.findIndex(v => v.id === item.id);
-      this.overView.imageList = this.data.map(v => v.url);
-      this.overView.index = index;
-      this.overView.visible = true;
+      // this.overView.imageList = this.data.map(v => v.url);
+      // this.overView.index = index;
+      // this.overView.visible = true;
+      this.$router.push('/info?id=' + item.id);
     }
   },
 });

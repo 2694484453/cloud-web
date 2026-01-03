@@ -5,7 +5,7 @@
     <div class="login-container">
       <div class="title-container">
         <h1 class="title margin-no">登录到</h1>
-        <h1 class="title">云服务平台</h1>
+        <h1 class="title">{{ appCnName }}</h1>
         <div class="sub-title">
           <p class="tip">{{ type === 'register' ? '已有账号?' : '没有账号吗?' }}</p>
           <p class="tip" @click="switchType(type === 'register' ? 'login' : 'register')">
@@ -27,6 +27,7 @@ import Login from './components/components-login.vue';
 import Register from './components/components-register.vue';
 import LoginHeader from './components/components-header.vue';
 import TdesignSetting from '@/layouts/setting.vue';
+import {appCnName} from "@/config/global";
 
 export default {
   name: 'LoginIndex',
@@ -39,6 +40,7 @@ export default {
   data() {
     return {
       type: 'login',
+      appCnName: appCnName,
     };
   },
   created() {

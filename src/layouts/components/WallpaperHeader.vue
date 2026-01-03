@@ -43,7 +43,7 @@
           <t-dropdown :min-column-width="125" trigger="click">
             <template #dropdown>
               <t-dropdown-menu>
-                <t-dropdown-item class="operations-dropdown-container-item" @click="handleNav('/user/index')">
+                <t-dropdown-item class="operations-dropdown-container-item" @click="handleNav('/')">
                   <user-circle-icon /><t-link href="/user">个人中心</t-link>
                 </t-dropdown-item>
                 <t-dropdown-item class="operations-dropdown-container-item" @click="handleLogout">
