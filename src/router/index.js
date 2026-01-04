@@ -95,10 +95,21 @@ switch (envName) {
         component: () => import('@/pages/login/index.vue'),
       },
       {
-      path: '/',
-      name: 'wallpaper',
-      component: () => import('@/pages/wallpaper/list/index.vue'),
-    })
+        path: '/',
+        name: 'wallpaper',
+        component: () => import('@/pages/wallpaper/list/index.vue'),
+      },
+      {
+        path: '/info',
+        name: 'info',
+        component: () => import('@/pages/wallpaper/info/index.vue'),
+      },
+      {
+        path: '/user',
+        name: 'wallpaperUser',
+        component: () => import('@/pages/user/wallpaperUser.vue'),
+      }
+    )
 }
 
 // 存放固定的路由

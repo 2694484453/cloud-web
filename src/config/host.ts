@@ -28,7 +28,7 @@ export default {
   },
   wallpaper: {
     NAME: "wallpaper",
-    API: 'https://cloud-server.gpg123.vip',
+    API: 'http://localhost:9099',
     PATH: "/api",
     CDN: '',
     changeOrigin: true

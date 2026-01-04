@@ -1,53 +1,70 @@
 <template>
   <div class="wallpaper-list-container">
     <!-- 页头 -->
-    <WallpaperHeader @type="changeType" @name="changeName" />
-    <!-- 使用一个包裹 div 来控制整体布局 -->
+    <WallpaperHeader class="header-fixed" @type="changeType" @name="changeName"/>
+    <!-- 内容区域 -->
     <div class="list-content">
-      <t-card :bordered="false" hover-shadow class="list-card">
-        <!-- 图片列表网格 -->
-        <div class="image-grid">
-          <t-space
-            v-for="item in data"
-            :key="item.id"
-            direction="vertical"
-            class="image-item"
-          >
-            <t-image
-              :src="item.url + '?x-oss-process=image/resize,w_300,h_160,m_fill'"
-              :style="{ width: '100%', height: '160px', cursor: 'pointer' }"
-              :lazy="true"
-              :alt="item.name"
-              fit="cover"
-              @click="clickOverView(item)"
-            />
-            <div class="image-name">{{ item.name }}</div>
-          </t-space>
-        </div>
-        <t-space :style="{ width: '100%', height: '160px'}" v-show="data.length === 0">
-          <t-empty />
+      <div class="image-grid">
+        <t-space v-for="item in data" :key="item.id" direction="vertical" >
+          <span v-show="dataLoading" style="text-align: center">图片加载中...</span>
+          <t-skeleton :loading="dataLoading" :animation="'gradient'" :theme="'tab'">
+            <t-card
+              :bordered="true"
+              hover-shadow
+              class="list-card"
+              header-bordered
+            >
+              <template #title>
+                <div class="card-header">
+                  {{ item.name }}
+                </div>
+              </template>
+              <template #cover>
+                <t-image  :lazy="true"
+                          :style="{ width: '100%', height: '160px', cursor: 'pointer' }"
+                          :alt="item.name"
+                          fit="cover"
+                          :src="item.url + '?x-oss-process=image/resize,w_300,h_160,m_fill'"></t-image>
+              </template>
+              <!-- 优化：将统计信息放在左侧 -->
+              <template #footer>
+                <div class="card-footer">
+                  <t-tooltip content="浏览次数">
+                    <browse-icon/>
+                    <span>{{ item.visitCount }}</span>
+                  </t-tooltip>
+                  <t-tooltip content="下载次数" style="margin-left: 16px;">
+                    <download-icon/>
+                    <span>{{ item.downloadCount }}</span>
+                  </t-tooltip>
+                  <t-tooltip content="查看" style="margin-left: 16px;">
+                    <info-circle-icon/>
+                    <a :href="'/info?id='+item.id">查看</a>
+                  </t-tooltip>
+                </div>
+              </template>
+            </t-card>
+          </t-skeleton>
         </t-space>
-        <!-- 分页组件 -->
-        <div class="pagination-wrap">
-          <t-pagination
-            v-model="searchForm.pageNum"
-            :total="pagination.total"
-            :page-size="searchForm.pageSize"
-            :page-size-options="['12', '24', '48']"
-            @current-change="onCurrentChange"
-            @page-size-change="onPageSizeChange"
-          />
-        </div>
-      </t-card>
+      </div>
+      <t-space :style="{ width: '100%', height: '160px'}" v-show="data.length === 0">
+        <t-empty v-show="dataLoading==false && data.length ==0"/>
+      </t-space>
+    </div>
+    <!-- 图片预览器 & 分页 -->
+    <t-image-viewer v-model:visible="overView.visible" :images="overView.imageList" :index="overView.index"/>
+    <div class="pagination-wrap">
+      <t-pagination
+        v-model="searchForm.pageNum"
+        :total="pagination.total"
+        :page-size="searchForm.pageSize"
+        :page-size-options="['12', '24', '48']"
+        @current-change="onCurrentChange"
+        @page-size-change="onPageSizeChange"
+      />
     </div>
     <!-- 页脚 -->
-    <Footer />
-    <!-- 图片预览器 -->
-    <t-image-viewer
-      v-model:visible="overView.visible"
-      :images="overView.imageList"
-      :index="overView.index"
-    />
+    <Footer style="margin-top: 10px"/>
   </div>
 </template>
 
@@ -55,12 +72,16 @@
 import Vue from 'vue';
 import WallpaperHeader from "@/layouts/components/WallpaperHeader.vue";
 import Footer from "@/layouts/components/Footer.vue";
+import {BrowseIcon, DownloadIcon, InfoCircleIcon} from 'tdesign-icons-vue';
 
 export default Vue.extend({
   name: 'ListBase',
   components: {
     Footer,
     WallpaperHeader,
+    BrowseIcon,
+    DownloadIcon,
+    InfoCircleIcon
   },
   data() {
     return {
@@ -83,15 +104,30 @@ export default Vue.extend({
     };
   },
   created() {
+    for (let i = 0; i < 24; i++) {
+      this.data.push({
+        id: i,
+        name: i,
+        url: i,
+      })
+    }
+  },
+  mounted() {
     this.getList();
   },
+  watch: {
+    dataLoading(oldVal, newVal) {
+      if (oldVal !== newVal) {
+      }
+    }
+  },
   methods: {
-    changeType(val:string) {
+    changeType(val: string) {
       this.searchForm.type = val;
       this.searchForm.pageNum = 1;
       this.getList();
     },
-    changeName(val:string) {
+    changeName(val: string) {
       this.searchForm.name = val;
       this.searchForm.pageNum = 1;
       this.getList();
@@ -120,8 +156,8 @@ export default Vue.extend({
       this.searchForm.pageNum = current;
       this.getList();
     },
-    clickOverView(item:any) {
-      console.log("you click",item);
+    clickOverView(item: any) {
+      console.log("you click", item);
       const index = this.data.findIndex(v => v.id === item.id);
       // this.overView.imageList = this.data.map(v => v.url);
       // this.overView.index = index;
@@ -133,87 +169,94 @@ export default Vue.extend({
 </script>
 
 <style lang="less" scoped>
-/* 全局样式重置，确保没有默认边距影响布局 */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+.header-fixed {
+  position: fixed; /* 关键：固定定位 */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999; /* 确保在最上层 */
+  height: 44px; /* 导航栏高度 */
+  line-height: 44px;
+  background-color: #008489; /* 主题色 */
+  color: #fff;
+  text-align: center;
+  font-size: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* 添加一点阴影 */
 }
 
 .wallpaper-list-container {
-  /* 使用 Flex 布局垂直排列子元素 */
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  padding: 15px; /* 统一的内边距 */
+  padding: 15px;
   box-sizing: border-box;
 }
 
-/* 内容区域，使用 flex: 1 来占据剩余空间 */
 .list-content {
+  margin-top: 40px; /* 留出Header空间 */
   flex: 1;
-  overflow: hidden; /* 关键：隐藏内容区域的溢出，防止出现滚动条 */
-}
-
-.list-card {
-  height: 100%; /* 卡片高度占满父容器 */
-  display: flex;
-  flex-direction: column; /* 卡片内部也是垂直布局 */
-  overflow: hidden; /* 确保卡片内部不产生滚动 */
+  overflow: hidden;
 }
 
 .image-grid {
-  /* 图片网格使用 flex: 1 来撑开，或者使用 grid 自动换行 */
   flex: 1 0 auto;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 15px;
   padding: 10px 0;
-  overflow-y: auto; /* 如果图片很多，让网格区域内部滚动（可选） */
 }
 
-.image-item {
-  width: 100%;
-  border-radius: 8px;
+/* 1. 优化卡片样式 */
+.list-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  }
 }
 
-.image-name {
-  padding: 8px 12px;
-  font-size: 14px;
-  color: #333;
-  text-align: center;
+// 卡片顶部的标题栏
+.card-header {
+  width: 100%;
+  color: #1d1c1c;
+  font-size: 12px;
+  text-align: left;
+  // 关键CSS：实现文字过长自动省略
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.pagination-wrap {
-  margin-top: 10px;
-  text-align: left;
-  flex-shrink: 0; /* 分页组件不缩小 */
+.t-card__cover {
+  border-radius: 12px !important;
+  overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .wallpaper-list-container {
-    padding: 15px;
-  }
+.t-card__cover img {
+  border-radius: 12px !important;
+  transition: transform 0.3s;
+}
 
-  .image-grid {
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 10px;
-  }
+.t-card:hover img {
+  transform: scale(1.05);
+}
 
-  .image-name {
-    font-size: 12px;
-    padding: 4px 4px;
-  }
+/* 5. 自定义Footer布局，将图标放在左侧 */
+.card-footer {
+  display: flex;
+  align-items: center;
+  color: #666;
+  font-size: 12px;
+}
+
+.card-footer .t-icon {
+  margin-right: 4px;
+  font-size: 16px;
+  color: #9ea6a6; /* 图标主题色 */
+}
+
+/* 分页等其他样式保持不变 */
+.pagination-wrap {
+  margin-top: 10px;
+  text-align: center;
 }
 </style>

@@ -20,20 +20,28 @@
       <t-card :bordered="false" class="info-card">
         <!-- 操作按钮 -->
         <div class="action-bar">
-          <t-button theme="primary" size="large" @click="handleDownload">
-            下载壁纸 ({{ wallpaperData.resolution }})
-          </t-button>
+<!--          <t-button theme="primary" size="large" @click="handleDownload">-->
+<!--            下载壁纸 ({{ wallpaperData.resolution }})-->
+<!--          </t-button>-->
         </div>
         <template>
           <t-descriptions title="壁纸详情">
-            <t-descriptions-item label="名称">{{wallpaperData.name}}</t-descriptions-item>
-            <t-descriptions-item label="标签">139****0609</t-descriptions-item>
-            <t-descriptions-item label="浏览次数">0</t-descriptions-item>
+            <t-descriptions-item label="名称">{{ wallpaperData.name }}</t-descriptions-item>
+            <t-descriptions-item label="类型">{{ wallpaperData.type === 'static' ? '静态壁纸' : '动态壁纸' }}</t-descriptions-item>
+            <t-descriptions-item label="标签">
+              <t-space v-for="tag in wallpaperData.tags.split(',')">
+                <t-tag theme="primary" variant="light" style="margin-left: 5px">{{tag}}</t-tag>
+              </t-space>
+            </t-descriptions-item>
+            <t-descriptions-item label="浏览次数">{{ formatViews(wallpaperData.visitCount) }}</t-descriptions-item>
+            <t-descriptions-item label="下载次数">{{ formatViews(wallpaperData.downloadCount) }}</t-descriptions-item>
             <t-descriptions-item label="分辨率"></t-descriptions-item>
-            <t-descriptions-item label="文件大小">{{wallpaperData.size}}</t-descriptions-item>
-            <t-descriptions-item label="url地址"><a :href="wallpaperData.url">{{wallpaperData.url}}</a> </t-descriptions-item>
-            <t-descriptions-item label="创建时间">{{wallpaperData.createTime}}</t-descriptions-item>
-            <t-descriptions-item label="备注">{{wallpaperData.description ? wallpaperData.description : '暂无'}}</t-descriptions-item>
+            <t-descriptions-item label="文件大小">{{ wallpaperData.size }}</t-descriptions-item>
+<!--            <t-descriptions-item label="url地址"><a :href="wallpaperData.url">{{ wallpaperData.url }}</a>-->
+<!--            </t-descriptions-item>-->
+            <t-descriptions-item label="创建时间">{{ wallpaperData.createTime }}</t-descriptions-item>
+            <t-descriptions-item label="备注">{{ wallpaperData.description ? wallpaperData.description : '暂无' }}
+            </t-descriptions-item>
           </t-descriptions>
         </template>
       </t-card>
@@ -50,6 +58,8 @@ export default {
       wallpaperData: {
         id: 1001,
         title: '璀璨星空延时摄影',
+        visitCount: 0,
+        downloadCount: 0,
         url: 'https://tdesign.gtimg.com/mobile/demos/img1.png', // 替换为实际壁纸URL
         description: '这是一张由专业摄影师在高海拔地区拍摄的星空延时摄影作品，展现了银河的壮丽与神秘。',
         views: 128400, // 模拟高热度数据
@@ -74,7 +84,7 @@ export default {
       // 实际开发中这里会触发文件下载逻辑
     },
     getInfo() {
-      this.$request.get("/wallpaper/info?id=" + this.wallpaperData.id,{})
+      this.$request.get("/wallpaper/info?id=" + this.wallpaperData.id, {})
         .then(res => {
           if (res.data.code === 200) {
             this.wallpaperData = res.data.data;
@@ -86,11 +96,14 @@ export default {
         });
     },
     // 格式化浏览量/热度显示 (例如：1.2w+)
-    formatViews(views) {
-      if (views > 10000) {
-        return (views / 10000).toFixed(1) + 'w+';
+    formatViews(number) {
+      if (number > 1000 && number < 1000) {
+        return (number / 1000).toFixed(1) + "k+"
       }
-      return views;
+      if (number > 10000) {
+        return (number / 10000).toFixed(1) + 'w+';
+      }
+      return number;
     },
   },
 };
