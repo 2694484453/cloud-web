@@ -108,9 +108,6 @@ export default Vue.extend({
       prefix,
       visibleNotice: false,
       isSearchFocus: false,
-      userInfo: {
-        userName: ""
-      }
     };
   },
   computed: {
@@ -142,20 +139,10 @@ export default Vue.extend({
     },
   },
   mounted() {
-    const userName = localStorage.get('username');
-    if (userName) {
-      this.userInfo.userName = userName;
-    }else {
-      this.userInfo.userName = '未知';
-    }
   },
   methods: {
     toggleSettingPanel() {
       this.$store.commit('setting/toggleSettingPanel', true);
-    },
-    handleLogout() {
-      this.$router.push(`/login?redirect=${this.$router.history.current.fullPath}`);
-      cleanUser();
     },
     changeCollapsed() {
       this.$store.commit('setting/toggleSidebarCompact');
