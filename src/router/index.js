@@ -106,8 +106,13 @@ switch (envName) {
       },
       {
         path: '/user',
-        name: 'wallpaperUser',
+        name: 'user',
         component: () => import('@/pages/user/wallpaperUser.vue'),
+      },
+      {
+        path: '/ai',
+        name: 'ai',
+        component: () => import('@/pages/wallpaper/ai/index.vue'),
       }
     )
 }

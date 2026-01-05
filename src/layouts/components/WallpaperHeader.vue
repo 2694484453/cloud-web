@@ -34,8 +34,8 @@
                 福利
               </t-button>
           </t-tooltip>
-          <t-tooltip placement="bottom" content="暂未开放">
-              <t-button theme="primary" variant="text" tag="a" :disabled="true">
+          <t-tooltip placement="bottom">
+              <t-button theme="primary" variant="text" tag="a" href="/ai">
                 <wallpaper-icon style="width: 18px;height: 18px"/>
                 AI壁纸生成
               </t-button>
