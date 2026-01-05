@@ -1,11 +1,12 @@
 <template>
   <div class="wallpaper-list-container">
     <!-- 页头 -->
-    <WallpaperHeader class="header-fixed" @type="changeType" @searchData="changeSearchData" :cateList="cateList"/>
+    <WallpaperHeader class="header-fixed" @dirName="changeType" @name="changeSearchData" :cateList="cateList"
+                     :searchData="searchForm.name" :dirName="searchForm.dirName" :total="total"/>
     <!-- 内容区域 -->
     <div class="list-content">
       <div class="image-grid">
-        <t-space v-for="item in data" :key="item.id" direction="vertical" >
+        <t-space v-for="item in data" :key="item.id" direction="vertical">
           <t-skeleton :loading="dataLoading" :animation="'gradient'" :theme="'tab'">
             <t-card
               :bordered="true"
@@ -19,10 +20,10 @@
                 </div>
               </template>
               <template #cover>
-                <t-image  :lazy="true"
-                          :style="{ width: '100%', height: '160px', cursor: 'pointer' }"
-                          :alt="item.name"
-                          :src="item.url + '?x-oss-process=image/resize,w_300,h_160,m_fill'"></t-image>
+                <t-image :lazy="true"
+                         :style="{ width: '100%', height: '160px', cursor: 'pointer' }"
+                         :alt="item.name"
+                         :src="item.url + '?x-oss-process=image/resize,w_300,h_160,m_fill'"></t-image>
               </template>
               <!-- 优化：将统计信息放在左侧 -->
               <template #footer>
@@ -87,12 +88,11 @@ export default Vue.extend({
       dataLoading: false,
       data: [],
       searchForm: {
-        name: localStorage.getItem('wallpaper.searchForm.name') ?? '',
-        type: localStorage.getItem('wallpaper.searchForm.type') ?? '',
-        dirName: localStorage.getItem('wallpaper.searchForm.dirName') ?? '',
-        url: '',
-        pageNum: localStorage.getItem("wallpaper.searchForm.pageNum") ?? 1,
-        pageSize: localStorage.getItem("wallpaper.searchForm.pageSize") ?? 24
+        name: '',
+        type: '',
+        dirName: '',
+        pageNum: 1,
+        pageSize: 24
       },
       pagination: {
         total: 0,
@@ -102,7 +102,8 @@ export default Vue.extend({
         index: 0,
         imageList: []
       },
-      cateList: []
+      cateList: [],
+      total: 0,
     };
   },
   created() {
@@ -115,8 +116,22 @@ export default Vue.extend({
     }
   },
   mounted() {
-    this.getList();
     this.getCate();
+    this.getOverView();
+    // 确保在 DOM 更新后执行
+    this.$nextTick(() => {
+      const savedPageNum = localStorage.getItem("wallpaper.searchForm.pageNum");
+      const savedPageSize = localStorage.getItem("wallpaper.searchForm.pageSize");
+      const name = localStorage.getItem('wallpaper.searchForm.name');
+      const type = localStorage.getItem('wallpaper.searchForm.type');
+      const dirName = localStorage.getItem('wallpaper.searchForm.dirName');
+      // 假设你有一个方法来处理分页点击
+      this.searchForm.pageNum = savedPageNum ?? 1;
+      this.searchForm.pageSize = savedPageSize ?? 24;
+      this.searchForm.dirName = dirName ?? "";
+      this.searchForm.type = type ?? "";
+      this.searchForm.name = name ?? "";
+    });
   },
   watch: {
     "searchForm.pageNum"(newVal, oldVal) {
@@ -146,6 +161,7 @@ export default Vue.extend({
     "searchForm.name"(newVal, oldVal) {
       if (oldVal !== newVal) {
         // 刷新数据
+        localStorage.setItem('wallpaper.searchForm.name', newVal);
         this.getList();
       }
     },
@@ -171,6 +187,15 @@ export default Vue.extend({
         this.searchForm.name = val;
       }
     },
+    getOverView() {
+      this.$request.get("/wallpaper/overView", {}).then(res => {
+        if (res.data.code === 200) {
+          this.total = res.data.data.total;
+        }
+      }).catch(err => {
+      }).finally(() => {
+      })
+    },
     getList() {
       this.dataLoading = true;
       this.$request.get('/wallpaper/page', {
@@ -191,7 +216,9 @@ export default Vue.extend({
         if (res.data.code === 200) {
           this.cateList = res.data.data;
         }
-      }).catch((e: Error) => {}).finally(() => {})
+      }).catch((e: Error) => {
+      }).finally(() => {
+      })
     },
     onPageSizeChange(size: number) {
       this.searchForm.pageSize = size;
@@ -217,7 +244,7 @@ export default Vue.extend({
   color: #fff;
   text-align: center;
   font-size: 18px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* 添加一点阴影 */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* 添加一点阴影 */
 }
 
 .wallpaper-list-container {

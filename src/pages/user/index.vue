@@ -22,7 +22,14 @@
             <t-descriptions :title="'欢迎，' + form.userName">
               <t-descriptions-item label="用户名">{{form.userName}}</t-descriptions-item>
               <t-descriptions-item label="昵称">{{form.nickName}}</t-descriptions-item>
-              <t-descriptions-item label="性别">{{form.sex === '1'? '男':'女'}}</t-descriptions-item>
+              <t-descriptions-item label="性别">
+                <span v-show="form.sex === '0'">
+                  男
+                </span>
+                <span v-show="form.sex === '1'">
+                  女
+                </span>
+              </t-descriptions-item>
               <t-descriptions-item label="电话">{{form.phonenumber}}</t-descriptions-item>
               <t-descriptions-item label="邮箱">{{form.email}}</t-descriptions-item>
               <t-descriptions-item label="平台角色">
@@ -234,7 +241,6 @@ export default {
   methods: {
     // 获取信息
     getUserInfo() {
-      this.USER_INFO_LIST = [];
       this.$request.get("/getInfo").then(res => {
         if (res.data.code === 200) {
           this.form = res.data.user;

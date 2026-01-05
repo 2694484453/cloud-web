@@ -7,17 +7,6 @@
     label-width="0"
     @submit="onSubmit"
   >
-    <!--手机号注册-->
-    <!--    <template v-if="type == 'phone'">-->
-    <!--      <t-form-item name="phone">-->
-    <!--        <t-input v-model="formData.phone" :maxlength="11" size="large" placeholder="请输入您的手机号">-->
-    <!--          <template #prefix-icon>-->
-    <!--            <user-icon/>-->
-    <!--          </template>-->
-    <!--        </t-input>-->
-    <!--      </t-form-item>-->
-    <!--    </template>-->
-
     <!--邮箱注册-->
     <template>
       <t-form-item name="email">
@@ -47,8 +36,8 @@
       </t-input>
     </t-form-item>
 
-    <t-form-item class="verification-code" name="verifyCode">
-      <t-input v-model="formData.verifyCode" size="large" placeholder="请输入验证码"/>
+    <t-form-item class="verification-code" name="code">
+      <t-input v-model="formData.code" size="large" placeholder="请输入验证码"/>
       <t-button theme="primary" :disabled="countDown > 0" @click="handleCounter">
         {{ countDown == 0 ? '发送验证码' : `${countDown}秒后可重发` }}
       </t-button>
@@ -68,11 +57,12 @@
 <script lang="ts">
 import Vue from 'vue';
 import {UserIcon, MailIcon, BrowseIcon, BrowseOffIcon, LockOnIcon} from 'tdesign-icons-vue';
-
+import {appCnName} from '@/config/global';
 const INITIAL_DATA = {
   email: '',
+  site: appCnName,
   password: '',
-  verifyCode: '',
+  code: '',
   type: '',
   checked: false,
 };
@@ -140,7 +130,7 @@ export default Vue.extend({
         }
       }, 1000);
       // 发送邮件请求
-      this.$request.post("/register", this.formData).then((res) => {
+      this.$request.post("/code", this.formData).then((res) => {
         if (res.data.code === 200) {
 
         }

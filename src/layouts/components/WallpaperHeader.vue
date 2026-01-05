@@ -1,9 +1,9 @@
 <template>
   <div :class="layoutCls">
-    <t-head-menu :class="menuCls" :theme="theme" expandType="popup" v-model:value="searchForm.type"
+    <t-head-menu :class="menuCls" :theme="theme" expandType="popup" v-model:value="dirName"
                  @change="handleChange">
       <template #logo>
-        <span v-if="showLogo" class="header-logo-container">已收录{{ overView.total }}张壁纸</span>
+        <span v-if="showLogo" class="header-logo-container">已收录{{ total }}张壁纸</span>
         <div v-else class="header-operate-left">
           <t-button theme="default" shape="square" variant="text" @click="changeCollapsed">
             <view-list-icon class="collapsed-icon"/>
@@ -14,12 +14,15 @@
       <t-space v-for="item in cateList">
         <t-menu-item :value="item.dictValue">{{item.dictLabel}}</t-menu-item>
       </t-space>
+      <t-tooltip content="暂未开放" :disabled="true">
+        <t-menu-item :value="'dynamic_wallpaper'">动态壁纸</t-menu-item>
+      </t-tooltip>
       <menu-content v-show="layout !== 'side'" class="header-menu" :navData="menu"/>
       <template #operations>
         <div class="operations-container">
           <!-- 搜索框 -->
           <t-tooltip placement="bottom" content="搜索">
-            <search @searchData="handleChangeSearchData" v-if="layout !== 'side'" :layout="layout"/>
+            <search @searchData="handleChangeSearchData" v-if="layout !== 'side'" :layout="layout" :searchData="searchData"/>
           </t-tooltip>
           <!-- 全局通知 -->
           <t-tooltip placement="bottom" content="系统通知">
@@ -38,29 +41,7 @@
               </t-button>
           </t-tooltip>
           <t-tooltip placement="bottom" content="用户信息">
-            <t-dropdown :min-column-width="125" trigger="click">
-              <template #dropdown>
-                <t-dropdown-menu>
-                  <t-dropdown-item class="operations-dropdown-container-item" @click="handleNav('/')">
-                    <user-circle-icon/>
-                    <t-link href="/user">个人中心</t-link>
-                  </t-dropdown-item>
-                  <t-dropdown-item class="operations-dropdown-container-item" @click="handleLogout">
-                    <poweroff-icon/>
-                    退出登录
-                  </t-dropdown-item>
-                </t-dropdown-menu>
-              </template>
-              <t-button class="header-user-btn" theme="default" variant="text">
-                <template #icon>
-                  <user-circle-icon class="header-user-avatar"/>
-                </template>
-                <div class="header-user-account" v-text="userInfo.userName"></div>
-                <template #suffix>
-                  <chevron-down-icon/>
-                </template>
-              </t-button>
-            </t-dropdown>
+            <HeaderUser/>
           </t-tooltip>
           <t-tooltip placement="bottom" content="系统设置">
             <t-button theme="default" shape="square" variant="text" @click="toggleSettingPanel">
@@ -79,8 +60,6 @@ import {
   ViewListIcon,
   LogoGithubIcon,
   HelpCircleIcon,
-  UserCircleIcon,
-  PoweroffIcon,
   SettingIcon,
   ChevronDownIcon,
 } from 'tdesign-icons-vue';
@@ -90,10 +69,12 @@ import LogoFull from '@/assets/assets-logo-full.svg';
 import Search from './Search.vue';
 import MenuContent from './MenuContent.vue';
 import WallpaperNotice from "@/layouts/components/WallpaperNotice.vue";
+import HeaderUser from "@/layouts/components/HeaderUser.vue";
 
 export default Vue.extend({
   name: 'WallpaperHeader',
   components: {
+    HeaderUser,
     WallpaperNotice,
     MenuContent,
     LogoFull,
@@ -101,8 +82,6 @@ export default Vue.extend({
     ViewListIcon,
     LogoGithubIcon,
     HelpCircleIcon,
-    UserCircleIcon,
-    PoweroffIcon,
     SettingIcon,
     ChevronDownIcon,
     WallpaperIcon,
@@ -135,6 +114,18 @@ export default Vue.extend({
     cateList: {
       type: Array,
       default: [],
+    },
+    searchData: {
+      type: String,
+      default: '',
+    },
+    total: {
+      type: Number,
+      default: 0,
+    },
+    dirName: {
+      type: String,
+      default: '',
     }
   },
   data() {
@@ -142,16 +133,9 @@ export default Vue.extend({
       prefix,
       visibleNotice: false,
       isSearchFocus: false,
-      overView: {
-        total: 0,
-      },
-      userInfo: {
-        userName: ""
-      },
-      searchForm: {
-        name: "",
-        type: localStorage.getItem('wallpaper.searchForm.dirName') ?? '',
-      }
+      userName: '',
+      name: "",
+      dirName: '',
     };
   },
   computed: {
@@ -173,15 +157,15 @@ export default Vue.extend({
     },
   },
   mounted() {
-    this.userInfo.userName = this.$cookies.get('username') ? userName : '访客';
+    this.userName = localStorage.getItem('username') ?? '访客';
   },
   watch: {
-    "searchForm.type"(newVal, oldVal) {
+    "dirName"(newVal, oldVal) {
       if (newVal !== oldVal) {
-        this.$emit("type", newVal);
+        this.$emit("dirName", newVal);
       }
     },
-    "searchForm.name"(newVal, oldVal) {
+    "name"(newVal, oldVal) {
       if (newVal !== oldVal) {
         this.$emit("name", newVal);
       }
@@ -189,26 +173,16 @@ export default Vue.extend({
   },
   methods: {
     handleChange(val) {
-      console.log(val);
+      this.dirName = val;
     },
     handleChangeSearchData(val) {
-      if (val !== this.searchForm.name) {
-        this.searchForm.name = val;
-        this.$emit("searchData", val);
-      }
+      this.name = val;
     },
     toggleSettingPanel() {
       this.$store.commit('setting/toggleSettingPanel', true);
     },
-    handleLogout() {
-      this.$router.push(`/login?redirect=${this.$router.history.current.fullPath}`);
-      this.localStorage.removeItem('username');
-    },
     changeCollapsed() {
       this.$store.commit('setting/toggleSidebarCompact');
-    },
-    handleNav(url) {
-      this.$router.push(url);
     },
     navToGitHub() {
       window.open('https://github.com/2694484453/cloud-web');
@@ -216,15 +190,6 @@ export default Vue.extend({
     // 帮助文档
     navToHelper() {
       window.open('https://gitbook.gpg123.vip');
-    },
-    getOverView() {
-      this.$request.get("/wallpaper/overView", {}).then(res => {
-        if (res.data.code === 200) {
-          this.overView = res.data.data;
-        }
-      }).catch(err => {
-      }).finally(() => {
-      })
     }
   },
 });

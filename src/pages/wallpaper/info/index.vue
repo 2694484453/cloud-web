@@ -3,8 +3,8 @@
     <t-space direction="horizontal">
       <!-- 壁纸内容主体 -->
       <t-space>
-        <DesktopPreview v-show="deviceType === 'desktop'" :url="wallpaperData.url"/>
-        <PhonePreview v-show="deviceType === 'phone'" :url="wallpaperData.url"/>
+        <DesktopPreview v-show="deviceType === 'desktop'" :url="wallpaperData.url" :width="wallpaperData.width" :height="wallpaperData.height"/>
+        <PhonePreview v-show="deviceType === 'phone'" :url="wallpaperData.url" :width="wallpaperData.width" :height="wallpaperData.height"/>
       </t-space>
       <div>
         <!-- 信息卡片 -->
@@ -65,8 +65,8 @@ export default {
         description: '这是一张由专业摄影师在高海拔地区拍摄的星空延时摄影作品，展现了银河的壮丽与神秘。',
         views: 128400, // 模拟高热度数据
         resolution: '3840 x 2160 (4K)',
-        width: '',
-        height: '',
+        width: 0,
+        height: 0,
         author: '风光摄影师-Alex',
         uploadTime: '2023-10-25',
         dirName: '',

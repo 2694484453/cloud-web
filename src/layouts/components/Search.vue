@@ -51,6 +51,10 @@ export default Vue.extend({
     layout: {
       type: String as PropType<string>,
     },
+    searchData: {
+      type: String,
+      default: '',
+    }
   },
   data() {
     return {
@@ -59,18 +63,10 @@ export default Vue.extend({
     };
   },
   watch: {
-    searchData(newVal, oldVal) {
-      if (newVal != oldVal) {
-        console.log("输入的是：", newVal)
-        this.searchData = newVal;
-      }
-    },
+
   },
   methods: {
     changeSearchFocus(value: boolean) {
-      if (!value) {
-        this.searchData = '';
-      }
       this.isSearchFocus = value;
     },
     onEnter(val) {

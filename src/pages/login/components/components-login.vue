@@ -156,12 +156,11 @@ export default Vue.extend({
         this.$request.post('/login', data).then((res) => {
           console.log(res)
           if (res.data.code === 200) {
-            // 存入cookie
-            // this.$cookies.set('token', res.data.data.token);
-            this.$cookies.set("username", this.formData.account)
-            this.$cookies.set("token", res.data.token)
-            localStorage.setItem("token", res.data.token)
-            //localStorage.setItem('umami.disabled', 1)
+            localStorage.setItem('username', this.formData.account);
+            localStorage.setItem("userinfo", {
+              'username':this.formData.account,
+              'token': res.data.token
+            })
             this.$message.success("登录成功")
             setTimeout(()=>{
               this.$router.push("/").catch(err => {

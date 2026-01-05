@@ -30,25 +30,7 @@
             </t-button>
           </t-tooltip>
           <t-dropdown :min-column-width="125" trigger="click">
-            <template #dropdown>
-              <t-dropdown-menu>
-                <t-dropdown-item class="operations-dropdown-container-item" @click="handleNav('/user/index')">
-                  <user-circle-icon /><t-link href="/user">个人中心</t-link>
-                </t-dropdown-item>
-                <t-dropdown-item class="operations-dropdown-container-item" @click="handleLogout">
-                  <poweroff-icon />退出登录
-                </t-dropdown-item>
-              </t-dropdown-menu>
-            </template>
-            <t-button class="header-user-btn" theme="default" variant="text">
-              <template #icon>
-                <user-circle-icon class="header-user-avatar" />
-              </template>
-              <div class="header-user-account" v-text="userInfo.userName"></div>
-              <template #suffix>
-                <chevron-down-icon />
-              </template>
-            </t-button>
+            <HeaderUser/>
           </t-dropdown>
           <t-tooltip placement="bottom" content="系统设置">
             <t-button theme="default" shape="square" variant="text" @click="toggleSettingPanel">
@@ -78,9 +60,11 @@ import LogoFull from '@/assets/assets-logo-full.svg';
 import Notice from './Notice.vue';
 import Search from './Search.vue';
 import MenuContent from './MenuContent.vue';
-
+import {cleanUser} from "@/config/storage";
+import HeaderUser from "@/layouts/components/HeaderUser.vue";
 export default Vue.extend({
   components: {
+    HeaderUser,
     MenuContent,
     LogoFull,
     Notice,
@@ -158,7 +142,7 @@ export default Vue.extend({
     },
   },
   mounted() {
-    const userName = this.$cookies.get('username');
+    const userName = localStorage.get('username');
     if (userName) {
       this.userInfo.userName = userName;
     }else {
@@ -171,7 +155,7 @@ export default Vue.extend({
     },
     handleLogout() {
       this.$router.push(`/login?redirect=${this.$router.history.current.fullPath}`);
-      this.localStorage.removeItem('username');
+      cleanUser();
     },
     changeCollapsed() {
       this.$store.commit('setting/toggleSidebarCompact');
