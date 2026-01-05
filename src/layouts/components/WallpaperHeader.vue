@@ -11,7 +11,6 @@
           <search :layout="layout"/>
         </div>
       </template>
-      <t-menu-item value="dongman">动漫</t-menu-item>
       <t-menu-item value="二次元">二次元</t-menu-item>
       <t-menu-item value="三次元">三次元</t-menu-item>
       <t-menu-item value="iphone">iphone</t-menu-item>
