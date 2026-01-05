@@ -11,15 +11,9 @@
           <search :layout="layout"/>
         </div>
       </template>
-      <t-menu-item value="二次元">二次元</t-menu-item>
-      <t-menu-item value="三次元">三次元</t-menu-item>
-      <t-menu-item value="iphone">iphone</t-menu-item>
-      <t-menu-item value="zhefeng">哲风壁纸</t-menu-item>
-      <t-menu-item value="dynamic_wallpaper">动态壁纸</t-menu-item>
-      <t-menu-item value="windows">windows</t-menu-item>
-      <t-menu-item value="linux">linux</t-menu-item>
-      <t-menu-item value="macos">macos</t-menu-item>
-      <t-menu-item value="widescreen">超宽屏壁纸</t-menu-item>
+      <t-space v-for="item in cateList">
+        <t-menu-item :value="item.dictValue">{{item.dictLabel}}</t-menu-item>
+      </t-space>
       <menu-content v-show="layout !== 'side'" class="header-menu" :navData="menu"/>
       <template #operations>
         <div class="operations-container">
@@ -138,6 +132,10 @@ export default Vue.extend({
       type: Number,
       default: 3,
     },
+    cateList: {
+      type: Array,
+      default: [],
+    }
   },
   data() {
     return {

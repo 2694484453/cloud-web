@@ -1,7 +1,7 @@
 <template>
   <div class="wallpaper-list-container">
     <!-- 页头 -->
-    <WallpaperHeader class="header-fixed" @type="changeType" @searchData="changeSearchData"/>
+    <WallpaperHeader class="header-fixed" @type="changeType" @searchData="changeSearchData" :cateList="cateList"/>
     <!-- 内容区域 -->
     <div class="list-content">
       <div class="image-grid">
@@ -29,11 +29,11 @@
                 <div class="card-footer">
                   <t-tooltip content="浏览次数">
                     <browse-icon/>
-                    <span>{{ item.visitCount }}</span>
+                    <span>{{ item.visitCount }}次</span>
                   </t-tooltip>
                   <t-tooltip content="下载次数" style="margin-left: 16px;">
                     <download-icon/>
-                    <span>{{ item.downloadCount }}</span>
+                    <span>{{ item.downloadCount }}次</span>
                   </t-tooltip>
                   <t-tooltip content="查看" style="margin-left: 16px;">
                     <info-circle-icon/>
@@ -101,7 +101,8 @@ export default Vue.extend({
         visible: false,
         index: 0,
         imageList: []
-      }
+      },
+      cateList: []
     };
   },
   created() {
@@ -115,6 +116,7 @@ export default Vue.extend({
   },
   mounted() {
     this.getList();
+    this.getCate();
   },
   watch: {
     "searchForm.pageNum"(newVal, oldVal) {
@@ -183,6 +185,13 @@ export default Vue.extend({
       }).finally(() => {
         this.dataLoading = false;
       });
+    },
+    getCate() {
+      this.$request.get('/wallpaper/category', {}).then((res) => {
+        if (res.data.code === 200) {
+          this.cateList = res.data.data;
+        }
+      }).catch((e: Error) => {}).finally(() => {})
     },
     onPageSizeChange(size: number) {
       this.searchForm.pageSize = size;
@@ -284,6 +293,6 @@ export default Vue.extend({
 /* 分页等其他样式保持不变 */
 .pagination-wrap {
   margin-top: 10px;
-  text-align: center;
+  text-align: left;
 }
 </style>
