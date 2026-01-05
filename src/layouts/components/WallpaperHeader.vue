@@ -26,27 +26,23 @@
         <div class="operations-container">
           <!-- 搜索框 -->
           <t-tooltip placement="bottom" content="搜索">
-            <search @searchData="searchForm.name" v-if="layout !== 'side'" :layout="layout"/>
+            <search @searchData="handleChangeSearchData" v-if="layout !== 'side'" :layout="layout"/>
           </t-tooltip>
           <!-- 全局通知 -->
           <t-tooltip placement="bottom" content="系统通知">
             <WallpaperNotice/>
           </t-tooltip>
-          <t-tooltip placement="bottom" content="福利">
+          <t-tooltip placement="bottom" content="暂未开放">
             <!--        您还没有订阅哦～-->
-            <t-tooltip content="暂未开放">
               <t-button theme="default" variant="text" :disabled="true">
                 福利
               </t-button>
-            </t-tooltip>
           </t-tooltip>
           <t-tooltip placement="bottom" content="暂未开放">
-            <t-tooltip content="暂未开放">
               <t-button theme="primary" variant="text" tag="a" :disabled="true">
                 <wallpaper-icon style="width: 18px;height: 18px"/>
                 AI壁纸生成
               </t-button>
-            </t-tooltip>
           </t-tooltip>
           <t-tooltip placement="bottom" content="用户信息">
             <t-dropdown :min-column-width="125" trigger="click">
@@ -94,7 +90,6 @@ import {
   PoweroffIcon,
   SettingIcon,
   ChevronDownIcon,
-  FileImageIcon
 } from 'tdesign-icons-vue';
 import WallpaperIcon from '@/assets/icon/wallpaper.svg';
 import {prefix} from '@/config/global';
@@ -158,7 +153,7 @@ export default Vue.extend({
       },
       searchForm: {
         name: "",
-        type: "dongman",
+        type: localStorage.getItem('wallpaper.searchForm.dirName') ?? '',
       }
     };
   },
@@ -198,6 +193,12 @@ export default Vue.extend({
   methods: {
     handleChange(val) {
       console.log(val);
+    },
+    handleChangeSearchData(val) {
+      if (val !== this.searchForm.name) {
+        this.searchForm.name = val;
+        this.$emit("searchData", val);
+      }
     },
     toggleSettingPanel() {
       this.$store.commit('setting/toggleSettingPanel', true);

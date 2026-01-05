@@ -1,12 +1,11 @@
 <template>
   <div class="wallpaper-list-container">
     <!-- 页头 -->
-    <WallpaperHeader class="header-fixed" @type="changeType" @name="changeName"/>
+    <WallpaperHeader class="header-fixed" @type="changeType" @searchData="changeSearchData"/>
     <!-- 内容区域 -->
     <div class="list-content">
       <div class="image-grid">
         <t-space v-for="item in data" :key="item.id" direction="vertical" >
-
           <t-skeleton :loading="dataLoading" :animation="'gradient'" :theme="'tab'">
             <t-card
               :bordered="true"
@@ -54,6 +53,7 @@
     <t-image-viewer v-model:visible="overView.visible" :images="overView.imageList" :index="overView.index"/>
     <div class="pagination-wrap">
       <t-pagination
+        showFirstAndLastPageBtn
         v-model="searchForm.pageNum"
         :total="pagination.total"
         :page-size="searchForm.pageSize"
@@ -87,11 +87,12 @@ export default Vue.extend({
       dataLoading: false,
       data: [],
       searchForm: {
-        name: "",
-        type: "",
-        dirName: "",
-        pageNum: 1,
-        pageSize: 24
+        name: localStorage.getItem('wallpaper.searchForm.name') ?? '',
+        type: localStorage.getItem('wallpaper.searchForm.type') ?? '',
+        dirName: localStorage.getItem('wallpaper.searchForm.dirName') ?? '',
+        url: '',
+        pageNum: localStorage.getItem("wallpaper.searchForm.pageNum") ?? 1,
+        pageSize: localStorage.getItem("wallpaper.searchForm.pageSize") ?? 24
       },
       pagination: {
         total: 0,
@@ -104,7 +105,7 @@ export default Vue.extend({
     };
   },
   created() {
-    for (let i = 0; i < 24; i++) {
+    for (let i = 0; i < this.searchForm.pageSize; i++) {
       this.data.push({
         id: i,
         name: i,
@@ -116,7 +117,45 @@ export default Vue.extend({
     this.getList();
   },
   watch: {
-    dataLoading(oldVal, newVal) {
+    "searchForm.pageNum"(newVal, oldVal) {
+      if (oldVal !== newVal) {
+        // 存储
+        localStorage.setItem('wallpaper.searchForm.pageNum', newVal);
+        // 刷新数据
+        this.getList();
+      }
+    },
+    "searchForm.pageSize"(newVal, oldVal) {
+      if (oldVal !== newVal) {
+        // 存储
+        localStorage.setItem('wallpaper.searchForm.pageSize', newVal);
+        // 刷新数据
+        this.getList();
+      }
+    },
+    "searchForm.type"(newVal, oldVal) {
+      if (oldVal !== newVal) {
+        // 存储
+        localStorage.setItem('wallpaper.searchForm.type', newVal);
+        // 刷新数据
+        this.getList();
+      }
+    },
+    "searchForm.name"(newVal, oldVal) {
+      if (oldVal !== newVal) {
+        // 刷新数据
+        this.getList();
+      }
+    },
+    "searchForm.dirName"(newVal, oldVal) {
+      if (oldVal !== newVal) {
+        // 存储
+        localStorage.setItem('wallpaper.searchForm.dirName', newVal);
+        // 刷新数据
+        this.getList();
+      }
+    },
+    dataLoading(newVal, oldVal) {
       if (oldVal !== newVal) {
       }
     }
@@ -124,13 +163,11 @@ export default Vue.extend({
   methods: {
     changeType(val: string) {
       this.searchForm.dirName = val;
-      this.searchForm.pageNum = 1;
-      this.getList();
     },
-    changeName(val: string) {
-      this.searchForm.name = val;
-      this.searchForm.pageNum = 1;
-      this.getList();
+    changeSearchData(val: string) {
+      if (val !== this.searchForm.name) {
+        this.searchForm.name = val;
+      }
     },
     getList() {
       this.dataLoading = true;
@@ -150,20 +187,10 @@ export default Vue.extend({
     onPageSizeChange(size: number) {
       this.searchForm.pageSize = size;
       this.searchForm.pageNum = 1;
-      this.getList();
     },
     onCurrentChange(current: number) {
       this.searchForm.pageNum = current;
-      this.getList();
     },
-    clickOverView(item: any) {
-      console.log("you click", item);
-      const index = this.data.findIndex(v => v.id === item.id);
-      // this.overView.imageList = this.data.map(v => v.url);
-      // this.overView.index = index;
-      // this.overView.visible = true;
-      this.$router.push('/info?id=' + item.id);
-    }
   },
 });
 </script>

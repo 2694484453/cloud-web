@@ -3,11 +3,12 @@
     <t-input
       :class="{ 'hover-active': isSearchFocus }"
       placeholder="请输入搜索内容"
+      @enter="onEnter"
       @blur="changeSearchFocus(false)"
       @focus="changeSearchFocus(true)"
     >
       <template #prefix-icon>
-        <search-icon class="icon" size="16" />
+        <search-icon class="icon" size="16"/>
       </template>
     </t-input>
   </div>
@@ -20,7 +21,7 @@
       variant="text"
       @click="changeSearchFocus(true)"
     >
-      <search-icon />
+      <search-icon/>
     </t-button>
     <t-input
       ref="inputRef"
@@ -28,18 +29,19 @@
       :class="['header-search', { 'width-zero': !isSearchFocus }]"
       placeholder="输入要搜索内容"
       :autofocus="isSearchFocus"
+      @enter="onEnter"
       @blur="changeSearchFocus(false)"
     >
       <template #prefix-icon>
-        <search-icon size="16" />
+        <search-icon size="16"/>
       </template>
     </t-input>
   </div>
 </template>
 
 <script lang="ts">
-import Vue, { PropType } from 'vue';
-import { SearchIcon } from 'tdesign-icons-vue';
+import Vue, {PropType} from 'vue';
+import {SearchIcon} from 'tdesign-icons-vue';
 
 export default Vue.extend({
   components: {
@@ -59,7 +61,8 @@ export default Vue.extend({
   watch: {
     searchData(newVal, oldVal) {
       if (newVal != oldVal) {
-        this.$emit('searchData', newVal);
+        console.log("输入的是：", newVal)
+        this.searchData = newVal;
       }
     },
   },
@@ -70,6 +73,10 @@ export default Vue.extend({
       }
       this.isSearchFocus = value;
     },
+    onEnter(val) {
+      console.log("回车",val);
+      this.$emit('searchData', this.searchData);
+    }
   },
 });
 </script>
