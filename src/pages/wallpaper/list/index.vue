@@ -6,7 +6,7 @@
     <div class="list-content">
       <div class="image-grid">
         <t-space v-for="item in data" :key="item.id" direction="vertical" >
-          <span v-show="dataLoading" style="text-align: center">图片加载中...</span>
+
           <t-skeleton :loading="dataLoading" :animation="'gradient'" :theme="'tab'">
             <t-card
               :bordered="true"
@@ -23,7 +23,6 @@
                 <t-image  :lazy="true"
                           :style="{ width: '100%', height: '160px', cursor: 'pointer' }"
                           :alt="item.name"
-                          fit="cover"
                           :src="item.url + '?x-oss-process=image/resize,w_300,h_160,m_fill'"></t-image>
               </template>
               <!-- 优化：将统计信息放在左侧 -->
