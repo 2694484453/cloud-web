@@ -47,14 +47,12 @@
       </t-input>
     </t-form-item>
 
-    <template v-if="type == 'phone'">
-      <t-form-item class="verification-code" name="verifyCode">
-        <t-input v-model="formData.verifyCode" size="large" placeholder="请输入验证码"/>
-        <t-button variant="outline" :disabled="countDown > 0" @click="handleCounter">
-          {{ countDown == 0 ? '发送验证码' : `${countDown}秒后可重发` }}
-        </t-button>
-      </t-form-item>
-    </template>
+    <t-form-item class="verification-code" name="verifyCode">
+      <t-input v-model="formData.verifyCode" size="large" placeholder="请输入验证码"/>
+      <t-button theme="primary" :disabled="countDown > 0" @click="handleCounter">
+        {{ countDown == 0 ? '发送验证码' : `${countDown}秒后可重发` }}
+      </t-button>
+    </t-form-item>
 
     <t-form-item class="check-container" name="checked">
       <t-checkbox v-model="formData.checked">我已阅读并同意</t-checkbox>
@@ -72,7 +70,6 @@ import Vue from 'vue';
 import {UserIcon, MailIcon, BrowseIcon, BrowseOffIcon, LockOnIcon} from 'tdesign-icons-vue';
 
 const INITIAL_DATA = {
-  phone: '',
   email: '',
   password: '',
   verifyCode: '',
@@ -81,7 +78,6 @@ const INITIAL_DATA = {
 };
 
 const FORM_RULES = {
-  phone: [{required: true, message: '手机号必填', type: 'error'}],
   email: [{required: true, email: true, message: '邮箱必填', type: 'error'}],
   password: [{required: true, message: '密码必填', type: 'error'}],
   verifyCode: [{required: true, message: '验证码必填', type: 'error'}],
@@ -133,6 +129,7 @@ export default Vue.extend({
       }
     },
     handleCounter() {
+      // 开始倒计时
       this.countDown = 60;
       this.intervalTimer = setInterval(() => {
         if (this.countDown > 0) {
@@ -142,6 +139,12 @@ export default Vue.extend({
           this.countDown = 0;
         }
       }, 1000);
+      // 发送邮件请求
+      this.$request.post("/register", this.formData).then((res) => {
+        if (res.data.code === 200) {
+
+        }
+      })
     },
   },
 });

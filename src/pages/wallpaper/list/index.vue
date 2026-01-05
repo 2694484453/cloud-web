@@ -89,6 +89,7 @@ export default Vue.extend({
       searchForm: {
         name: "",
         type: "",
+        dirName: "",
         pageNum: 1,
         pageSize: 24
       },
@@ -122,7 +123,7 @@ export default Vue.extend({
   },
   methods: {
     changeType(val: string) {
-      this.searchForm.type = val;
+      this.searchForm.dirName = val;
       this.searchForm.pageNum = 1;
       this.getList();
     },

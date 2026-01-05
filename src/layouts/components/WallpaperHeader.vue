@@ -3,7 +3,7 @@
     <t-head-menu :class="menuCls" :theme="theme" expandType="popup" v-model:value="searchForm.type"
                  @change="handleChange">
       <template #logo>
-        <span v-if="showLogo" class="header-logo-container" @click="handleNav('')">简单壁纸</span>
+        <span v-if="showLogo" class="header-logo-container">已收录{{ overView.total }}张壁纸</span>
         <div v-else class="header-operate-left">
           <t-button theme="default" shape="square" variant="text" @click="changeCollapsed">
             <view-list-icon class="collapsed-icon"/>
@@ -21,55 +21,58 @@
       <t-menu-item value="linux">linux</t-menu-item>
       <t-menu-item value="macos">macos</t-menu-item>
       <t-menu-item value="widescreen">超宽屏壁纸</t-menu-item>
-      <t-menu-item value="fuli" :disabled="true">
-        <!--        您还没有订阅哦～-->
-        <t-tooltip content="暂未开放">福利</t-tooltip>
-      </t-menu-item>
-      <t-menu-item value="ai" :disabled="true">
-        <t-tooltip content="暂未开放">
-          <WallpaperIcon style="width: 18px;height: 18px"/>AI壁纸生成
-        </t-tooltip>
-      </t-menu-item>
       <menu-content v-show="layout !== 'side'" class="header-menu" :navData="menu"/>
       <template #operations>
         <div class="operations-container">
           <!-- 搜索框 -->
-          <search @searchData="searchForm.name" v-if="layout !== 'side'" :layout="layout"/>
+          <t-tooltip placement="bottom" content="搜索">
+            <search @searchData="searchForm.name" v-if="layout !== 'side'" :layout="layout"/>
+          </t-tooltip>
           <!-- 全局通知 -->
-          <WallpaperNotice/>
-          <t-tooltip placement="bottom" content="代码仓库">
-            <t-button theme="default" shape="square" variant="text" @click="navToGitHub">
-              <logo-github-icon/>
-            </t-button>
+          <t-tooltip placement="bottom" content="系统通知">
+            <WallpaperNotice/>
           </t-tooltip>
-          <t-tooltip placement="bottom" content="帮助文档">
-            <t-button theme="default" shape="square" variant="text" @click="navToHelper">
-              <help-circle-icon/>
-            </t-button>
+          <t-tooltip placement="bottom" content="福利">
+            <!--        您还没有订阅哦～-->
+            <t-tooltip content="暂未开放">
+              <t-button theme="default" variant="text" :disabled="true">
+                福利
+              </t-button>
+            </t-tooltip>
           </t-tooltip>
-          <t-dropdown :min-column-width="125" trigger="click">
-            <template #dropdown>
-              <t-dropdown-menu>
-                <t-dropdown-item class="operations-dropdown-container-item" @click="handleNav('/')">
-                  <user-circle-icon/>
-                  <t-link href="/user">个人中心</t-link>
-                </t-dropdown-item>
-                <t-dropdown-item class="operations-dropdown-container-item" @click="handleLogout">
-                  <poweroff-icon/>
-                  退出登录
-                </t-dropdown-item>
-              </t-dropdown-menu>
-            </template>
-            <t-button class="header-user-btn" theme="default" variant="text">
-              <template #icon>
-                <user-circle-icon class="header-user-avatar"/>
+          <t-tooltip placement="bottom" content="暂未开放">
+            <t-tooltip content="暂未开放">
+              <t-button theme="primary" variant="text" tag="a" :disabled="true">
+                <wallpaper-icon style="width: 18px;height: 18px"/>
+                AI壁纸生成
+              </t-button>
+            </t-tooltip>
+          </t-tooltip>
+          <t-tooltip placement="bottom" content="用户信息">
+            <t-dropdown :min-column-width="125" trigger="click">
+              <template #dropdown>
+                <t-dropdown-menu>
+                  <t-dropdown-item class="operations-dropdown-container-item" @click="handleNav('/')">
+                    <user-circle-icon/>
+                    <t-link href="/user">个人中心</t-link>
+                  </t-dropdown-item>
+                  <t-dropdown-item class="operations-dropdown-container-item" @click="handleLogout">
+                    <poweroff-icon/>
+                    退出登录
+                  </t-dropdown-item>
+                </t-dropdown-menu>
               </template>
-              <div class="header-user-account" v-text="userInfo.userName"></div>
-              <template #suffix>
-                <chevron-down-icon/>
-              </template>
-            </t-button>
-          </t-dropdown>
+              <t-button class="header-user-btn" theme="default" variant="text">
+                <template #icon>
+                  <user-circle-icon class="header-user-avatar"/>
+                </template>
+                <div class="header-user-account" v-text="userInfo.userName"></div>
+                <template #suffix>
+                  <chevron-down-icon/>
+                </template>
+              </t-button>
+            </t-dropdown>
+          </t-tooltip>
           <t-tooltip placement="bottom" content="系统设置">
             <t-button theme="default" shape="square" variant="text" @click="toggleSettingPanel">
               <setting-icon/>
@@ -91,6 +94,7 @@ import {
   PoweroffIcon,
   SettingIcon,
   ChevronDownIcon,
+  FileImageIcon
 } from 'tdesign-icons-vue';
 import WallpaperIcon from '@/assets/icon/wallpaper.svg';
 import {prefix} from '@/config/global';
@@ -146,6 +150,9 @@ export default Vue.extend({
       prefix,
       visibleNotice: false,
       isSearchFocus: false,
+      overView: {
+        total: 0,
+      },
       userInfo: {
         userName: ""
       },
@@ -174,12 +181,7 @@ export default Vue.extend({
     },
   },
   mounted() {
-    const userName = this.$cookies.get('username');
-    if (userName) {
-      this.userInfo.userName = userName;
-    } else {
-      this.userInfo.userName = '未知';
-    }
+    this.userInfo.userName = this.$cookies.get('username') ? userName : '访客';
   },
   watch: {
     "searchForm.type"(newVal, oldVal) {
@@ -217,6 +219,15 @@ export default Vue.extend({
     navToHelper() {
       window.open('https://gitbook.gpg123.vip');
     },
+    getOverView() {
+      this.$request.get("/wallpaper/overView", {}).then(res => {
+        if (res.data.code === 200) {
+          this.overView = res.data.data;
+        }
+      }).catch(err => {
+      }).finally(() => {
+      })
+    }
   },
 });
 </script>
