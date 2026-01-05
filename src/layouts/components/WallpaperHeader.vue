@@ -1,13 +1,14 @@
 <template>
   <div :class="layoutCls">
-    <t-head-menu :class="menuCls" :theme="theme" expandType="popup" v-model:value="searchForm.type" @change="handleChange">
+    <t-head-menu :class="menuCls" :theme="theme" expandType="popup" v-model:value="searchForm.type"
+                 @change="handleChange">
       <template #logo>
         <span v-if="showLogo" class="header-logo-container" @click="handleNav('')">简单壁纸</span>
         <div v-else class="header-operate-left">
           <t-button theme="default" shape="square" variant="text" @click="changeCollapsed">
-            <view-list-icon class="collapsed-icon" />
+            <view-list-icon class="collapsed-icon"/>
           </t-button>
-          <search :layout="layout" />
+          <search :layout="layout"/>
         </div>
       </template>
       <t-menu-item value="dongman">动漫</t-menu-item>
@@ -21,49 +22,57 @@
       <t-menu-item value="macos">macos</t-menu-item>
       <t-menu-item value="widescreen">超宽屏壁纸</t-menu-item>
       <t-menu-item value="fuli" :disabled="true">
-        <t-tooltip content="您还没有订阅哦～">福利</t-tooltip>
+        <!--        您还没有订阅哦～-->
+        <t-tooltip content="暂未开放">福利</t-tooltip>
       </t-menu-item>
-      <menu-content v-show="layout !== 'side'" class="header-menu" :navData="menu" />
+      <t-menu-item value="ai" :disabled="true">
+        <t-tooltip content="暂未开放">
+          <WallpaperIcon style="width: 18px;height: 18px"/>AI壁纸生成
+        </t-tooltip>
+      </t-menu-item>
+      <menu-content v-show="layout !== 'side'" class="header-menu" :navData="menu"/>
       <template #operations>
         <div class="operations-container">
           <!-- 搜索框 -->
-          <search @searchData="searchForm.name" v-if="layout !== 'side'" :layout="layout" />
+          <search @searchData="searchForm.name" v-if="layout !== 'side'" :layout="layout"/>
           <!-- 全局通知 -->
-          <WallpaperNotice />
+          <WallpaperNotice/>
           <t-tooltip placement="bottom" content="代码仓库">
             <t-button theme="default" shape="square" variant="text" @click="navToGitHub">
-              <logo-github-icon />
+              <logo-github-icon/>
             </t-button>
           </t-tooltip>
           <t-tooltip placement="bottom" content="帮助文档">
             <t-button theme="default" shape="square" variant="text" @click="navToHelper">
-              <help-circle-icon />
+              <help-circle-icon/>
             </t-button>
           </t-tooltip>
           <t-dropdown :min-column-width="125" trigger="click">
             <template #dropdown>
               <t-dropdown-menu>
                 <t-dropdown-item class="operations-dropdown-container-item" @click="handleNav('/')">
-                  <user-circle-icon /><t-link href="/user">个人中心</t-link>
+                  <user-circle-icon/>
+                  <t-link href="/user">个人中心</t-link>
                 </t-dropdown-item>
                 <t-dropdown-item class="operations-dropdown-container-item" @click="handleLogout">
-                  <poweroff-icon />退出登录
+                  <poweroff-icon/>
+                  退出登录
                 </t-dropdown-item>
               </t-dropdown-menu>
             </template>
             <t-button class="header-user-btn" theme="default" variant="text">
               <template #icon>
-                <user-circle-icon class="header-user-avatar" />
+                <user-circle-icon class="header-user-avatar"/>
               </template>
               <div class="header-user-account" v-text="userInfo.userName"></div>
               <template #suffix>
-                <chevron-down-icon />
+                <chevron-down-icon/>
               </template>
             </t-button>
           </t-dropdown>
           <t-tooltip placement="bottom" content="系统设置">
             <t-button theme="default" shape="square" variant="text" @click="toggleSettingPanel">
-              <setting-icon />
+              <setting-icon/>
             </t-button>
           </t-tooltip>
         </div>
@@ -83,7 +92,8 @@ import {
   SettingIcon,
   ChevronDownIcon,
 } from 'tdesign-icons-vue';
-import { prefix } from '@/config/global';
+import WallpaperIcon from '@/assets/icon/wallpaper.svg';
+import {prefix} from '@/config/global';
 import LogoFull from '@/assets/assets-logo-full.svg';
 import Search from './Search.vue';
 import MenuContent from './MenuContent.vue';
@@ -103,6 +113,7 @@ export default Vue.extend({
     PoweroffIcon,
     SettingIcon,
     ChevronDownIcon,
+    WallpaperIcon,
   },
   props: {
     theme: String,
@@ -166,19 +177,19 @@ export default Vue.extend({
     const userName = this.$cookies.get('username');
     if (userName) {
       this.userInfo.userName = userName;
-    }else {
+    } else {
       this.userInfo.userName = '未知';
     }
   },
   watch: {
     "searchForm.type"(newVal, oldVal) {
       if (newVal !== oldVal) {
-        this.$emit("type",newVal);
+        this.$emit("type", newVal);
       }
     },
     "searchForm.name"(newVal, oldVal) {
       if (newVal !== oldVal) {
-        this.$emit("name",newVal);
+        this.$emit("name", newVal);
       }
     },
   },

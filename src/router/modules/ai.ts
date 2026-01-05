@@ -25,6 +25,12 @@ export default [
         name: 'UseBase',
         component: () => import("@/pages/ai/use/index.vue"),
         meta: {title: '模型调用'},
+      },
+      {
+        path: "use",
+        name: 'UseBase',
+        component: () => import("@/pages/ai/frame/index.vue"),
+        meta: {title: 'OpenWebUi面板'},
       }
     ],
   }
