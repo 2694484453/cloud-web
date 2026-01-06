@@ -17,6 +17,9 @@
       <t-tooltip content="暂未开放" :disabled="true">
         <t-menu-item :value="'dynamic_wallpaper'">动态壁纸</t-menu-item>
       </t-tooltip>
+      <t-tooltip content="用户画廊">
+        <t-menu-item :value="'upload'">用户画廊</t-menu-item>
+      </t-tooltip>
       <menu-content v-show="layout !== 'side'" class="header-menu" :navData="menu"/>
       <template #operations>
         <div class="operations-container">

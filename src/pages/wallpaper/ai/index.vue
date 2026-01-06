@@ -1,6 +1,9 @@
 <template>
   <div class="container">
     <!-- 提示词区域 -->
+    <t-space>
+      <t-button theme="primary" tag="a" href="/" variant="text">返回首页</t-button>
+    </t-space>
     <div class="section">
       <h3>提示词</h3>
       <div class="input-group">
