@@ -123,6 +123,7 @@ export default Vue.extend({
     // 假设你有一个方法来处理分页点击
     this.searchForm.pageNum = savedPageNum ? Number.parseInt(savedPageNum) : 1;
     this.searchForm.pageSize = savedPageSize ? Number.parseInt(savedPageSize) : 24;
+    this.getList();
   },
   watch: {
     "searchForm.pageNum"(newVal, oldVal) {
