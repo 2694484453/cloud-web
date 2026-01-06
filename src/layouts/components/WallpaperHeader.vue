@@ -38,6 +38,11 @@
               AI壁纸生成
             </t-button>
           </t-tooltip>
+          <t-tooltip placement="bottom" content="站点统计">
+            <t-button theme="primary" variant="text" tag="a" href="https://umami.gpg123.vip/share/vV0lArsoXUhPpAZK/wallpaper.gpg123.vip">
+              站点统计
+            </t-button>
+          </t-tooltip>
           <t-tooltip placement="bottom" content="用户信息">
             <HeaderUser/>
           </t-tooltip>
