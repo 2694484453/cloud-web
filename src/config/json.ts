@@ -30,6 +30,6 @@ export const acgJson = (value) => {
     steps: value.steps,
     cfg: value.cfg,
     model_index: value.model_index,
-    seed: value.seseed,
+    seed: value.seed,
   }
 }

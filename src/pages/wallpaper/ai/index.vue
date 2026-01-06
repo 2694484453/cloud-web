@@ -78,7 +78,6 @@
           v-model.number="formData.seed"
           type="number"
           class="input"
-          :disabled="!formData.seed"
         />
       </div>
     </div>
@@ -186,29 +185,29 @@ export default {
   },
   mounted() {
     this.formData.prompt = localStorage.getItem('wallpaper.generate.prompt') ?? '';
-    this.formData.cfg = localStorage.getItem('wallpaper.generate.cfg') ?? '';
+    this.formData.cfg = localStorage.getItem('wallpaper.generate.cfg') ?? 7.0;
     this.formData.width = localStorage.getItem('wallpaper.generate.width') ?? 512;
     this.formData.height = localStorage.getItem('wallpaper.generate.height') ?? 512;
-    this.formData.seed = localStorage.getItem('wallpaper.generate.seed') ?? '';
+    this.formData.seed = localStorage.getItem('wallpaper.generate.seed') ?? -1;
     this.formData.negative_prompt = localStorage.getItem('wallpaper.generate.negative_prompt') ?? '';
-    this.formData.steps = localStorage.getItem('wallpaper.generate.steps') ?? '';
+    this.formData.steps = localStorage.getItem('wallpaper.generate.steps') ?? 20;
   },
   methods: {
     // 从随机词库导入提示词
     importRandom() {
       // 示例：模拟导入逻辑（可替换为实际接口调用）
-      this.prompt += '1girl, solo, barefoot, feet, halo, purple eyes, toes, looking at viewer, white hair, sitting, side ponytail, foreshortening, long hair, gloves, hair ornament, foot focus, blush, bare legs, soles, white gloves, indoors, frills, bangs, couch';
+      this.formData.prompt += '1girl, solo, barefoot, feet, halo, purple eyes, toes, looking at viewer, white hair, sitting, side ponytail, foreshortening, long hair, gloves, hair ornament, foot focus, blush, bare legs, soles, white gloves, indoors, frills, bangs, couch';
       this.$message?.info('已从随机词库导入提示词'); // 若使用 Element UI
     },
     // 生成图像逻辑（需对接后端接口）
     generateImage() {
       // 示例：模拟生成图像（实际需上传参数到后端，获取图片 URL/Base64）
       this.generatedImage = 'https://via.placeholder.com/300'; // 占位图
-      this.aiYunZImageRequest();
+      this.acgRequest();
     },
     aiYunZImageRequest() {
       this.formData.extend = false;
-      this.$request.post('/wallpaper/z-image', zImageJson(this.formData)).then((res) => {
+      this.$request.post('/wallpaper/ai/z-image', zImageJson(this.formData)).then((res) => {
         this.generatedImage = res.data.output.choices[0].message.content[0].image;
       }).catch((err) => {
       }).finally(() => {
@@ -216,7 +215,7 @@ export default {
       })
     },
     acgRequest() {
-      this.$request.post('/wallpaper/generate_image', acgJson(this.formData)).then((res) => {
+      this.$request.post('/wallpaper/ai/generate_image', acgJson(this.formData)).then((res) => {
         if (res.data.success) {
           this.$message?.success(res.data.message);
           this.generatedImage = res.data.data.image_url;

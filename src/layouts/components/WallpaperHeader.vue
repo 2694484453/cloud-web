@@ -34,7 +34,7 @@
                 福利
               </t-button>
           </t-tooltip>
-          <t-tooltip placement="bottom">
+          <t-tooltip placement="bottom" content="AI壁纸生成">
               <t-button theme="primary" variant="text" tag="a" href="/ai">
                 <wallpaper-icon style="width: 18px;height: 18px"/>
                 AI壁纸生成
