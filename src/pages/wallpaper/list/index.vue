@@ -30,7 +30,7 @@
                 <div class="card-footer">
                   <t-tooltip content="浏览次数">
                     <browse-icon/>
-                    <span>{{ item.visitCount }}次</span>
+                    <span>{{ item.viewCount }}次</span>
                   </t-tooltip>
                   <t-tooltip content="下载次数" style="margin-left: 16px;">
                     <download-icon/>
@@ -89,7 +89,7 @@ export default Vue.extend({
       data: [],
       searchForm: {
         name: '',
-        cateName: "",
+        cateName: "二次元",
         pageNum: 1,
         pageSize: 24
       },
@@ -123,6 +123,7 @@ export default Vue.extend({
     // 假设你有一个方法来处理分页点击
     this.searchForm.pageNum = savedPageNum ? Number.parseInt(savedPageNum) : 1;
     this.searchForm.pageSize = savedPageSize ? Number.parseInt(savedPageSize) : 24;
+    this.searchForm.cateName = localStorage.getItem('wallpaper.searchForm.cateName') ?? this.searchForm.cateName;
     this.getList();
   },
   watch: {
@@ -153,6 +154,7 @@ export default Vue.extend({
       if (oldVal !== newVal) {
         // 存储
         localStorage.setItem('wallpaper.searchForm.cateName', newVal);
+        // 变更分类，num设置为1
         this.searchForm.pageNum = 1;
         // 刷新数据
         this.getList();

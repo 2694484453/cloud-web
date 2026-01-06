@@ -162,7 +162,7 @@ export default Vue.extend({
   mounted() {
     this.userName = localStorage.getItem('username') ?? '访客';
     this.name = localStorage.getItem('wallpaper.searchForm.name') ?? "";
-    this.cateName = localStorage.getItem('wallpaper.searchForm.cateName') ?? "";
+    this.cateName = localStorage.getItem('wallpaper.searchForm.cateName') ?? "二次元";
   },
   methods: {
     handleChange(val) {
