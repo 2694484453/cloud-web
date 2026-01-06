@@ -7,9 +7,10 @@
         <t-textarea
           v-model="formData.prompt"
           placeholder="输入提示词..."
-          :autosize="{minRows: 5, maxRows:12}"
+          :autosize="{minRows: 5, maxRows:10}"
+          :maxlength="200"
         />
-        <t-button @click="importRandom" class="btn">从随机词库导入</t-button>
+        <t-button @click="importRandom" theme="primary" size="large" class="btn">从随机词库导入</t-button>
       </div>
     </div>
 
@@ -18,7 +19,9 @@
       <h3>反向提示词</h3>
       <t-textarea
         v-model="formData.negative_prompt"
-        :autosize="{minRows: 5, maxRows:12}"
+        placeholder="输入负面提示词..."
+        :autosize="{minRows: 5, maxRows:10}"
+        :maxlength="200"
       />
     </div>
 
@@ -112,7 +115,7 @@
     </div>
 
     <!-- 生成按钮 -->
-    <button @click="generateImage" class="btn btn-primary">生成图像</button>
+    <t-button @click="generateImage" theme="primary" size="large" :disabled="dataLoading">生成图像</t-button>
   </div>
 </template>
 
@@ -148,7 +151,9 @@ export default {
         cfg: 7.0,
         model_index: 0,
         seed: -1
-      }
+      },
+      dataLoading: false,
+      logs: ""
     }
   },
   watch: {
@@ -201,6 +206,7 @@ export default {
     },
     // 生成图像逻辑（需对接后端接口）
     generateImage() {
+      this.dataLoading = true;
       // 示例：模拟生成图像（实际需上传参数到后端，获取图片 URL/Base64）
       this.generatedImage = 'https://via.placeholder.com/300'; // 占位图
       this.acgRequest();
@@ -211,11 +217,12 @@ export default {
         this.generatedImage = res.data.output.choices[0].message.content[0].image;
       }).catch((err) => {
       }).finally(() => {
-
+        this.dataLoading = false;
       })
     },
     acgRequest() {
       this.$request.post('/wallpaper/ai/generate_image', acgJson(this.formData)).then((res) => {
+        this.logs = res.data;
         if (res.data.success) {
           this.$message?.success(res.data.message);
           this.generatedImage = res.data.data.image_url;
@@ -224,7 +231,7 @@ export default {
         }
       }).catch((err) => {
       }).finally(() => {
-
+        this.dataLoading = false;
       })
     },
     // 在浏览器中查看原文件
@@ -263,15 +270,6 @@ h3 {
   font-weight: bold;
 }
 
-.textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  resize: vertical;
-}
-
 .input-group {
   display: flex;
   gap: 10px;
@@ -279,30 +277,12 @@ h3 {
 }
 
 .btn {
-  background: #f0f0f0;
-  border: 1px solid #ddd;
-  color: #333;
-  padding: 10px 16px;
-  border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
 }
 
 .btn:hover {
   background: #e0e0e0;
-}
-
-.btn-primary {
-  background: #409EFF;
-  color: white;
-  border: none;
-  padding: 12px 24px;
-  font-size: 16px;
-  margin-top: 10px;
-}
-
-.btn-primary:hover {
-  background: #66b1ff;
 }
 
 .grid {
@@ -352,7 +332,7 @@ label {
 }
 
 .preview {
-  height: 300px;
+  height: 250px;
   border: 1px dashed #ddd;
   border-radius: 4px;
   display: flex;
