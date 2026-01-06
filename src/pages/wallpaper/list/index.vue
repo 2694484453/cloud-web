@@ -1,8 +1,8 @@
 <template>
   <div class="wallpaper-list-container">
     <!-- 页头 -->
-    <WallpaperHeader class="header-fixed" @dirName="changeType" @name="changeSearchData" :cateList="cateList"
-                     :searchData="searchForm.name" :dirName="searchForm.dirName" :total="total"/>
+    <WallpaperHeader class="header-fixed" @cateName="changeCate" @name="changeSearchData" :cateList="cateList"
+                     :total="total"/>
     <!-- 内容区域 -->
     <div class="list-content">
       <div class="image-grid">
@@ -89,8 +89,7 @@ export default Vue.extend({
       data: [],
       searchForm: {
         name: '',
-        type: '',
-        dirName: '',
+        cateName: "",
         pageNum: 1,
         pageSize: 24
       },
@@ -119,19 +118,11 @@ export default Vue.extend({
     this.getCate();
     this.getOverView();
     // 确保在 DOM 更新后执行
-    this.$nextTick(() => {
-      const savedPageNum = localStorage.getItem("wallpaper.searchForm.pageNum");
-      const savedPageSize = localStorage.getItem("wallpaper.searchForm.pageSize");
-      const name = localStorage.getItem('wallpaper.searchForm.name');
-      const type = localStorage.getItem('wallpaper.searchForm.type');
-      const dirName = localStorage.getItem('wallpaper.searchForm.dirName');
-      // 假设你有一个方法来处理分页点击
-      this.searchForm.pageNum = savedPageNum ?? 1;
-      this.searchForm.pageSize = savedPageSize ?? 24;
-      this.searchForm.dirName = dirName ?? "";
-      this.searchForm.type = type ?? "";
-      this.searchForm.name = name ?? "";
-    });
+    const savedPageNum = localStorage.getItem("wallpaper.searchForm.pageNum");
+    const savedPageSize = localStorage.getItem("wallpaper.searchForm.pageSize");
+    // 假设你有一个方法来处理分页点击
+    this.searchForm.pageNum = savedPageNum ? Number.parseInt(savedPageNum) : 1;
+    this.searchForm.pageSize = savedPageSize ? Number.parseInt(savedPageSize) : 24;
   },
   watch: {
     "searchForm.pageNum"(newVal, oldVal) {
@@ -150,14 +141,6 @@ export default Vue.extend({
         this.getList();
       }
     },
-    "searchForm.type"(newVal, oldVal) {
-      if (oldVal !== newVal) {
-        // 存储
-        localStorage.setItem('wallpaper.searchForm.type', newVal);
-        // 刷新数据
-        this.getList();
-      }
-    },
     "searchForm.name"(newVal, oldVal) {
       if (oldVal !== newVal) {
         // 刷新数据
@@ -165,27 +148,22 @@ export default Vue.extend({
         this.getList();
       }
     },
-    "searchForm.dirName"(newVal, oldVal) {
+    "searchForm.cateName"(newVal, oldVal) {
       if (oldVal !== newVal) {
         // 存储
-        localStorage.setItem('wallpaper.searchForm.dirName', newVal);
+        localStorage.setItem('wallpaper.searchForm.cateName', newVal);
+        this.searchForm.pageNum = 1;
         // 刷新数据
         this.getList();
-      }
-    },
-    dataLoading(newVal, oldVal) {
-      if (oldVal !== newVal) {
       }
     }
   },
   methods: {
-    changeType(val: string) {
-      this.searchForm.dirName = val;
+    changeCate(val: string) {
+      this.searchForm.cateName = val;
     },
     changeSearchData(val: string) {
-      if (val !== this.searchForm.name) {
-        this.searchForm.name = val;
-      }
+      this.searchForm.name = val;
     },
     getOverView() {
       this.$request.get("/wallpaper/overView", {}).then(res => {

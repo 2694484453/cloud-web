@@ -1,6 +1,6 @@
 <template>
   <div :class="layoutCls">
-    <t-head-menu :class="menuCls" :theme="theme" expandType="popup" v-model:value="dirName"
+    <t-head-menu :class="menuCls" :theme="theme" expandType="popup" v-model:value="cateName"
                  @change="handleChange">
       <template #logo>
         <span v-if="showLogo" class="header-logo-container">已收录{{ total }}张壁纸</span>
@@ -12,20 +12,15 @@
         </div>
       </template>
       <t-space v-for="item in cateList">
-        <t-menu-item :value="item.dictValue">{{item.dictLabel}}</t-menu-item>
+        <t-menu-item :value="item.dictValue">{{ item.dictLabel }}</t-menu-item>
       </t-space>
-      <t-tooltip content="暂未开放" :disabled="true">
-        <t-menu-item :value="'dynamic_wallpaper'">动态壁纸</t-menu-item>
-      </t-tooltip>
-      <t-tooltip content="用户画廊">
-        <t-menu-item :value="'upload'">用户画廊</t-menu-item>
-      </t-tooltip>
       <menu-content v-show="layout !== 'side'" class="header-menu" :navData="menu"/>
       <template #operations>
         <div class="operations-container">
           <!-- 搜索框 -->
           <t-tooltip placement="bottom" content="搜索">
-            <search @searchData="handleChangeSearchData" v-if="layout !== 'side'" :layout="layout" :searchData="searchData"/>
+            <search @searchData="handleChangeSearchData" v-if="layout !== 'side'" :layout="layout"
+                    :searchData="searchData"/>
           </t-tooltip>
           <!-- 全局通知 -->
           <t-tooltip placement="bottom" content="系统通知">
@@ -33,15 +28,15 @@
           </t-tooltip>
           <t-tooltip placement="bottom" content="暂未开放">
             <!--        您还没有订阅哦～-->
-              <t-button theme="default" variant="text" :disabled="true">
-                福利
-              </t-button>
+            <t-button theme="default" variant="text" :disabled="true">
+              福利
+            </t-button>
           </t-tooltip>
           <t-tooltip placement="bottom" content="AI壁纸生成">
-              <t-button theme="primary" variant="text" tag="a" href="/ai">
-                <wallpaper-icon style="width: 18px;height: 18px"/>
-                AI壁纸生成
-              </t-button>
+            <t-button theme="primary" variant="text" tag="a" href="/ai">
+              <wallpaper-icon style="width: 18px;height: 18px"/>
+              AI壁纸生成
+            </t-button>
           </t-tooltip>
           <t-tooltip placement="bottom" content="用户信息">
             <HeaderUser/>
@@ -126,7 +121,7 @@ export default Vue.extend({
       type: Number,
       default: 0,
     },
-    dirName: {
+    cateName: {
       type: String,
       default: '',
     }
@@ -138,7 +133,7 @@ export default Vue.extend({
       isSearchFocus: false,
       userName: '',
       name: "",
-      dirName: '',
+      cateName: '',
     };
   },
   computed: {
@@ -161,38 +156,23 @@ export default Vue.extend({
   },
   mounted() {
     this.userName = localStorage.getItem('username') ?? '访客';
-  },
-  watch: {
-    "dirName"(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.$emit("dirName", newVal);
-      }
-    },
-    "name"(newVal, oldVal) {
-      if (newVal !== oldVal) {
-        this.$emit("name", newVal);
-      }
-    },
+    this.name = localStorage.getItem('wallpaper.searchForm.name') ?? "";
+    this.cateName = localStorage.getItem('wallpaper.searchForm.cateName') ?? "";
   },
   methods: {
     handleChange(val) {
-      this.dirName = val;
+      this.cateName = val;
+      this.$emit("cateName", val);
     },
     handleChangeSearchData(val) {
       this.name = val;
+      this.$emit("name", val);
     },
     toggleSettingPanel() {
       this.$store.commit('setting/toggleSettingPanel', true);
     },
     changeCollapsed() {
       this.$store.commit('setting/toggleSidebarCompact');
-    },
-    navToGitHub() {
-      window.open('https://github.com/2694484453/cloud-web');
-    },
-    // 帮助文档
-    navToHelper() {
-      window.open('https://gitbook.gpg123.vip');
     }
   },
 });
