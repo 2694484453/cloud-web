@@ -3,8 +3,13 @@
     <t-space direction="horizontal">
       <!-- 壁纸内容主体 -->
       <t-space>
-        <DesktopPreview v-show="deviceType === 'desktop'" :url="wallpaperData.url" :width="wallpaperData.width" :height="wallpaperData.height"/>
-        <PhonePreview v-show="deviceType === 'phone'" :url="wallpaperData.url" :width="wallpaperData.width" :height="wallpaperData.height"/>
+        <DesktopPreview v-show="deviceType === 'desktop' && cateName !== 'dynamic'" :url="wallpaperData.url"
+                        :width="wallpaperData.width"
+                        :height="wallpaperData.height"/>
+        <PhonePreview v-show="deviceType === 'phone' && cateName !== 'dynamic'" :url="wallpaperData.url"
+                      :width="wallpaperData.width"
+                      :height="wallpaperData.height"/>
+        <VideoPreview v-show="cateName === 'dynamic'" :url="wallpaperData.url"/>
       </t-space>
       <div>
         <!-- 信息卡片 -->
@@ -12,15 +17,17 @@
           <template>
             <t-descriptions title="壁纸详情">
               <t-descriptions-item label="名称">{{ wallpaperData.name }}</t-descriptions-item>
-              <t-descriptions-item label="类型">静态壁纸</t-descriptions-item>
+              <t-descriptions-item label="类型">{{cateName!=='dynamic' ? '静态壁纸':'动态壁纸'}}</t-descriptions-item>
               <t-descriptions-item label="标签">
                 <t-space v-for="tag in wallpaperData.tags.split(',')">
                   <t-tag max-width="80" theme="primary" variant="light" style="margin-left: 5px">{{ tag }}</t-tag>
                 </t-space>
               </t-descriptions-item>
-              <t-descriptions-item label="浏览次数">{{ formatViews(wallpaperData.visitCount) }}</t-descriptions-item>
+              <t-descriptions-item label="浏览次数">{{ formatViews(wallpaperData.viewCount) }}</t-descriptions-item>
               <t-descriptions-item label="下载次数">{{ formatViews(wallpaperData.downloadCount) }}</t-descriptions-item>
-              <t-descriptions-item label="分辨率">{{ wallpaperData.width }}x{{ wallpaperData.height }}像素
+              <t-descriptions-item v-show="cateName!=='dynamic'" label="分辨率">{{
+                  wallpaperData.width
+                }}x{{ wallpaperData.height }}像素
               </t-descriptions-item>
               <t-descriptions-item label="文件大小">{{ wallpaperData.size }}</t-descriptions-item>
               <!--            <t-descriptions-item label="url地址"><a :href="wallpaperData.url">{{ wallpaperData.url }}</a>-->
@@ -30,9 +37,9 @@
               </t-descriptions-item>
               <t-descriptions-item label="操作">
                 <!-- 操作按钮 -->
-                  <t-button theme="primary"  size="medium" @click="handleDownload">
-                    下载壁纸 ({{ wallpaperData.resolution }})
-                  </t-button>
+                <t-button theme="primary" size="medium" @click="handleDownload">
+                  下载壁纸 ({{ wallpaperData.resolution }})
+                </t-button>
               </t-descriptions-item>
             </t-descriptions>
           </template>
@@ -42,13 +49,16 @@
   </div>
 </template>
 
-<script>
-import DesktopPreview from '@/components/device/desktop.vue'
-import PhonePreview from "@/components/device/phone.vue";
+<script lang="ts">
+import Vue from 'vue';
+import DesktopPreview from '@/components/preview/desktop.vue'
+import PhonePreview from "@/components/preview/phone.vue";
+import VideoPreview from "@/components/preview/video.vue";
 
-export default {
+export default Vue.extend({
   name: 'WallpaperDetail',
   components: {
+    VideoPreview,
     PhonePreview,
     DesktopPreview
   },
@@ -58,25 +68,31 @@ export default {
       wallpaperData: {
         id: 1001,
         name: '',
-        title: '璀璨星空延时摄影',
-        visitCount: 0,
+        dirName: '',
+        dirPath: "",
+        viewCount: 0,
         downloadCount: 0,
         url: 'https://tdesign.gtimg.com/mobile/demos/img1.png', // 替换为实际壁纸URL
         description: '这是一张由专业摄影师在高海拔地区拍摄的星空延时摄影作品，展现了银河的壮丽与神秘。',
-        views: 128400, // 模拟高热度数据
         resolution: '3840 x 2160 (4K)',
         width: 0,
         height: 0,
-        author: '风光摄影师-Alex',
-        uploadTime: '2023-10-25',
-        dirName: '',
+        createBy: '风光摄影师-Alex',
+        createTime: '2023-10-25',
       },
       deviceType: '',
+      cateName: ""
     };
   },
   mounted() {
-    this.wallpaperData.id = this.$route.query.id ?? "";
-    this.getInfo();
+    // 获取
+    this.cateName = localStorage.getItem('wallpaper.searchForm.cateName');
+    this.wallpaperData = JSON.parse(localStorage.getItem('wallpaper.detail'));
+    if (this.cateName !== 'dynamic') {
+      this.wallpaperData.resolution = this.wallpaperData.width + "x" + this.wallpaperData.height;
+    }
+    console.log(this.wallpaperData);
+    this.deviceType = this.detectDeviceByResolution(this.wallpaperData.width, this.wallpaperData.height);
   },
   methods: {
     // 下载处理逻辑
@@ -96,20 +112,6 @@ export default {
       link.click();
       // 6. 下载完成后，移除标签（保持页面干净）
       document.body.removeChild(link);
-    },
-    getInfo() {
-      this.$request.get("/wallpaper/info?id=" + this.wallpaperData.id, {})
-        .then(res => {
-          if (res.data.code === 200) {
-            this.wallpaperData = res.data.data;
-            this.wallpaperData.resolution = this.wallpaperData.width + "x" + this.wallpaperData.height;
-            this.deviceType = this.detectDeviceByResolution(this.wallpaperData.width, this.wallpaperData.height);
-          } else {
-            this.$message.error(res.data.msg);
-          }
-        })
-        .catch(err => {
-        });
     },
     // 格式化浏览量/热度显示 (例如：1.2w+)
     formatViews(number) {
@@ -151,7 +153,7 @@ export default {
       }
     }
   },
-};
+});
 </script>
 
 <style lang="less" scoped>

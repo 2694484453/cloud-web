@@ -5,6 +5,23 @@
                      :total="total"/>
     <!-- 内容区域 -->
     <div class="list-content">
+      <t-space direction="horizontal">
+        <t-space direction="horizontal">
+            <span v-for="(item, index) in tagList" :key="index">
+            <t-tag
+              @click="searchForm.name = item.dictValue"
+              :color="colors[index]"
+              :style="{ color: 'white' }"
+              class="hover-pointer"
+            >{{ item.dictValue }}
+            </t-tag>
+          </span>
+        </t-space>
+        <t-tag style="margin-left: 20px" size="medium" theme="default" class="hover-pointer"
+               @click="searchForm.name = null">
+          清空过滤
+        </t-tag>
+      </t-space>
       <div class="image-grid">
         <t-space v-for="item in data" :key="item.id" direction="vertical">
           <t-skeleton :loading="dataLoading" :animation="'gradient'" :theme="'tab'">
@@ -23,7 +40,8 @@
                 <t-image :lazy="true"
                          :style="{ width: '100%', height: '160px', cursor: 'pointer' }"
                          :alt="item.name"
-                         :src="item.url + '?x-oss-process=image/resize,w_300,h_160,m_fill'"></t-image>
+                         :src="item.url +
+                         (searchForm.cateName !=='dynamic' ? '?x-oss-process=image/resize,w_300,h_160,m_fill':'?x-oss-process=video/snapshot,t_0,f_jpg')"></t-image>
               </template>
               <!-- 优化：将统计信息放在左侧 -->
               <template #footer>
@@ -38,7 +56,7 @@
                   </t-tooltip>
                   <t-tooltip content="查看" style="margin-left: 16px;">
                     <info-circle-icon/>
-                    <a :href="'/info?id='+item.id">查看</a>
+                    <a @click="handleDetail(item)" :href="'/info?id='+item.id">查看</a>
                   </t-tooltip>
                 </div>
               </template>
@@ -102,7 +120,16 @@ export default Vue.extend({
         imageList: []
       },
       cateList: [],
+      tagList: [],
       total: 0,
+      colors: [
+        '#d71818', '#FFA500', '#d4d477', '#cbeacb', '#00FFFF',
+        '#0000FF', '#4B0082', '#800080', '#FF00FF', '#008000',
+        '#FF0000', '#500FF2', '#92318d', '#9bb1b1', '#FFA500',
+        '#1d1c1c', '#1d1c1c', "#00FFFF", '#429242', '#00FF00',
+        '#FF0000', '#FF00FF', "#6ec3c3", '#17ea17', '#00FF00',
+        '#FF0000', '#FF00FF', "#3e7979", '#54b754', '#00FF00'
+      ]
     };
   },
   created() {
@@ -195,7 +222,8 @@ export default Vue.extend({
     getCate() {
       this.$request.get('/wallpaper/category', {}).then((res) => {
         if (res.data.code === 200) {
-          this.cateList = res.data.data;
+          this.cateList = res.data.data.cate;
+          this.tagList = res.data.data.tags;
         }
       }).catch((e: Error) => {
       }).finally(() => {
@@ -208,6 +236,9 @@ export default Vue.extend({
     onCurrentChange(current: number) {
       this.searchForm.pageNum = current;
     },
+    handleDetail(item:any) {
+      localStorage.setItem('wallpaper.detail', JSON.stringify(item));
+    }
   },
 });
 </script>
@@ -237,7 +268,7 @@ export default Vue.extend({
 }
 
 .list-content {
-  margin-top: 40px; /* 留出Header空间 */
+  margin-top: 50px; /* 留出Header空间 */
   flex: 1;
   overflow: hidden;
 }
@@ -302,5 +333,10 @@ export default Vue.extend({
 .pagination-wrap {
   margin-top: 10px;
   text-align: left;
+}
+
+/* 关键：添加悬停样式 */
+.hover-pointer:hover {
+  cursor: pointer !important; /* 确保覆盖其他样式 */
 }
 </style>
