@@ -50,14 +50,10 @@
         </div>
         <div>
           <label>模型:</label>
-          <t-select v-model="model" class="select">
-            <t-option
-              v-for="item in models"
-              :key="item"
-              :value="item"
-            >
-              {{ item }}
-            </t-option>
+          <t-select v-model="formData.model_index" class="select">
+            <t-space v-for="(item,index) in models">
+              <t-option :key="index" :value="index">{{ item }}</t-option>
+            </t-space>
           </t-select>
         </div>
       </div>
@@ -92,14 +88,10 @@
     <div class="section">
       <h3>图片预览</h3>
       <div class="preview">
-        <template v-if="generatedImage">
-          <t-image :src="generatedImage" alt="生成内容预览" class="preview-img"/>
-        </template>
-        <template v-else>
-          <p>生成内容后将在此显示</p>
-        </template>
+        <t-loading v-show="dataLoading"/>
+        <t-empty v-show="!dataLoading && generatedImage != null && generatedImage !==''"/>
       </div>
-      <t-button @click="viewInBrowser" class="btn">
+      <t-button @click="viewInBrowser">
         在浏览器中查看原文件
       </t-button>
     </div>
@@ -193,12 +185,17 @@ export default {
   },
   mounted() {
     this.formData.prompt = localStorage.getItem('wallpaper.generate.prompt') ?? '';
-    this.formData.cfg = localStorage.getItem('wallpaper.generate.cfg') ?? 7.0;
-    this.formData.width = localStorage.getItem('wallpaper.generate.width') ?? 512;
-    this.formData.height = localStorage.getItem('wallpaper.generate.height') ?? 512;
-    this.formData.seed = localStorage.getItem('wallpaper.generate.seed') ?? -1;
+    const cfg = localStorage.getItem('wallpaper.generate.cfg');
+    this.formData.cfg = cfg ? Number.parseFloat(cfg) : 7.0;
+    const width = localStorage.getItem('wallpaper.generate.width');
+    this.formData.width = width ? Number.parseInt(width) : 512;
+    const height = localStorage.getItem('wallpaper.generate.height') ?? 512;
+    this.formData.height = height ? Number.parseInt(height) : 512;
+    const seed = localStorage.getItem('wallpaper.generate.seed');
+    this.formData.seed = seed ? Number.parseInt(seed) : -1;
     this.formData.negative_prompt = localStorage.getItem('wallpaper.generate.negative_prompt') ?? '';
-    this.formData.steps = localStorage.getItem('wallpaper.generate.steps') ?? 20;
+    const steps = localStorage.getItem('wallpaper.generate.steps')
+    this.formData.steps = steps ? Number.parseInt(steps) : 20;
   },
   methods: {
     // 从随机词库导入提示词
@@ -226,11 +223,11 @@ export default {
     acgRequest() {
       this.$request.post('/wallpaper/ai/generate_image', acgJson(this.formData)).then((res) => {
         this.logs = res.data;
-        if (res.data.success) {
-          this.$message?.success(res.data.message);
-          this.generatedImage = res.data.data.image_url;
+        if (res.data.code === 200) {
+          this.$message?.success(res.data.msg);
+          this.generatedImage = res.data.data.url;
         } else {
-          this.$message?.error(res.data.message);
+          this.$message?.error(res.data.msg);
         }
       }).catch((err) => {
       }).finally(() => {
@@ -368,3 +365,4 @@ label {
   margin: 4px 0;
 }
 </style>
+</>

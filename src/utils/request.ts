@@ -38,21 +38,21 @@ instance.interceptors.request.use(config => {
 //拦截响应
 instance.interceptors.response.use(
   (response) => {
+    // 1. 先判断 response.data 是否存在
+    if (!response.data) {
+      return Promise.reject(new Error('响应数据格式错误'));
+    }
+    // 优先处理 401 会话过期
     if (response.data.code === 401) {
       message.error("无效的会话，或者会话已过期，请重新登录。").then(r => {
         setTimeout(()=>{
           Router.push("/login").then(r => {
-
           })
         },2000)
       })
-    }else {
-      const { data } = response;
-      if (data.code === CODE.REQUEST_SUCCESS) {
-        return data;
-      }
       return response;
     }
+    return response;
   },
   (err) => {
     const { config } = err;
