@@ -1,8 +1,9 @@
 <template>
   <div class="container">
     <!-- 提示词区域 -->
-    <t-space>
+    <t-space align="center" direction="horizontal">
       <t-button theme="primary" tag="a" href="/" variant="text">返回首页</t-button>
+      <t-button theme="warning" tag="a" variant="text">今日剩余次数:{{ remainTimes }}</t-button>
     </t-space>
     <div class="section">
       <h3>提示词</h3>
@@ -148,7 +149,8 @@ export default {
         seed: -1
       },
       dataLoading: false,
-      logs: ""
+      logs: "",
+      remainTimes: 20
     }
   },
   watch: {
@@ -241,6 +243,13 @@ export default {
       } else {
         this.$message?.warning('请先生成图像');
       }
+    },
+    getRemainTimes() {
+      this.$request.get('/wallpaper/ai/remain', {}).then((res) => {
+        if (res.data.code === 200) {
+          this.remainTimes = res.data.data;
+        }
+      })
     }
   }
 }

@@ -268,21 +268,6 @@ export default Vue.extend({
       const url = "/download?id=" + item.id + (this.searchForm.cateName === 'dynamic' ? "&cateName=dynamic" : "");
       // 作为统计使用
       this.$router.push(url);
-    },
-    onOpen(item: any, index: number) {
-      this.imagePreview.visible = true;
-      this.imagePreview.index = index;
-      this.imagePreview.url = item.url;
-      console.log(this.imagePreview);
-    },
-    onClose(index: number) {
-      this.visible = this.visible.map((item, i) => {
-        if (i === index) return false;
-        return item;
-      });
-    },
-    renderMask() {
-
     }
   },
 });
