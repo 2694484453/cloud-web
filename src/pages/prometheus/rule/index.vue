@@ -70,11 +70,11 @@
     </t-card>
     <t-pagination
       style="margin-top: 15px"
-      v-model="searchForm.pageNum"
+      v-model="searchForm.current"
       :total="pagination.total"
-      :page-size.sync="searchForm.pageSize"
+      :page-size.sync="searchForm.size"
       @current-change="onCurrentChange"
-      @page-size-change="onPageSizeChange"
+      @page-size-change="onsizeChange"
       @change="onChange"
     />
     <t-dialog
@@ -247,7 +247,7 @@ export default Vue.extend({
       rowClassName: (rowKey: string) => `${rowKey}-class`,
       // 与pagination对齐
       pagination: {
-        defaultPageSize: 10,
+        defaultsize: 10,
         total: 0,
         defaultCurrent: 1,
       },
@@ -279,8 +279,8 @@ export default Vue.extend({
         groupName: "",
         isAsc: "desc",
         orderByColumn: "createTime",
-        pageNum: 1,
-        pageSize: 10
+        current: 1,
+        size: 10
       },
       // 抽屉
       drawer: {
@@ -323,12 +323,12 @@ export default Vue.extend({
         this.page();
       }
     },
-    "searchForm.pageSize"(newVal, oldVal) {
+    "searchForm.size"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.page();
       }
     },
-    "searchForm.pageNum"(newVal, oldVal) {
+    "searchForm.current"(newVal, oldVal) {
       if (newVal != oldVal) {
         this.page();
       }
@@ -349,15 +349,15 @@ export default Vue.extend({
     handleSizeDrag({size}) {
       console.log('size drag size: ', size);
     },
-    onPageSizeChange(size, pageInfo) {
-      console.log('Page Size:', this.pageSize, size, pageInfo);
+    onsizeChange(size, pageInfo) {
+      console.log('Page Size:', this.size, size, pageInfo);
       // 刷新
-      this.searchForm.pageSize = size
+      this.searchForm.size = size
     },
     onCurrentChange(current, pageInfo) {
       console.log('Current Page', this.current, current, pageInfo);
       // 刷新
-      this.searchForm.pageNum = current
+      this.searchForm.current = current
     },
     onChange(pageInfo) {
       console.log('Page Info: ', pageInfo);

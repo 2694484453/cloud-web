@@ -24,7 +24,7 @@ export default [
       {
         path: 'exporter',
         name: 'exporter',
-        component: () => import('@/pages/prometheus/exporter/index.vue'),
+        component: () => import('@/pages/prometheus/target/index.vue'),
         meta: {title: '端点接入'},
       },
       {
