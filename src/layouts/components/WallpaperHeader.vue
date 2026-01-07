@@ -125,10 +125,6 @@ export default Vue.extend({
     total: {
       type: Number,
       default: 0,
-    },
-    cateName: {
-      type: String,
-      default: '',
     }
   },
   data() {

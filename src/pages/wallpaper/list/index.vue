@@ -19,7 +19,7 @@
         </t-space>
       </t-space>
       <div class="image-grid">
-        <t-space v-for="item in data" :key="item.id" direction="vertical">
+        <t-space v-for="(item,index) in data" direction="vertical">
           <t-skeleton :loading="dataLoading" :animation="'gradient'" :theme="'tab'">
             <t-card
               :bordered="true"
@@ -33,11 +33,21 @@
                 </div>
               </template>
               <template #cover>
-                <t-image :lazy="true"
-                         :style="{ width: '100%', height: '160px', cursor: 'pointer' }"
-                         :alt="item.name"
-                         :src="item.url +
-                         (searchForm.cateName !=='dynamic' ? '?x-oss-process=image/resize,w_300,h_160,m_fill':'?x-oss-process=video/snapshot,t_0,f_jpg')"></t-image>
+                <t-image-viewer
+                  :key="item.url"
+                  :images="imageList"
+                  :index="index"
+                  :default-index="index">
+                  <template #trigger="{ open }">
+                    <div @click="open(index)">
+                      <t-image
+                        class="hover-pointer"
+                        :style="{ width: '284px', height: '160px' }"
+                        :src="item.url +
+                             (searchForm.cateName !=='dynamic' ? '?x-oss-process=image/resize,w_300,h_160,m_fill':'?x-oss-process=video/snapshot,t_0,f_jpg')"/>
+                    </div>
+                  </template>
+                </t-image-viewer>
               </template>
               <!-- 优化：将统计信息放在左侧 -->
               <template #footer>
@@ -52,7 +62,11 @@
                   </t-tooltip>
                   <t-tooltip content="查看" style="margin-left: 16px;">
                     <info-circle-icon/>
-                    <a @click="handleDetail(item)">查看</a>
+                    <a @click="handleDetail(item)">详情</a>
+                  </t-tooltip>
+                  <t-tooltip content="下载" style="margin-left: 16px;">
+                    <download-icon/>
+                    <a @click="handleDownload(item)">下载</a>
                   </t-tooltip>
                 </div>
               </template>
@@ -64,8 +78,6 @@
         <t-empty v-show="dataLoading==false && data.length ==0"/>
       </t-space>
     </div>
-    <!-- 图片预览器 & 分页 -->
-    <t-image-viewer v-model:visible="overView.visible" :images="overView.imageList" :index="overView.index"/>
     <div class="pagination-wrap">
       <t-pagination
         showFirstAndLastPageBtn
@@ -87,6 +99,7 @@ import Vue from 'vue';
 import WallpaperHeader from "@/layouts/components/WallpaperHeader.vue";
 import Footer from "@/layouts/components/Footer.vue";
 import {BrowseIcon, DownloadIcon, InfoCircleIcon} from 'tdesign-icons-vue';
+import {download} from "@/utils/download";
 
 export default Vue.extend({
   name: 'ListBase',
@@ -97,7 +110,7 @@ export default Vue.extend({
     DownloadIcon,
     InfoCircleIcon
   },
-  data() {
+  data: function () {
     return {
       dataLoading: false,
       data: [],
@@ -111,11 +124,12 @@ export default Vue.extend({
       pagination: {
         total: 0,
       },
-      overView: {
+      imagePreview: {
         visible: false,
         index: 0,
-        imageList: []
+        url: ""
       },
+      imageList: [],
       cateList: [],
       tagList: [],
       total: 0
@@ -135,11 +149,11 @@ export default Vue.extend({
     this.getTags();
     this.getOverView();
     // 确保在 DOM 更新后执行
-    const savedcurrent = localStorage.getItem("wallpaper.searchForm.current");
-    const savedsize = localStorage.getItem("wallpaper.searchForm.size");
+    const savedCurrent = localStorage.getItem("wallpaper.searchForm.current");
+    const savedSize = localStorage.getItem("wallpaper.searchForm.size");
     // 假设你有一个方法来处理分页点击
-    this.searchForm.current = savedcurrent ? Number.parseInt(savedcurrent) : 1;
-    this.searchForm.size = savedsize ? Number.parseInt(savedsize) : 24;
+    this.searchForm.current = savedCurrent ? Number.parseInt(savedCurrent) : 1;
+    this.searchForm.size = savedSize ? Number.parseInt(savedSize) : 24;
     this.searchForm.cateName = localStorage.getItem('wallpaper.searchForm.cateName') ?? this.searchForm.cateName;
     this.getList();
   },
@@ -202,6 +216,9 @@ export default Vue.extend({
       }).then((res) => {
         if (res.data.code === 200) {
           this.data = res.data.rows;
+          res.data.rows.forEach(row => {
+            this.imageList.push(row.url)
+          })
           this.pagination.total = res.data.total;
         }
       }).catch((e: Error) => {
@@ -242,7 +259,30 @@ export default Vue.extend({
     handleDetail(item: any) {
       localStorage.setItem('wallpaper.detail', JSON.stringify(item));
       const url = "/info?id=" + item.id + (this.searchForm.cateName === 'dynamic' ? "&cateName=dynamic" : "");
+      // 作为统计使用
       this.$router.push(url);
+    },
+    handleDownload(item: any) {
+      // 执行下载
+      download(item.url, item.name);
+      const url = "/download?id=" + item.id + (this.searchForm.cateName === 'dynamic' ? "&cateName=dynamic" : "");
+      // 作为统计使用
+      this.$router.push(url);
+    },
+    onOpen(item: any, index: number) {
+      this.imagePreview.visible = true;
+      this.imagePreview.index = index;
+      this.imagePreview.url = item.url;
+      console.log(this.imagePreview);
+    },
+    onClose(index: number) {
+      this.visible = this.visible.map((item, i) => {
+        if (i === index) return false;
+        return item;
+      });
+    },
+    renderMask() {
+
     }
   },
 });
@@ -343,5 +383,80 @@ export default Vue.extend({
 /* 关键：添加悬停样式 */
 .hover-pointer:hover {
   cursor: pointer !important; /* 确保覆盖其他样式 */
+}
+
+.tdesign-demo-image-viewer__ui-image {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--td-radius-small);
+  overflow: hidden;
+}
+
+.tdesign-demo-image-viewer__ui-image--hover {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: var(--td-text-color-anti);
+  line-height: 22px;
+  transition: 0.2s;
+}
+
+.tdesign-demo-image-viewer__ui-image:hover .tdesign-demo-image-viewer__ui-image--hover {
+  opacity: 1;
+  cursor: pointer;
+}
+
+.tdesign-demo-image-viewer__ui-image--img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  cursor: pointer;
+  position: absolute;
+}
+
+.tdesign-demo-image-viewer__ui-image--footer {
+  padding: 0 16px;
+  height: 56px;
+  width: 100%;
+  line-height: 56px;
+  font-size: 16px;
+  position: absolute;
+  bottom: 0;
+  color: var(--td-text-color-anti);
+  background-image: linear-gradient(0deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0) 100%);
+  display: flex;
+  box-sizing: border-box;
+}
+
+.tdesign-demo-image-viewer__ui-image--title {
+  flex: 1;
+}
+
+.tdesign-demo-popup__reference {
+  margin-left: 16px;
+}
+
+.tdesign-demo-image-viewer__ui-image--icons .tdesign-demo-icon {
+  cursor: pointer;
+}
+
+.tdesign-demo-image-viewer__base {
+  width: 160px;
+  height: 160px;
+  margin: 10px;
+  border: 4px solid var(--td-bg-color-secondarycontainer);
+  border-radius: var(--td-radius-medium);
 }
 </style>

@@ -35,12 +35,6 @@
               <t-descriptions-item label="创建时间">{{ wallpaperData.createTime }}</t-descriptions-item>
               <t-descriptions-item label="备注">{{ wallpaperData.description ? wallpaperData.description : '暂无' }}
               </t-descriptions-item>
-              <t-descriptions-item label="操作">
-                <!-- 操作按钮 -->
-                <t-button theme="primary" size="medium" @click="handleDownload">
-                  下载壁纸 ({{ wallpaperData.resolution }})
-                </t-button>
-              </t-descriptions-item>
             </t-descriptions>
           </template>
         </t-card>
@@ -95,24 +89,6 @@ export default Vue.extend({
     this.deviceType = this.detectDeviceByResolution(this.wallpaperData.width, this.wallpaperData.height);
   },
   methods: {
-    // 下载处理逻辑
-    handleDownload() {
-      // 实际开发中这里会触发文件下载逻辑
-      this.$router.push('/download?id=' + this.wallpaperData.id);
-      // 1. 创建一个 a 标签
-      const link = document.createElement('a');
-      // 2. 设置下载地址
-      link.href = this.wallpaperData.url;
-      // 3. 设置下载后的文件名（可选）
-      // 如果不设置，浏览器会使用 URL 中的文件名
-      link.download = this.wallpaperData.name || '';
-      // 4. 将标签添加到页面（为了触发点击事件
-      document.body.appendChild(link);
-      // 5. 模拟点击
-      link.click();
-      // 6. 下载完成后，移除标签（保持页面干净）
-      document.body.removeChild(link);
-    },
     // 格式化浏览量/热度显示 (例如：1.2w+)
     formatViews(number) {
       if (number > 1000 && number < 1000) {
