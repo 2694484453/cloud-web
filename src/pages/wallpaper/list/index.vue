@@ -9,18 +9,14 @@
         <t-space direction="horizontal">
             <span v-for="(item, index) in tagList" :key="index">
             <t-tag
-              @click="searchForm.name = item.dictValue"
-              :color="colors[index]"
+              @click="searchForm.name = item.keywordName"
+              :color="item.keywordColor"
               :style="{ color: 'white' }"
               class="hover-pointer"
-            >{{ item.dictValue }}
+            >{{ item.keywordName }}
             </t-tag>
           </span>
         </t-space>
-        <t-tag style="margin-left: 20px" size="medium" theme="default" class="hover-pointer"
-               @click="searchForm.name = null">
-          清空过滤
-        </t-tag>
       </t-space>
       <div class="image-grid">
         <t-space v-for="item in data" :key="item.id" direction="vertical">
@@ -121,15 +117,7 @@ export default Vue.extend({
       },
       cateList: [],
       tagList: [],
-      total: 0,
-      colors: [
-        '#d71818', '#FFA500', '#d4d477', '#cbeacb', '#00FFFF',
-        '#0000FF', '#4B0082', '#800080', '#FF00FF', '#008000',
-        '#FF0000', '#500FF2', '#92318d', '#9bb1b1', '#FFA500',
-        '#1d1c1c', '#1d1c1c', "#00FFFF", '#429242', '#00FF00',
-        '#FF0000', '#FF00FF', "#6ec3c3", '#17ea17', '#00FF00',
-        '#FF0000', '#FF00FF', "#3e7979", '#54b754', '#00FF00'
-      ]
+      total: 0
     };
   },
   created() {
@@ -143,6 +131,7 @@ export default Vue.extend({
   },
   mounted() {
     this.getCate();
+    this.getTags();
     this.getOverView();
     // 确保在 DOM 更新后执行
     const savedPageNum = localStorage.getItem("wallpaper.searchForm.pageNum");
@@ -183,6 +172,7 @@ export default Vue.extend({
         localStorage.setItem('wallpaper.searchForm.cateName', newVal);
         // 变更分类，num设置为1
         this.searchForm.pageNum = 1;
+        this.searchForm.name = null;
         // 刷新数据
         this.getList();
       }
@@ -222,8 +212,20 @@ export default Vue.extend({
     getCate() {
       this.$request.get('/wallpaper/category', {}).then((res) => {
         if (res.data.code === 200) {
-          this.cateList = res.data.data.cate;
-          this.tagList = res.data.data.tags;
+          this.cateList = res.data.data;
+        }
+      }).catch((e: Error) => {
+      }).finally(() => {
+      })
+    },
+    getTags() {
+      this.$request.get('/wallpaper/tags', {
+        params: {
+          size: 18
+        }
+      }).then((res) => {
+        if (res.data.code === 200) {
+          this.tagList = res.data.data;
         }
       }).catch((e: Error) => {
       }).finally(() => {
