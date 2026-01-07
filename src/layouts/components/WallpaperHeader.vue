@@ -12,7 +12,7 @@
         </div>
       </template>
       <t-space v-for="item in cateList">
-        <t-menu-item :value="item.dictValue">{{ item.dictLabel }}</t-menu-item>
+        <t-menu-item :value="item.dictValue">{{item.dictLabel}}</t-menu-item>
       </t-space>
       <menu-content v-show="layout !== 'side'" class="header-menu" :navData="menu"/>
       <template #operations>
