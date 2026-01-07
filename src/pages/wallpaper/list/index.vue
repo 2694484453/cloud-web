@@ -69,12 +69,12 @@
     <div class="pagination-wrap">
       <t-pagination
         showFirstAndLastPageBtn
-        v-model="searchForm.pageNum"
+        v-model="searchForm.current"
         :total="pagination.total"
-        :page-size="searchForm.pageSize"
+        :page-size="searchForm.size"
         :page-size-options="['12', '24', '48']"
         @current-change="onCurrentChange"
-        @page-size-change="onPageSizeChange"
+        @page-size-change="onsizeChange"
       />
     </div>
     <!-- 页脚 -->
@@ -104,8 +104,9 @@ export default Vue.extend({
       searchForm: {
         name: '',
         cateName: "二次元",
-        pageNum: 1,
-        pageSize: 24
+        current: 1,
+        size: 24,
+        orders: []
       },
       pagination: {
         total: 0,
@@ -121,7 +122,7 @@ export default Vue.extend({
     };
   },
   created() {
-    for (let i = 0; i < this.searchForm.pageSize; i++) {
+    for (let i = 0; i < this.searchForm.size; i++) {
       this.data.push({
         id: i,
         name: i,
@@ -134,27 +135,27 @@ export default Vue.extend({
     this.getTags();
     this.getOverView();
     // 确保在 DOM 更新后执行
-    const savedPageNum = localStorage.getItem("wallpaper.searchForm.pageNum");
-    const savedPageSize = localStorage.getItem("wallpaper.searchForm.pageSize");
+    const savedcurrent = localStorage.getItem("wallpaper.searchForm.current");
+    const savedsize = localStorage.getItem("wallpaper.searchForm.size");
     // 假设你有一个方法来处理分页点击
-    this.searchForm.pageNum = savedPageNum ? Number.parseInt(savedPageNum) : 1;
-    this.searchForm.pageSize = savedPageSize ? Number.parseInt(savedPageSize) : 24;
+    this.searchForm.current = savedcurrent ? Number.parseInt(savedcurrent) : 1;
+    this.searchForm.size = savedsize ? Number.parseInt(savedsize) : 24;
     this.searchForm.cateName = localStorage.getItem('wallpaper.searchForm.cateName') ?? this.searchForm.cateName;
     this.getList();
   },
   watch: {
-    "searchForm.pageNum"(newVal, oldVal) {
+    "searchForm.current"(newVal, oldVal) {
       if (oldVal !== newVal) {
         // 存储
-        localStorage.setItem('wallpaper.searchForm.pageNum', newVal);
+        localStorage.setItem('wallpaper.searchForm.current', newVal);
         // 刷新数据
         this.getList();
       }
     },
-    "searchForm.pageSize"(newVal, oldVal) {
+    "searchForm.size"(newVal, oldVal) {
       if (oldVal !== newVal) {
         // 存储
-        localStorage.setItem('wallpaper.searchForm.pageSize', newVal);
+        localStorage.setItem('wallpaper.searchForm.size', newVal);
         // 刷新数据
         this.getList();
       }
@@ -171,7 +172,7 @@ export default Vue.extend({
         // 存储
         localStorage.setItem('wallpaper.searchForm.cateName', newVal);
         // 变更分类，num设置为1
-        this.searchForm.pageNum = 1;
+        this.searchForm.current = 1;
         this.searchForm.name = null;
         // 刷新数据
         this.getList();
@@ -231,12 +232,12 @@ export default Vue.extend({
       }).finally(() => {
       })
     },
-    onPageSizeChange(size: number) {
-      this.searchForm.pageSize = size;
-      this.searchForm.pageNum = 1;
+    onsizeChange(size: number) {
+      this.searchForm.size = size;
+      this.searchForm.current = 1;
     },
     onCurrentChange(current: number) {
-      this.searchForm.pageNum = current;
+      this.searchForm.current = current;
     },
     handleDetail(item:any) {
       localStorage.setItem('wallpaper.detail', JSON.stringify(item));
