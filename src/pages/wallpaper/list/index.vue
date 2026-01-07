@@ -52,7 +52,7 @@
                   </t-tooltip>
                   <t-tooltip content="查看" style="margin-left: 16px;">
                     <info-circle-icon/>
-                    <a @click="handleDetail(item)" :href="'/info?id='+item.id">查看</a>
+                    <a @click="handleDetail(item)">查看</a>
                   </t-tooltip>
                 </div>
               </template>
@@ -239,8 +239,10 @@ export default Vue.extend({
     onCurrentChange(current: number) {
       this.searchForm.current = current;
     },
-    handleDetail(item:any) {
+    handleDetail(item: any) {
       localStorage.setItem('wallpaper.detail', JSON.stringify(item));
+      const url = "/info?id=" + item.id + (this.searchForm.cateName === 'dynamic' ? "&cateName=dynamic" : "");
+      this.$router.push(url);
     }
   },
 });
