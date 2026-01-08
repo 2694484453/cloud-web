@@ -1,10 +1,22 @@
-import {ImageIcon} from 'tdesign-icons-vue';
-import Layout from '@/layouts/index.vue';
-
 export default [
   {
-    path: '/wallpaper',
+    path: '/',
     name: 'wallpaper',
     component: () => import('@/pages/wallpaper/list/index.vue'),
   },
+  {
+    path: '/info',
+    name: 'info',
+    component: () => import('@/pages/wallpaper/info/index.vue'),
+  },
+  {
+    path: '/ai',
+    name: 'ai',
+    component: () => import('@/pages/wallpaper/ai/index.vue'),
+  },
+  {
+    path: '/sponsor',
+    name: 'sponsor',
+    component: () => import('@/pages/wallpaper/sponsor/index.vue'),
+  }
 ]

@@ -12,7 +12,7 @@
         </div>
       </template>
       <t-space v-for="item in cateList">
-        <t-menu-item :value="item.dictValue">{{item.dictLabel}}</t-menu-item>
+        <t-menu-item :value="item.dictValue">{{ item.dictLabel }}</t-menu-item>
       </t-space>
       <menu-content v-show="layout !== 'side'" class="header-menu" :navData="menu"/>
       <template #operations>
@@ -26,20 +26,21 @@
           <t-tooltip placement="bottom" content="系统通知">
             <WallpaperNotice/>
           </t-tooltip>
-          <t-tooltip placement="bottom" content="暂未开放">
-            <!--        您还没有订阅哦～-->
-            <t-button theme="default" variant="text" :disabled="true">
-              福利
-            </t-button>
-          </t-tooltip>
           <t-tooltip placement="bottom" content="AI壁纸生成">
             <t-button theme="primary" variant="text" tag="a" href="/ai">
-              <wallpaper-icon style="width: 18px;height: 18px"/>
-              AI壁纸生成
+              <image-icon/>
+              AI壁纸生成(测试版)
+            </t-button>
+          </t-tooltip>
+          <t-tooltip placement="bottom" content="SD共享计划">
+            <t-button theme="primary" variant="text" tag="a" href="/sponsor">
+              <thumb-up-icon/>
+              赞助
             </t-button>
           </t-tooltip>
           <t-tooltip placement="bottom" content="站点统计">
             <t-button theme="primary" variant="text" tag="a" href="https://umami.gpg123.vip/share/vV0lArsoXUhPpAZK/wallpaper.gpg123.vip">
+              <chart-bar-icon/>
               站点统计
             </t-button>
           </t-tooltip>
@@ -65,6 +66,9 @@ import {
   HelpCircleIcon,
   SettingIcon,
   ChevronDownIcon,
+  ThumbUpIcon,
+  ImageIcon,
+  ChartBarIcon
 } from 'tdesign-icons-vue';
 import WallpaperIcon from '@/assets/icon/wallpaper.svg';
 import {prefix} from '@/config/global';
@@ -88,6 +92,9 @@ export default Vue.extend({
     SettingIcon,
     ChevronDownIcon,
     WallpaperIcon,
+    ThumbUpIcon,
+    ImageIcon,
+    ChartBarIcon
   },
   props: {
     theme: String,
@@ -138,6 +145,9 @@ export default Vue.extend({
     };
   },
   computed: {
+    ThumbUpIcon() {
+      return ThumbUpIcon
+    },
     showMenu() {
       return !(this.layout === 'mix' && this.showLogo === 'side');
     },

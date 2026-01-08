@@ -49,72 +49,38 @@ const devRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...pro
 const prodRouterList = [...domainRouters, ...gitRouters, ...devopsRouters, ...appRouters, ...prometheusRouters, ...tracingRouters, ...traefikRouters, ...clusterRouters, ...dockerRouters, ...caddyRouters, ...corednsRouters, ...nasRouters, ...AiRouters, ...scheduleRouters, ...toolsRouters, ...backupRouters]
 // 基础路由
 export const routerList = []
+routerList.push(  // 登陆
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/pages/login/index.vue'),
+  },
+  {
+    path: '*',
+    redirect: '/dashboard/base',
+  },)
 const env = import.meta.env.MODE || 'development';
 const envName = proxy[env].NAME
 // 存放动态路由
 switch (envName) {
   case "development":
-    routerList.push(  // 登陆
-      {
-        path: '/login',
-        name: 'login',
-        component: () => import('@/pages/login/index.vue'),
-      },
-      {
-        path: '*',
-        redirect: '/dashboard/base',
-      },)
     routerList.push(...baseRouters)
     routerList.push(...devRouterList)
     routerList.push(...noticeRouters)
     routerList.push(...userInfoRouters)
-    routerList.push(...wallpaperRouters)
     break;
   case "prod":
-    routerList.push(  // 登陆
-      {
-        path: '/login',
-        name: 'login',
-        component: () => import('@/pages/login/index.vue'),
-      },
-      {
-        path: '*',
-        redirect: '/dashboard/base',
-      },)
+    routerList.push(...baseRouters)
+    routerList.push(...prodRouterList)
+    routerList.push(...noticeRouters)
+    routerList.push(...userInfoRouters)
+    break;
+  case "wallpaper":
     routerList.push(...baseRouters)
     routerList.push(...prodRouterList)
     routerList.push(...noticeRouters)
     routerList.push(...userInfoRouters)
     routerList.push(...wallpaperRouters)
-    break;
-  case "wallpaper":
-    routerList.push(
-      {
-        path: '/login',
-        name: 'login',
-        component: () => import('@/pages/login/index.vue'),
-      },
-      {
-        path: '/',
-        name: 'wallpaper',
-        component: () => import('@/pages/wallpaper/list/index.vue'),
-      },
-      {
-        path: '/info',
-        name: 'info',
-        component: () => import('@/pages/wallpaper/info/index.vue'),
-      },
-      {
-        path: '/user',
-        name: 'user',
-        component: () => import('@/pages/user/wallpaperUser.vue'),
-      },
-      {
-        path: '/ai',
-        name: 'ai',
-        component: () => import('@/pages/wallpaper/ai/index.vue'),
-      }
-    )
 }
 
 // 存放固定的路由
