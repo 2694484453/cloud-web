@@ -1,24 +1,27 @@
 <template>
   <div class="login-wrapper">
-    <login-header />
-
+    <login-header/>
     <div class="login-container">
       <div class="title-container">
         <h1 class="title margin-no">登录到</h1>
         <h1 class="title">{{ appCnName }}</h1>
         <div class="sub-title">
-          <p class="tip">{{ type === 'register' ? '已有账号?' : '没有账号吗?' }}</p>
-          <p class="tip" @click="switchType(type === 'register' ? 'login' : 'register')">
-            {{ type === 'register' ? '登录' : '注册新账号' }}
-          </p>
+          <t-space direction="horizontal">
+            <p class="tip">{{ type === 'register' ? '已有账号?' : '没有账号吗?' }}</p>
+            <p class="tip" @click="switchType(type === 'register' ? 'login' : 'register')">
+              {{ type === 'register' ? '登录' : '注册新账号' }}
+            </p>
+            <p style="margin-left: 150px">
+              <a href="/">回到首页</a>
+            </p>
+          </t-space>
         </div>
       </div>
 
-      <login v-if="type === 'login'" />
-      <register v-else @register-success="switchType('login')" />
-      <tdesign-setting />
+      <login v-if="type === 'login'"/>
+      <register v-else @register-success="switchType('login')"/>
+      <tdesign-setting/>
     </div>
-
     <footer class="copyright">Copyright @ 2021-2022 Tencent. All Rights Reserved</footer>
   </div>
 </template>

@@ -2,6 +2,7 @@ import axios from 'axios';
 import proxy from '../config/host';
 import {message} from 'tdesign-vue';
 import Router from "@/router";
+import {getUserInfo} from "@/config/storage";
 const env = import.meta.env.MODE || 'development';
 const API_HOST = env === 'mock' ? '/' : proxy[env].API; // 如果是mock模式 就不配置host 会走本地Mock拦截
 
@@ -24,9 +25,10 @@ instance.interceptors.retry = 3;
 
 //请求发起之前拦截操作，判断发送的请求里面是否含有token
 instance.interceptors.request.use(config => {
-    if (localStorage.getItem("token")) {
+    const userInfo = getUserInfo();
+    if (userInfo) {
       //如果token存在，则请求头上面携带token给后端传输
-      config.headers['Authorization'] = 'Bearer ' + localStorage.getItem("token")
+      config.headers['Authorization'] = 'Bearer ' + userInfo.token;
       //config.headers.token = this.$cookies.VueCookies.get("token")
     }
     return config

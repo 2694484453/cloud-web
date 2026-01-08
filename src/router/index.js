@@ -77,7 +77,7 @@ switch (envName) {
     break;
   case "wallpaper":
     routerList.push(...baseRouters)
-    routerList.push(...prodRouterList)
+    routerList.push(...nasRouters)
     routerList.push(...noticeRouters)
     routerList.push(...userInfoRouters)
     routerList.push(...wallpaperRouters)

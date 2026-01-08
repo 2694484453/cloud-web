@@ -36,7 +36,7 @@
       </t-form-item>
 
       <div class="check-container remember-pwd">
-        <t-checkbox>记住账号</t-checkbox>
+        <t-checkbox @onChange="formData.remember = !formData.remember">记住账号</t-checkbox>
         <span class="tip">忘记账号？</span>
       </div>
     </template>
@@ -101,23 +101,8 @@
 import Vue from 'vue';
 import QrcodeVue from 'qrcode.vue';
 import {UserIcon, LockOnIcon, BrowseOffIcon, BrowseIcon, RefreshIcon} from 'tdesign-icons-vue';
-import {storageUser} from "@/config/storage";
+import {getUserAccount, storageAccount, storageUser} from "@/config/storage";
 
-const INITIAL_DATA = {
-  phone: '',
-  email: '',
-  account: '',
-  password: '',
-  verifyCode: '',
-  checked: false,
-};
-
-const FORM_RULES = {
-  phone: [{required: true, message: '手机号必填', type: 'error'}],
-  account: [{required: true, message: '账号必填', type: 'error'}],
-  password: [{required: true, message: '密码必填', type: 'error'}],
-  verifyCode: [{required: true, message: '验证码必填', type: 'error'}],
-};
 /** 高级详情 */
 export default Vue.extend({
   name: 'Login',
@@ -131,9 +116,22 @@ export default Vue.extend({
   },
   data() {
     return {
-      FORM_RULES,
+      FORM_RULES: {
+        phone: [{required: true, message: '手机号必填', type: 'error'}],
+        account: [{required: true, message: '账号必填', type: 'error'}],
+        password: [{required: true, message: '密码必填', type: 'error'}],
+        verifyCode: [{required: true, message: '验证码必填', type: 'error'}],
+      },
       type: 'password',
-      formData: {...INITIAL_DATA},
+      formData: {
+        phone: '',
+        email: '',
+        account: '',
+        password: '',
+        verifyCode: '',
+        checked: false,
+        remember: false,
+      },
       showPsw: false,
       countDown: 0,
       intervalTimer: null,
@@ -142,8 +140,13 @@ export default Vue.extend({
   beforeDestroy() {
     clearInterval(this.intervalTimer);
   },
+  mounted() {
+    const userAccount = getUserAccount();
+    this.formData.account = userAccount.username ?? "admin";
+    this.formData.password = userAccount.password ?? "admin123";
+  },
   methods: {
-    switchType(val) {
+    switchType(val:any) {
       this.type = val;
       this.$refs.form.reset();
     },
@@ -158,6 +161,9 @@ export default Vue.extend({
           console.log(res)
           if (res.data.code === 200) {
             storageUser(res.data.token, this.formData.account)
+            if (this.formData.remember) {
+              storageAccount(this.formData.account, this.formData.password)
+            }
             this.$message.success("登录成功")
             setTimeout(() => {
               this.$router.push("/").catch(err => {
